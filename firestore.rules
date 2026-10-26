@@ -1,0 +1,50 @@
+rules_version = '2';
+// Paste into Firebase console → Firestore Database → Rules → Publish.
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(db)/documents/users/$(request.auth.uid)).data; }
+    function isAdmin() { return signedIn() && exists(/databases/$(db)/documents/users/$(request.auth.uid)) && me().role == 'admin' && me().get('disabled', false) != true; }
+
+    // Catalog: everyone reads live products, only admins write.
+    match /categories/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /products/{id} {
+      allow read: if resource.data.status == 'active' || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Orders: anyone can place one (guest checkout); customers read their own; admins manage.
+    match /orders/{id} {
+      allow create: if request.resource.data.status == 'pending'
+                    && request.resource.data.paymentStatus == 'pending'
+                    && (request.resource.data.uid == null || (signedIn() && request.resource.data.uid == request.auth.uid))
+                    && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 50;
+      allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // Public tracking card: status only, read by exact order number.
+    match /tracking/{no} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    // Business quote requests.
+    match /quotes/{id} {
+      allow create: if request.resource.data.status == 'new' && request.resource.data.items is string && request.resource.data.items.size() < 4000;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Profiles: people edit their own (never their role); admins manage everyone.
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create: if isAdmin() || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'customer');
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == uid
+                      && request.resource.data.role == resource.data.role
+                      && request.resource.data.get('disabled', false) == resource.data.get('disabled', false));
+      allow delete: if isAdmin();
+    }
+  }
+}
