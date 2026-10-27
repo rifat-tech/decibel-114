@@ -135,10 +135,19 @@ export async function getCatalog({ fresh = false } = {}) {
     if (mem && now() - mem.t < CACHE_MS) return mem;
     try { const c = JSON.parse(sessionStorage.getItem(CKEY)); if (c && now() - c.t < CACHE_MS) return (mem = c); } catch { /* ignore */ }
   }
-  const [categories, products] = await Promise.all([C('categories').list(), C('products').list({ where: [['status', '==', 'active']] })]);
+  let categories = [], products = [];
+  try {
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('catalog timeout')), 8000));
+    [categories, products] = await Promise.race([Promise.all([C('categories').list(), C('products').list({ where: [['status', '==', 'active']] })]), timeout]);
+  } catch (e) { console.warn('Catalog read failed, showing the built-in catalog', e); }
+  // Until an admin loads the catalog into the database, show the built-in one so the store is never empty.
+  const builtIn = !products.length;
+  if (builtIn) { categories = CATEGORIES.map((c) => ({ ...c })); products = PRODUCTS.map((x) => ({ ...x })); }
+  else if (!categories.length) categories = CATEGORIES.map((c) => ({ ...c }));
   categories.sort((a, b) => (a.order || 0) - (b.order || 0));
   products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  mem = { t: now(), categories, products };
+  mem = { t: now(), categories, products, builtIn };
+  if (builtIn) return mem; // don't cache, so seeded data shows up on the next load
   try { sessionStorage.setItem(CKEY, JSON.stringify(mem)); } catch { /* ignore */ }
   return mem;
 }
@@ -146,8 +155,10 @@ export async function getProductBySlug(slug) {
   const { products } = await getCatalog();
   const hit = products.find((p) => p.slug === slug);
   if (hit) return hit;
-  const r = await C('products').list({ where: [['slug', '==', slug], ['status', '==', 'active']], limit: 1 });
-  return r[0] || null;
+  try {
+    const r = await C('products').list({ where: [['slug', '==', slug], ['status', '==', 'active']], limit: 1 });
+    return r[0] || null;
+  } catch { return null; }
 }
 export const adminListProducts = () => C('products').list({ order: ['createdAt', 'desc'] });
 export const adminGetProduct = (id) => C('products').get(id);
