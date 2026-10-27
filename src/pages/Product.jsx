@@ -110,7 +110,7 @@ export default function Product() {
             </div>
             <button className="btn btn-cart btn-lg grow" disabled={!p.price || p.stock <= 0} onClick={() => cart.add(p, qty, opt || options?.values?.[0] || null)}>{!p.price ? 'Coming soon' : p.stock <= 0 ? 'Sold out' : 'Add to cart'}</button>
           </div>
-          {p.price > 0 && p.stock > 0 && <button className="btn btn-primary btn-lg btn-block" onClick={() => { cart.add(p, qty, opt || options?.values?.[0] || null); nav('/checkout'); }}>Buy now</button>}
+          {p.price > 0 && p.stock > 0 && <button className="btn btn-yellow btn-lg btn-block" onClick={() => { cart.add(p, qty, opt || options?.values?.[0] || null); nav('/checkout'); }}>Buy now</button>}
           <div className="buy-alt">
             <button className={`btn btn-ghost ${sh.hasWish(p.id) ? 'on' : ''}`} onClick={() => sh.toggleWish(p.id)}><LuHeart /> {sh.hasWish(p.id) ? 'Saved' : 'Save'}</button>
             <label className="btn btn-ghost compare-btn"><input type="checkbox" checked={sh.inCompare(p.id)} onChange={() => sh.toggleCompare(p.id)} /> Compare</label>
