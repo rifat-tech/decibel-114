@@ -54,7 +54,7 @@ const SOLUTIONS = [
 export function Solutions() {
   useTitle('For business');
   const { products } = useCatalog();
-  const from = (cat) => { const ps = products.filter((p) => p.categoryId === cat); return ps.length ? Math.min(...ps.map((p) => p.price)) : 0; };
+  const from = (cat) => { const ps = products.filter((p) => p.categoryId === cat && p.price > 0); return ps.length ? Math.min(...ps.map((p) => p.price)) : 0; };
   const map = { ap: 'wifi', switch: 'switches', firewall: 'security', dish: 'connectivity', server: 'servers', camera: 'surveillance' };
   return (
     <div className="container">

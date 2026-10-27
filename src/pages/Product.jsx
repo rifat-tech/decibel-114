@@ -5,12 +5,13 @@ import { LuHeart, LuMinus, LuPlus, LuShieldCheck, LuTruck, LuFileText, LuRotateC
 import { FaWhatsapp } from 'react-icons/fa6';
 import DeviceArt, { artFor } from '../components/DeviceArt';
 import ProductCard from '../components/ProductCard';
+import ZoomImage from '../components/ZoomImage';
 import { Empty, Spinner, StockTag, useTitle } from '../components/ui';
 import { getProductBySlug } from '../lib/db';
 import { useStore } from '../context/StoreContext';
 import { useCart } from '../context/CartContext';
 import { useShopper } from '../context/ShopperContext';
-import { discountPct, money, waLink } from '../config';
+import { discountPct, money, priceText, quoteLink, waLink } from '../config';
 
 export default function Product() {
   const { slug } = useParams();
@@ -57,7 +58,7 @@ export default function Product() {
           <div className="gallery-main">
             <AnimatePresence mode="wait">
               <motion.div key={img} className="gallery-frame" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                {images.length ? <img src={images[img]} alt={p.name} /> : <DeviceArt type={artFor(p, cat)} />}
+                {images.length ? <ZoomImage images={images} index={img} alt={p.name} onIndex={setImg} /> : <DeviceArt type={artFor(p, cat)} />}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -80,7 +81,7 @@ export default function Product() {
 
         <aside className="buybox">
           <div className="buy-price">
-            {price ? <strong>{money(price)}</strong> : <strong>Coming soon</strong>}
+            {price ? <strong>{money(price)}</strong> : <strong>{priceText(p)}</strong>}
             {off > 0 && !opt && <div className="buy-save"><span className="save-pill big">Save {money(p.originalPrice - p.price)}</span><span>Was <s>{money(p.originalPrice)}</s></span></div>}
           </div>
           {options && (
@@ -108,7 +109,9 @@ export default function Product() {
               <span>{qty}</span>
               <button onClick={() => setQty((q) => Math.min(p.stock || 99, q + 1))} aria-label="Increase"><LuPlus /></button>
             </div>
-            <button className="btn btn-cart btn-lg grow" disabled={!p.price || p.stock <= 0} onClick={() => cart.add(p, qty, opt || options?.values?.[0] || null)}>{!p.price ? 'Coming soon' : p.stock <= 0 ? 'Sold out' : 'Add to cart'}</button>
+            {!p.price && !p.soon
+              ? <Link to={quoteLink(p)} className="btn btn-cart btn-lg grow">Request price</Link>
+              : <button className="btn btn-cart btn-lg grow" disabled={!p.price || p.stock <= 0} onClick={() => cart.add(p, qty, opt || options?.values?.[0] || null)}>{!p.price ? 'Coming soon' : p.stock <= 0 ? 'Sold out' : 'Add to cart'}</button>}
           </div>
           {p.price > 0 && p.stock > 0 && <button className="btn btn-yellow btn-lg btn-block" onClick={() => { cart.add(p, qty, opt || options?.values?.[0] || null); nav('/checkout'); }}>Buy now</button>}
           <div className="buy-alt">

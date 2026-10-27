@@ -24,3 +24,7 @@ export const discountPct = (p) => (p.originalPrice > p.price && p.price ? Math.r
 
 // Hash URLs (#/shop) are only for static previews; the live site uses normal URLs.
 export const HASH = env.VITE_HASH_ROUTER === '1';
+
+/** No price + not flagged "soon" means the price is given on request (corporate/project items). */
+export const priceText = (p) => (p.price ? money(p.price) : p.soon ? 'Coming soon' : 'Price on request');
+export const quoteLink = (p) => `/quote?items=${encodeURIComponent(`${p.name} x 1`)}`;

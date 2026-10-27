@@ -5,7 +5,7 @@ import { Empty, useTitle } from '../components/ui';
 import { useStore } from '../context/StoreContext';
 import { useShopper } from '../context/ShopperContext';
 import { useCart } from '../context/CartContext';
-import { money } from '../config';
+import { money, priceText } from '../config';
 
 export default function Compare() {
   useTitle('Compare');
@@ -26,7 +26,7 @@ export default function Compare() {
               <button className="icon-btn" onClick={() => sh.toggleCompare(p.id)} aria-label={`Remove ${p.name}`}><LuX /></button>
               <Link to={`/product/${p.slug}`} className="cmp-img"><ProductVisual product={p} category={catById[p.categoryId]} /></Link>
               <Link to={`/product/${p.slug}`} className="cmp-name">{p.name}</Link>
-              <strong className="cmp-price">{p.price ? money(p.price) : 'Coming soon'}</strong>
+              <strong className="cmp-price">{priceText(p)}</strong>
               <button className="btn btn-cart btn-sm btn-block" disabled={!p.price || p.stock <= 0} onClick={() => cart.add(p)}>Add to cart</button>
             </th>))}</tr></thead>
           <tbody>

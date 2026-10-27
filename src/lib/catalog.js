@@ -5,19 +5,21 @@
 import { DESCRIPTIONS } from './descriptions.js';
 
 export const CATEGORIES = [
-  { id: 'laptop', name: 'Laptop', icon: 'laptop', order: 1, subs: ['MacBook', 'Ultrabook', 'Business laptop', 'Gaming laptop'] },
-  { id: 'phone', name: 'Mobile phone', icon: 'phone', order: 2, subs: ['iPhone', 'Samsung', 'Xiaomi', 'Other phones'] },
-  { id: 'tablet', name: 'Tablet', icon: 'tablet', order: 3, subs: ['iPad', 'Android tablet', 'Stylus'] },
-  { id: 'desktop', name: 'Desktop & Mac', icon: 'imac', order: 4, subs: ['iMac', 'Mac mini', 'Mac Studio'] },
-  { id: 'wearable', name: 'Smartwatch', icon: 'watch', order: 5, subs: ['Apple Watch', 'Galaxy Watch'] },
-  { id: 'sound', name: 'Sound', icon: 'headphone', order: 6, subs: ['AirPods', 'Headphone', 'Speaker'] },
-  { id: 'monitor', name: 'Monitor', icon: 'monitor', order: 7, subs: ['Gaming monitor', 'OLED monitor'] },
-  { id: 'gaming', name: 'Gaming', icon: 'console', order: 8, subs: ['Console', 'Controller'] },
-  { id: 'network', name: 'Network', icon: 'router', order: 9, subs: ['Starlink', 'Mesh Wi-Fi', 'Access point', 'Router', 'Switch'] },
-  { id: 'security', name: 'Security', icon: 'camera', order: 10, subs: ['IP camera', 'Camera package'] },
-  { id: 'camera', name: 'Camera', icon: 'dslr', order: 11, subs: ['Mirrorless', 'Gimbal'] },
-  { id: 'printer', name: 'Printer', icon: 'printer', order: 12, subs: ['Laser printer', 'Ink tank printer'] },
-  { id: 'accessories', name: 'Accessories', icon: 'charger', order: 13, subs: ['Apple accessories', 'Charger', 'Cable', 'Power bank', 'Keyboard & mouse', 'Memory card'] },
+  { id: 'laptop', name: 'Laptop', short: 'Laptop', order: 1, subs: ['MacBook', 'Premium laptop', 'Business laptop', 'Gaming laptop', 'Everyday laptop', 'Ultrabook'] },
+  { id: 'desktop', name: 'Desktop & Mac', short: 'Desktop', order: 2, subs: ['iMac', 'Mac mini', 'Mac Studio', 'Brand PC', 'All-in-one PC', 'Mini PC', 'Gaming PC', 'Budget PC'] },
+  { id: 'monitor', name: 'Monitor & TV', short: 'Monitor', order: 3, subs: ['Gaming monitor', '4K monitor', 'Professional monitor', 'Curved monitor', 'Business monitor', 'Everyday monitor', 'Portable monitor', 'TV'] },
+  { id: 'phone', name: 'Mobile phone', short: 'Phone', order: 4, subs: ['iPhone', 'Samsung', 'Xiaomi', 'Other phones'] },
+  { id: 'tablet', name: 'Tablet', short: 'Tablet', order: 5, subs: ['iPad', 'Android tablet', 'Stylus'] },
+  { id: 'component', name: 'PC components', short: 'Components', order: 6, subs: ['Processor', 'Motherboard', 'Graphics Card', 'RAM', 'SSD', 'HDD', 'Power Supply', 'Casing', 'CPU Cooler', 'Portable SSD', 'Portable HDD', 'UPS', 'UPS battery'] },
+  { id: 'network', name: 'Networking', short: 'Networking', order: 7, subs: ['Starlink', 'Router', 'Access point', 'Access point & extender', 'Mesh Wi-Fi', 'Switch', 'Firewall', 'Gateway router', 'Ruijie Reyee', 'Huawei eKit', 'Grandstream', 'Network cable'] },
+  { id: 'security', name: 'Security & CCTV', short: 'Security', order: 8, subs: ['CCTV camera', 'IP camera', 'Camera package', 'DVR, NVR & XVR', 'Access control'] },
+  { id: 'office', name: 'Office equipment', short: 'Office', order: 9, subs: ['Interactive flat panel', 'Projectors', 'Conference system', 'Photocopier', 'Presenter', 'Software', 'Office supplies'] },
+  { id: 'printer', name: 'Printer & scanner', short: 'Printer', order: 10, subs: ['Laser printer', 'Ink tank printer', 'Inkjet printer', 'Label printer', 'POS printer', 'ID card printer', 'Large format printer', 'Scanner', 'Toner & cartridge'] },
+  { id: 'gaming', name: 'Gaming', short: 'Gaming', order: 11, subs: ['Console', 'Controller', 'Gamepad', 'Gaming Chair', 'Gaming Keyboard', 'Gaming Mouse'] },
+  { id: 'sound', name: 'Audio', short: 'Audio', order: 12, subs: ['AirPods', 'Headphone', 'Earbuds', 'Earphone', 'Speaker', 'Bluetooth speaker', 'Speaker & home theatre', 'Microphone'] },
+  { id: 'gadget', name: 'Smartwatch & gadgets', short: 'Gadgets', order: 13, subs: ['Apple Watch', 'Galaxy Watch', 'Smartwatch', 'Mirrorless', 'Gimbal', 'Action camera'] },
+  { id: 'accessories', name: 'Accessories', short: 'Accessories', order: 14, subs: ['Apple accessories', 'Mobile accessories', 'Charger', 'Power bank', 'Converter & cable', 'Keyboard', 'Mouse', 'Keyboard & mouse combo', 'Laptop accessories', 'Pendrive', 'Memory card', 'Webcam'] },
+  { id: 'server', name: 'Server & storage', short: 'Server', order: 15, subs: ['Server', 'Storage', 'Workstation'] },
 ];
 
 const T = Date.parse('2026-10-26T10:00:00+06:00');
@@ -53,7 +55,7 @@ function P(categoryId, subcategory, brand, name, price, originalPrice, art, spec
   };
 }
 
-export const PRODUCTS = [
+const RAW = [
   /* ── iPhone ── */
   P('phone', 'iPhone', 'Apple', 'iPhone 18 Pro Max', 273000, 299999, 'phone',
     'Display: 6.9" LTPO Super Retina XDR OLED, 120Hz, Dolby Vision; Chip: A20 Pro (2nm), 6-core CPU, 7-core GPU; Camera: Triple 48MP rear, 18MP front; Features: Face ID, USB-C, IP68, MagSafe',
@@ -351,3 +353,11 @@ export const PRODUCTS = [
 ];
 
 export const BRANDS_FEATURED = ['Apple', 'Samsung', 'Sony', 'ASUS', 'Lenovo', 'Xiaomi', 'Ubiquiti', 'Starlink', 'Hikvision', 'JBL', 'Marshall', 'Nintendo'];
+
+// Curated items sit in the same taxonomy as the price list.
+const MOVE = { wearable: 'gadget', camera: 'gadget' };
+const PRICE_FIX = { 'Starlink Standard Kit': [49500, 0], 'Starlink Mini Kit': [26500, 0] };
+export const PRODUCTS = RAW.map((p) => {
+  const fix = PRICE_FIX[p.name];
+  return { ...p, categoryId: MOVE[p.categoryId] || p.categoryId, ...(fix ? { price: fix[0], originalPrice: fix[1] } : {}) };
+});

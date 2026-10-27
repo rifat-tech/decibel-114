@@ -22,7 +22,7 @@ export const Field = ({ label, hint, children, className = '' }) => (
   </label>
 );
 export const StockTag = ({ p }) => {
-  if (!p.price) return <span className="stock soon">Coming soon</span>;
+  if (!p.price) return <span className="stock soon">{p.soon ? 'Coming soon' : 'Call or request a quote'}</span>;
   if (p.stock <= 0) return <span className="stock out">Out of stock</span>;
   if (p.stock <= 3) return <span className="stock low">Only {p.stock} left</span>;
   return <span className="stock in">In stock, ships in 24 hours</span>;

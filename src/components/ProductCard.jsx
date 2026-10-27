@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { LuHeart } from 'react-icons/lu';
 import { ProductVisual } from './DeviceArt';
 import { StockTag } from './ui';
-import { discountPct, money } from '../config';
+import { discountPct, money, priceText, quoteLink } from '../config';
 import { useCart } from '../context/CartContext';
 import { useShopper } from '../context/ShopperContext';
 
@@ -21,15 +21,15 @@ export default function ProductCard({ product: p, category, compact = false }) {
         <Link to={`/product/${p.slug}`} className="pcard-name">{p.name}</Link>
         <div className="pcard-meta">{p.brand}{p.subcategory ? ` / ${p.subcategory}` : ''}</div>
         <div className="pcard-price">
-          {p.price ? <strong>{money(p.price)}</strong> : <strong className="soon">Coming soon</strong>}
+          {p.price ? <strong>{money(p.price)}</strong> : <strong className="soon">{priceText(p)}</strong>}
           {save > 0 && <div className="pcard-save"><span className="save-pill">Save {money(save)}</span><s>{money(p.originalPrice)}</s></div>}
         </div>
         <StockTag p={p} />
         {!compact && (
           <div className="pcard-actions">
-            <button className="btn btn-cart btn-block" onClick={() => cart.add(p)} disabled={!p.price || p.stock <= 0}>
-              {!p.price ? 'Coming soon' : p.stock <= 0 ? 'Sold out' : 'Add to cart'}
-            </button>
+            {!p.price && !p.soon
+              ? <Link to={quoteLink(p)} className="btn btn-ghost btn-block">Request price</Link>
+              : <button className="btn btn-cart btn-block" onClick={() => cart.add(p)} disabled={!p.price || p.stock <= 0}>{!p.price ? 'Coming soon' : p.stock <= 0 ? 'Sold out' : 'Add to cart'}</button>}
             <label className="compare-check"><input type="checkbox" checked={sh.inCompare(p.id)} onChange={() => sh.toggleCompare(p.id)} /> Compare</label>
           </div>
         )}

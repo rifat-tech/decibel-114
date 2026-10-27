@@ -5,9 +5,14 @@ const Ctx = createContext(null);
 export function StoreProvider({ children }) {
   const [data, setData] = useState({ categories: [], products: [], loading: true, error: '' });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  // Curated products render first; the full price list (~6k items) streams in right after.
   const load = useCallback(async (fresh = false) => {
-    try { const d = await getCatalog({ fresh }); setData({ categories: d.categories, products: d.products, loading: false, error: '' }); }
-    catch (e) { console.error(e); setData((s) => ({ ...s, loading: false, error: 'The catalog could not load. Check your connection and refresh the page.' })); }
+    try {
+      const q = await getCatalog({ fresh, full: false });
+      setData((s) => (s.full ? s : { categories: q.categories, products: q.products, loading: false, error: '', full: false }));
+      const d = await getCatalog({ fresh, full: true });
+      setData({ categories: d.categories, products: d.products, loading: false, error: '', full: true });
+    } catch (e) { console.error(e); setData((s) => ({ ...s, loading: false, error: 'The catalog could not load. Check your connection and refresh the page.' })); }
   }, []);
   const loadSettings = useCallback(() => getSettings().then(setSettings), []);
   useEffect(() => { load(); loadSettings(); }, [load, loadSettings]);

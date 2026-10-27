@@ -17,7 +17,7 @@ function ProductChip({ p }) {
   return (
     <Link to={`/product/${p.slug}`} className="chat-product">
       <span className="chat-product-img"><ProductVisual product={p} /></span>
-      <span><b>{p.name}</b><small>{p.price ? money(p.price) : 'Coming soon'}{p.stock > 0 ? '' : p.price ? ', out of stock' : ''}</small></span>
+      <span><b>{p.name}</b><small>{p.price ? money(p.price) : p.soon ? 'Coming soon' : 'Price on request'}{p.stock > 0 ? '' : p.price ? ', out of stock' : ''}</small></span>
     </Link>
   );
 }

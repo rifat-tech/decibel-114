@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LuSlidersHorizontal, LuX } from 'react-icons/lu';
@@ -8,6 +8,7 @@ import { useCatalog } from '../context/StoreContext';
 import { discountPct } from '../config';
 import DeviceArt from '../components/DeviceArt';
 
+const PAGE = 48;
 const SORTS = { featured: 'Best match', newest: 'Newest', discount: 'Biggest savings', 'price-asc': 'Price: low to high', 'price-desc': 'Price: high to low', name: 'Name' };
 
 export default function Shop({ preset = {}, heading, intro, art }) {
@@ -25,6 +26,8 @@ export default function Shop({ preset = {}, heading, intro, art }) {
   const newOnly = sp.get('new') === '1';
   const sort = sp.get('sort') || preset.sort || 'featured';
   const category = catById[cat];
+  const [shown, setShown] = useState(PAGE);
+  useEffect(() => setShown(PAGE), [sp.toString()]); // eslint-disable-line react-hooks/exhaustive-deps
   useTitle(heading || (category ? category.name : q ? `Search: ${q}` : 'All products'));
 
   const set = (k, v) => {
@@ -57,7 +60,7 @@ export default function Shop({ preset = {}, heading, intro, art }) {
       newest: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
       featured: (a, b) => ((b.featured ? 2 : 0) + (b.stock > 0 ? 1 : 0)) - ((a.featured ? 2 : 0) + (a.stock > 0 ? 1 : 0)),
       discount: (a, b) => (b.originalPrice - b.price) * (discountPct(b) > 0) - (a.originalPrice - a.price) * (discountPct(a) > 0),
-      'price-asc': (a, b) => a.price - b.price,
+      'price-asc': (a, b) => (a.price || 1e12) - (b.price || 1e12),
       'price-desc': (a, b) => b.price - a.price,
       name: (a, b) => a.name.localeCompare(b.name),
     }[sort];
@@ -131,15 +134,17 @@ export default function Shop({ preset = {}, heading, intro, art }) {
               Remove a filter, or tell us the model you need and we will source it.
             </Empty>
           ) : (
-            <motion.div layout className="pgrid">
-              <AnimatePresence initial={false}>
-                {results.map((p) => (
-                  <motion.div key={p.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.2 }}>
-                    <ProductCard product={p} category={catById[p.categoryId]} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
+            <>
+              <div className="pgrid">
+                {results.slice(0, shown).map((p) => <ProductCard key={p.id} product={p} category={catById[p.categoryId]} />)}
+              </div>
+              {results.length > shown && (
+                <div className="more-row">
+                  <p className="muted small">Showing {shown} of {results.length.toLocaleString('en-IN')} products</p>
+                  <button className="btn btn-ghost" onClick={() => setShown((n) => n + PAGE)}>Show {Math.min(PAGE, results.length - shown)} more</button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

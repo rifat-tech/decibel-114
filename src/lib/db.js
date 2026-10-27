@@ -125,55 +125,82 @@ export async function getSettings() {
 }
 export const saveSettings = (s) => { const { id, ...rest } = s; return C('settings').set('store', rest, true); };
 
-/* ═════════════ catalog ═════════════ */
-const CKEY = 'd114_catalog_v1';
+/* ═════════════ catalog ═════════════
+   Base catalog = curated products (catalog.js) + the distributor price list (public/catalog.json, ~5,900 items,
+   served from the CDN so it costs no database reads). The Firestore `products` collection only holds
+   overrides: price/stock edits, hidden or deleted items and products added by staff. */
+const IMG_CDN = 'https://e4b4vq9ke3.tenbytecdn.com/image/cache/catalog/';
 const CACHE_MS = 10 * 60 * 1000;
-let mem = null;
-export function invalidateCatalog() { mem = null; try { sessionStorage.removeItem(CKEY); } catch { /* ignore */ } }
-export async function getCatalog({ fresh = false } = {}) {
-  if (!fresh && !DEMO) {
-    if (mem && now() - mem.t < CACHE_MS) return mem;
-    try { const c = JSON.parse(sessionStorage.getItem(CKEY)); if (c && now() - c.t < CACHE_MS) return (mem = c); } catch { /* ignore */ }
+let mem = {};
+let listPromise = null;
+export function invalidateCatalog() { mem = {}; }
+const expand = (p) => {
+  const specs = (p.specs || []).map((x) => ({ key: x.key || '', value: x.value }));
+  return {
+    status: 'active', warranty: 'Official brand warranty', tags: [], options: [], featured: false, createdAt: 0,
+    ...p,
+    soon: !!p.soon, newArrival: !!p.newArrival, deal: !!p.deal, specs,
+    images: (p.images || []).map((u) => (u.startsWith('~') ? IMG_CDN + u.slice(1) : u)),
+    shortDescription: p.shortDescription || specs.slice(0, 3).map((x) => x.value).join(' · '),
+  };
+};
+function loadPriceList() {
+  if (!listPromise) {
+    listPromise = fetch(`${import.meta.env.BASE_URL || '/'}catalog.json`)
+      .then((r) => (r.ok ? r.json() : { products: [] }))
+      .then((d) => d.products.map(expand))
+      .catch((e) => { console.warn('Price list not available', e); listPromise = null; return []; });
   }
-  let categories = [], products = [];
-  try {
-    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('catalog timeout')), 8000));
-    [categories, products] = await Promise.race([Promise.all([C('categories').list(), C('products').list({ where: [['status', '==', 'active']] })]), timeout]);
-  } catch (e) { console.warn('Catalog read failed, showing the built-in catalog', e); }
-  // Until an admin loads the catalog into the database, show the built-in one so the store is never empty.
-  const builtIn = !products.length;
-  if (builtIn) { categories = CATEGORIES.map((c) => ({ ...c })); products = PRODUCTS.map((x) => ({ ...x })); }
-  else if (!categories.length) categories = CATEGORIES.map((c) => ({ ...c }));
-  categories.sort((a, b) => (a.order || 0) - (b.order || 0));
+  return listPromise;
+}
+const withTimeout = (pr, ms) => Promise.race([pr, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+async function readOverrides() {
+  try { return await withTimeout(C('products').list(), 8000); }
+  catch (e) { console.warn('Product overrides not available', e); return []; }
+}
+async function readCategories() {
+  let extra = [];
+  try { extra = await withTimeout(C('categories').list(), 6000); } catch { /* use built-in */ }
+  const map = new Map(CATEGORIES.map((c) => [c.id, { ...c }]));
+  extra.forEach((c) => map.set(c.id, { ...(map.get(c.id) || {}), ...c }));
+  return [...map.values()].sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+async function merged({ full, all }) {
+  const [categories, overrides, list] = await Promise.all([readCategories(), readOverrides(), full ? loadPriceList() : []]);
+  const byId = new Map();
+  if (!DEMO) PRODUCTS.forEach((p) => byId.set(p.id, { ...p, base: true })); // in demo the curated set lives in the local store
+  list.forEach((p) => { if (!byId.has(p.id)) byId.set(p.id, { ...p, base: true }); });
+  overrides.forEach((o) => byId.set(o.id, { ...(byId.get(o.id) || {}), ...o }));
+  let products = [...byId.values()].filter((p) => p.status !== 'deleted');
+  if (!all) products = products.filter((p) => (p.status || 'active') === 'active');
   products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  mem = { t: now(), categories, products, builtIn };
-  if (builtIn) return mem; // don't cache, so seeded data shows up on the next load
-  try { sessionStorage.setItem(CKEY, JSON.stringify(mem)); } catch { /* ignore */ }
-  return mem;
+  return { t: now(), categories, products, full };
+}
+/** full=false returns the small curated set fast; full=true adds the whole price list. */
+export async function getCatalog({ fresh = false, full = true } = {}) {
+  const k = full ? 'full' : 'quick';
+  if (!fresh && mem[k] && now() - mem[k].t < CACHE_MS) return mem[k];
+  mem[k] = await merged({ full });
+  return mem[k];
 }
 export async function getProductBySlug(slug) {
-  const { products } = await getCatalog();
-  const hit = products.find((p) => p.slug === slug);
-  if (hit) return hit;
-  try {
-    const r = await C('products').list({ where: [['slug', '==', slug], ['status', '==', 'active']], limit: 1 });
-    return r[0] || null;
-  } catch { return null; }
+  const quick = await getCatalog({ full: false });
+  return quick.products.find((p) => p.slug === slug) || (await getCatalog()).products.find((p) => p.slug === slug) || null;
 }
-export const adminListProducts = () => C('products').list({ order: ['createdAt', 'desc'] });
-export const adminGetProduct = (id) => C('products').get(id);
+export const adminListProducts = async () => (await merged({ full: true, all: true })).products;
+export const adminGetProduct = async (id) => (await merged({ full: true, all: true })).products.find((p) => p.id === id) || null;
 export async function saveProduct(p) {
-  const { id, ...data } = p; invalidateCatalog();
+  const { id, base, ...data } = p; invalidateCatalog(); // eslint-disable-line no-unused-vars
   return C('products').set(id || rid(12), { ...data, updatedAt: now(), createdAt: data.createdAt || now() });
 }
-export async function deleteProduct(id) { invalidateCatalog(); return C('products').remove(id); }
+export async function deleteProduct(id) {
+  invalidateCatalog();
+  const inBase = PRODUCTS.some((p) => p.id === id) || (await loadPriceList()).some((p) => p.id === id);
+  return inBase ? C('products').set(id, { status: 'deleted', updatedAt: now() }) : C('products').remove(id);
+}
 export async function saveCategory(c) { const { id, ...data } = c; invalidateCatalog(); return C('categories').set(id, data); }
 export async function deleteCategory(id) { invalidateCatalog(); return C('categories').remove(id); }
-export async function seedCatalog() {
-  invalidateCatalog();
-  await bulkSet('categories', CATEGORIES);
-  await bulkSet('products', PRODUCTS);
-}
+export async function seedCatalog() { invalidateCatalog(); await bulkSet('categories', CATEGORIES); }
 
 /* ═════════════ coupons ═════════════ */
 export async function checkCoupon(code, subtotal) {

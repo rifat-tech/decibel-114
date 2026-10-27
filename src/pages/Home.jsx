@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import ProductCard from '../components/ProductCard';
-import DeviceArt, { artFor, ProductVisual } from '../components/DeviceArt';
+import DeviceArt, { ProductVisual } from '../components/DeviceArt';
+import { CatIcon } from '../components/CatIcon';
 import { useTitle } from '../components/ui';
 import { useStore } from '../context/StoreContext';
 import { useShopper } from '../context/ShopperContext';
@@ -68,7 +69,7 @@ function DealOfDay({ deals, catById }) {
   );
 }
 
-const APPLE_TABS = [['iPhone', 'phone'], ['MacBook', 'laptop'], ['iPad', 'tablet'], ['Apple Watch', 'wearable'], ['AirPods', 'sound'], ['Mac', 'desktop'], ['Apple accessories', 'accessories']];
+const APPLE_TABS = [['iPhone', 'phone'], ['MacBook', 'laptop'], ['iPad', 'tablet'], ['Apple Watch', 'gadget'], ['AirPods', 'sound'], ['Mac', 'desktop'], ['Apple accessories', 'accessories']];
 
 function AppleStore({ products, catById }) {
   const [tab, setTab] = useState('iPhone');
@@ -112,6 +113,12 @@ export default function Home() {
   const fresh = useMemo(() => products.filter((p) => p.newArrival).slice(0, 8), [products]);
   const featured = useMemo(() => products.filter((p) => p.featured && p.brand !== 'Apple').slice(0, 8), [products]);
   const viewed = useMemo(() => recent.map((id) => products.find((p) => p.id === id)).filter(Boolean).slice(0, 6), [recent, products]);
+  // One real product photo per category for the category rail (prefers a priced, in-stock item).
+  const catPhoto = useMemo(() => {
+    const m = {};
+    for (const p of products) if (!m[p.categoryId] && p.images?.[0] && p.price > 0 && p.stock > 0 && !/cable|adapter|converter/i.test(p.name)) m[p.categoryId] = p.images[0];
+    return m;
+  }, [products]);
   const brands = useMemo(() => {
     const count = {}; products.forEach((p) => { count[p.brand] = (count[p.brand] || 0) + 1; });
     return Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([b]) => b);
@@ -128,7 +135,7 @@ export default function Home() {
           <div className="cat-rail">
             {(loading ? Array.from({ length: 10 }, (_, k) => ({ id: 'sk' + k })) : categories).map((c) => (
               c.name
-                ? <Link key={c.id} to={`/shop?cat=${c.id}`} className="cat-chip"><span className="cat-chip-art"><DeviceArt type={artFor({ categoryId: c.id }, c)} /></span><span>{c.name}</span></Link>
+                ? <Link key={c.id} to={`/shop?cat=${c.id}`} className="cat-chip"><span className="cat-chip-art">{catPhoto[c.id] ? <img src={catPhoto[c.id]} alt="" loading="lazy" /> : <CatIcon id={c.id} className="cat-chip-ico" />}</span><span>{c.name}</span></Link>
                 : <div key={c.id} className="cat-chip"><span className="cat-chip-art skeleton" /></div>
             ))}
           </div>

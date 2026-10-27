@@ -17,8 +17,9 @@ service cloud.firestore {
     // Public store configuration and catalog
     match /settings/{id}   { allow read: if true; allow write: if isAdmin(); }
     match /categories/{id} { allow read: if true; allow write: if isCatalog(); }
+    // Product docs are overrides on the public price list (price, stock, hidden flags), so all are readable.
     match /products/{id} {
-      allow read: if resource.data.status == 'active' || isStaff();
+      allow read: if true;
       allow write: if isCatalog();
     }
     // Promo codes: checkout looks one up by its exact code

@@ -15,6 +15,7 @@ export function AdminProducts() {
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
   const [sel, setSel] = useState([]);
+  const [limit, setLimit] = useState(100);
   const bulk = async (patch) => {
     const list = (items || []).filter((p) => sel.includes(p.id));
     try { for (const p of list) await saveProduct({ ...p, ...patch }); setItems((cur) => cur.map((x) => (sel.includes(x.id) ? { ...x, ...patch } : x))); reload(); toast.success(`${list.length} products updated`); setSel([]); }
@@ -59,9 +60,9 @@ export function AdminProducts() {
       {!items ? <Spinner /> : (
         <div className="table-wrap">
           <table className="table products-table">
-            <thead><tr><th><input type="checkbox" aria-label="Select all" checked={sel.length > 0 && sel.length === shown.length} onChange={(e) => setSel(e.target.checked ? shown.map((p) => p.id) : [])} /></th><th /><th>Product</th><th>Price (৳)</th><th>Stock</th><th>Flags</th><th>Visibility</th><th /></tr></thead>
+            <thead><tr><th><input type="checkbox" aria-label="Select all" checked={sel.length > 0 && sel.length === Math.min(limit, shown.length)} onChange={(e) => setSel(e.target.checked ? shown.slice(0, limit).map((p) => p.id) : [])} /></th><th /><th>Product</th><th>Price (৳)</th><th>Stock</th><th>Flags</th><th>Visibility</th><th /></tr></thead>
             <tbody>
-              {shown.map((p) => (
+              {shown.slice(0, limit).map((p) => (
                 <tr key={p.id} className={sel.includes(p.id) ? 'selected' : ''}>
                   <td><input type="checkbox" aria-label={`Select ${p.name}`} checked={sel.includes(p.id)} onChange={(e) => setSel((c) => (e.target.checked ? [...c, p.id] : c.filter((x) => x !== p.id)))} /></td>
                   <td className="t-thumb"><ProductVisual product={p} category={catById[p.categoryId]} /></td>
@@ -83,6 +84,7 @@ export function AdminProducts() {
               ))}
             </tbody>
           </table>
+          {shown.length > limit && <div className="more-row"><p className="muted small">Showing {limit} of {shown.length.toLocaleString('en-IN')}. Search or filter to narrow down.</p><button className="btn btn-ghost btn-sm" onClick={() => setLimit((n) => n + 200)}>Show 200 more</button></div>}
           {shown.length === 0 && <p className="muted pad">No products match. <Link to="/admin/products/new">Add one</Link>.</p>}
         </div>
       )}

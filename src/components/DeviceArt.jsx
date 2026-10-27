@@ -198,7 +198,7 @@ export default function DeviceArt({ type = 'phone', className = '', seed = '' })
   );
 }
 
-const CAT_ART = { laptop: 'laptop', phone: 'phone', tablet: 'tablet', desktop: 'imac', wearable: 'watch', sound: 'headphone', monitor: 'monitor', gaming: 'console', network: 'router', security: 'camera', camera: 'dslr', printer: 'printer', accessories: 'charger' };
+const CAT_ART = { laptop: 'laptop', phone: 'phone', tablet: 'tablet', desktop: 'imac', wearable: 'watch', gadget: 'watch', component: 'storage', office: 'monitor', server: 'switch', sound: 'headphone', monitor: 'monitor', gaming: 'console', network: 'router', security: 'camera', camera: 'dslr', printer: 'printer', accessories: 'charger' };
 export const artFor = (p, cat) => p?.art || CAT_ART[p?.categoryId] || cat?.icon || 'phone';
 
 export function ProductVisual({ product, category, className = '' }) {
