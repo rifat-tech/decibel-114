@@ -1,4 +1,4 @@
-# Decibel-114: Firebase + motion + 3D
+# Decibel-114: টেক স্টোর + অ্যাডমিন + CRM
 
 এটা React (Vite) দিয়ে বানানো স্টোর। ডাটাবেস আর লগইন চলে Firebase-এ, ছবি থাকে Cloudinary-তে, আর সাইট হোস্ট হয় Vercel-এ। আলাদা কোনো backend সার্ভার লাগে না।
 
@@ -28,11 +28,11 @@ Firebase-এর ফ্রি লিমিট **প্রতিটা প্র�
 
 1. সাইটে গিয়ে নিজের ইমেইল দিয়ে **Create account** করুন।
 2. Firebase console → Firestore → `users` → আপনার ডকুমেন্ট খুলুন → `role` ফিল্ডের মান `customer` থেকে **`admin`** করে দিন।
-3. পেজ রিফ্রেশ দিলেই `/admin` খুলবে। এরপর **Overview → Load starter catalog** চাপলে ১০টা ক্যাটাগরি আর ২১টা প্রোডাক্ট চলে আসবে। পরে দাম আর ছবি নিজের মতো বদলে নিন।
+3. পেজ রিফ্রেশ দিলেই `/admin` খুলবে। এরপর **Overview → Load starter catalog** চাপলে ১৩টা ক্যাটাগরি আর ৮৭টা প্রোডাক্ট (Apple আগে) চলে আসবে। পরে দাম আর ছবি নিজের মতো বদলে নিন।
 
 ## ৪. অন্যদের অ্যাকাউন্ট বানিয়ে দেওয়া
 
-**Admin → Customers & staff → Create account**-এ নাম, ইমেইল, ফোন আর রোল (Customer / Dealer / Staff / Admin) দিন। সিস্টেম একটা অস্থায়ী পাসওয়ার্ড বানিয়ে দেখাবে, যেটা এক ক্লিকে WhatsApp-এ পাঠানো যায়। ইউজার প্রথমবার লগইন করলে নিজের পাসওয়ার্ড সেট করতে বলা হবে। একই পেজ থেকে রোল বদলানো, পাসওয়ার্ড রিসেট লিংক পাঠানো আর অ্যাকাউন্ট Disable করা যায়।
+**Admin → Team & accounts → Create account**-এ নাম, ইমেইল, ফোন আর রোল (Customer / Dealer / Sales / Support / Manager / Admin) দিন। সিস্টেম একটা অস্থায়ী পাসওয়ার্ড বানিয়ে দেখাবে, যেটা এক ক্লিকে WhatsApp-এ পাঠানো যায়। ইউজার প্রথমবার লগইন করলে নিজের পাসওয়ার্ড সেট করতে বলা হবে। একই পেজ থেকে রোল বদলানো, পাসওয়ার্ড রিসেট লিংক পাঠানো আর অ্যাকাউন্ট Disable করা যায়।
 
 ## ৫. প্রোডাক্টের ছবি (Cloudinary, ফ্রি)
 
@@ -50,6 +50,17 @@ Firebase Storage এখন Blaze (কার্ড) প্ল্যান ছা�
 2. Vercel → **Add New Project** → repo সিলেক্ট করুন। Framework: **Vite**।
 3. **Environment Variables**-এ `.env`-এর সবগুলো লাইন যোগ করুন (ফোন, WhatsApp, bKash নম্বরসহ) → **Deploy**।
 4. Firebase → Authentication → Settings → **Authorized domains**-এ আপনার Vercel ডোমেইন যোগ করুন, নাহলে Google লগইন চলবে না।
+
+## যা যা আছে
+
+- **স্টোর (Best Buy স্টাইল):** ক্যাটাগরি মেনু, সার্চ সাজেশন, Deal of the day, Shop Apple, তুলনা (৪টা পর্যন্ত), Saved, কুপন, bKash/Nagad/ব্যাংক/ক্যাশ অন ডেলিভারি, অর্ডার ট্র্যাকিং, বাল্ক কোটেশন।
+- **চ্যাট + AI:** নিচের ডান কোণের বাটন। প্রথমে AI (Gemini) ক্যাটালগের আসল দাম দেখে উত্তর দেয়; "Talk to a person" চাপলে **Admin → Inbox**-এ চলে আসে, স্টাফ রিয়েলটাইমে উত্তর দেয়। AI চালাতে Firebase console → **AI Logic → Get started → Gemini Developer API** চালু করুন, তারপর **Admin → Store settings → AI** থেকে অন/অফ ও নির্দেশনা বদলান।
+- **অ্যাডমিন / CRM:** Overview ড্যাশবোর্ড, Orders (টাইমলাইন, নোট, CSV, প্রিন্ট), Leads pipeline (kanban), Customers 360 (অর্ডার, কোট, চ্যাট এক জায়গায়, ট্যাগ ও নোট), Inbox, Products (দাম/স্টক সরাসরি এডিট, ভ্যারিয়েন্ট), Import & export (CSV), Promo codes, Team & accounts, Store settings (ব্যানার, ডেলিভারি চার্জ, পেমেন্ট নম্বর)।
+- **রোল:** Admin সব পারে; Manager ক্যাটালগ + সেলস + সাপোর্ট; Sales অর্ডার/লিড/কাস্টমার; Support শুধু Inbox।
+
+## প্রোডাক্ট ছবি ও লেখা
+
+অন্য দোকানের ছবি বা description কপি করবেন না। ব্র্যান্ড/ডিস্ট্রিবিউটরের অফিসিয়াল press kit ব্যবহার করুন। একসাথে অনেক প্রোডাক্ট তুলতে **Import & export** থেকে CSV টেমপ্লেট নামিয়ে `image_urls` কলামে লিংক দিন; SKU বা slug মিললে আপডেট হবে, না মিললে নতুন যোগ হবে।
 
 ## ফ্রি কোটা কীভাবে বাঁচানো হয়েছে
 

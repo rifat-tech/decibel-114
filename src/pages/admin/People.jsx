@@ -8,7 +8,7 @@ import { DEMO, adminCreateUser, adminListUsers, adminSendReset, adminUpdateUser,
 import { useAuth } from '../../context/AuthContext';
 import { HASH } from '../../config';
 
-const ROLES = { customer: 'Customer', dealer: 'Dealer / corporate', staff: 'Staff', admin: 'Admin' };
+const ROLES = { customer: 'Customer', dealer: 'Dealer / corporate', support: 'Staff: support', sales: 'Staff: sales', manager: 'Staff: manager', admin: 'Admin (full access)' };
 
 function CreateUser({ onClose, onCreated }) {
   const [f, setF] = useState({ name: '', email: '', phone: '', company: '', role: 'customer' });
@@ -45,7 +45,7 @@ function CreateUser({ onClose, onCreated }) {
               <Field label="Email"><input required type="email" value={f.email} onChange={set('email')} /></Field>
               <Field label="Company (optional)"><input value={f.company} onChange={set('company')} /></Field>
             </div>
-            <Field label="Role" hint="Admins can manage the whole store. Dealers are flagged so you can give them corporate pricing.">
+            <Field label="Role" hint="Support: inbox. Sales: orders, leads, customers, inbox. Manager: sales plus catalog. Admin: everything including team and settings.">
               <select value={f.role} onChange={set('role')}>{Object.entries(ROLES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
             </Field>
             <button className="btn btn-primary btn-block" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
@@ -57,7 +57,7 @@ function CreateUser({ onClose, onCreated }) {
 }
 
 export default function People() {
-  useTitle('Customers & staff');
+  useTitle('Team & accounts');
   const { user } = useAuth();
   const [items, setItems] = useState(null);
   const [q, setQ] = useState('');
@@ -80,7 +80,7 @@ export default function People() {
 
   return (
     <div className="admin-page">
-      <div className="panel-head"><h1>Customers & staff</h1><button className="btn btn-primary" onClick={() => setModal(true)}><LuUserPlus /> Create account</button></div>
+      <div className="panel-head"><h1>Team & accounts</h1><button className="btn btn-primary" onClick={() => setModal(true)}><LuUserPlus /> Create account</button></div>
       <div className="toolbar">
         <input placeholder="Search name, email, phone or company" value={q} onChange={(e) => setQ(e.target.value)} />
         <select value={role} onChange={(e) => setRole(e.target.value)}><option value="">Everyone</option>{Object.entries(ROLES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>

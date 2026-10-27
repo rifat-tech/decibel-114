@@ -4,7 +4,7 @@ import { LuTrash2 } from 'react-icons/lu';
 import DeviceArt, { ART_TYPES } from '../../components/DeviceArt';
 import { Field, useTitle } from '../../components/ui';
 import { deleteCategory, errText, saveCategory } from '../../lib/db';
-import { useCatalog } from '../../context/CatalogContext';
+import { useCatalog } from '../../context/StoreContext';
 import { slugify } from '../../config';
 
 const BLANK = { name: '', description: '', icon: 'router', order: 99, subs: '' };

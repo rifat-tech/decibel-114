@@ -4,25 +4,28 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LuSlidersHorizontal, LuX } from 'react-icons/lu';
 import ProductCard from '../components/ProductCard';
 import { Empty, Spinner, useTitle } from '../components/ui';
-import { useCatalog } from '../context/CatalogContext';
+import { useCatalog } from '../context/StoreContext';
+import { discountPct } from '../config';
+import DeviceArt from '../components/DeviceArt';
 
-const SORTS = { newest: 'Newest', featured: 'Recommended', 'price-asc': 'Price: low to high', 'price-desc': 'Price: high to low', name: 'Name' };
+const SORTS = { featured: 'Best match', newest: 'Newest', discount: 'Biggest savings', 'price-asc': 'Price: low to high', 'price-desc': 'Price: high to low', name: 'Name' };
 
-export default function Shop() {
+export default function Shop({ preset = {}, heading, intro, art }) {
   const { categories, products, catById, loading } = useCatalog();
   const [sp, setSp] = useSearchParams();
   const [sheet, setSheet] = useState(false);
-  const cat = sp.get('cat') || '';
+  const cat = sp.get('cat') || preset.cat || '';
   const sub = sp.get('sub') || '';
-  const brands = (sp.get('brand') || '').split(',').filter(Boolean);
+  const brands = (sp.get('brand') || preset.brand || '').split(',').filter(Boolean);
+  const dealsOnly = sp.get('deals') === '1' || !!preset.deals;
   const q = (sp.get('q') || '').trim().toLowerCase();
   const min = Number(sp.get('min') || 0);
   const max = Number(sp.get('max') || 0);
   const stockOnly = sp.get('stock') === '1';
   const newOnly = sp.get('new') === '1';
-  const sort = sp.get('sort') || 'newest';
+  const sort = sp.get('sort') || preset.sort || 'featured';
   const category = catById[cat];
-  useTitle(category ? category.name : q ? `Search: ${q}` : 'All products');
+  useTitle(heading || (category ? category.name : q ? `Search: ${q}` : 'All products'));
 
   const set = (k, v) => {
     const n = new URLSearchParams(sp);
@@ -32,7 +35,7 @@ export default function Shop() {
   };
   const toggleBrand = (b) => set('brand', (brands.includes(b) ? brands.filter((x) => x !== b) : [...brands, b]).join(','));
 
-  const scoped = useMemo(() => products.filter((p) => (!cat || p.categoryId === cat)), [products, cat]);
+  const scoped = useMemo(() => products.filter((p) => (!cat || p.categoryId === cat) && (!preset.brand || p.brand === preset.brand) && (!dealsOnly || discountPct(p) > 0)), [products, cat, preset.brand, dealsOnly]);
   const subs = useMemo(() => [...new Set(scoped.map((p) => p.subcategory).filter(Boolean))].sort(), [scoped]);
   const brandList = useMemo(() => [...new Set(scoped.map((p) => p.brand).filter(Boolean))].sort(), [scoped]);
 
@@ -52,7 +55,8 @@ export default function Shop() {
     });
     const by = {
       newest: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
-      featured: (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0),
+      featured: (a, b) => ((b.featured ? 2 : 0) + (b.stock > 0 ? 1 : 0)) - ((a.featured ? 2 : 0) + (a.stock > 0 ? 1 : 0)),
+      discount: (a, b) => (b.originalPrice - b.price) * (discountPct(b) > 0) - (a.originalPrice - a.price) * (discountPct(a) > 0),
       'price-asc': (a, b) => a.price - b.price,
       'price-desc': (a, b) => b.price - a.price,
       name: (a, b) => a.name.localeCompare(b.name),
@@ -66,7 +70,7 @@ export default function Shop() {
     <div className="filters">
       <div className="filter-block">
         <h4>Category</h4>
-        <button className={`chip-row ${!cat ? 'on' : ''}`} onClick={() => set('cat', '')}>All categories</button>
+        {!preset.cat && <button className={`chip-row ${!cat ? 'on' : ''}`} onClick={() => set('cat', '')}>All categories</button>}
         {categories.map((c) => (
           <button key={c.id} className={`chip-row ${cat === c.id ? 'on' : ''}`} onClick={() => set('cat', c.id)}>{c.name}</button>
         ))}
@@ -79,7 +83,7 @@ export default function Shop() {
           </div>
         </div>
       )}
-      {brandList.length > 0 && (
+      {brandList.length > 1 && !preset.brand && (
         <div className="filter-block">
           <h4>Brand</h4>
           {brandList.map((b) => (
@@ -99,20 +103,21 @@ export default function Shop() {
         <label className="check"><input type="checkbox" checked={stockOnly} onChange={(e) => set('stock', e.target.checked ? '1' : '')} /> In stock only</label>
         <label className="check"><input type="checkbox" checked={newOnly} onChange={(e) => set('new', e.target.checked ? '1' : '')} /> New arrivals</label>
       </div>
-      {active > 0 && <button className="btn btn-ghost btn-block" onClick={() => setSp(cat ? { cat } : {}, { replace: true })}>Clear filters</button>}
+      {active > 0 && <button className="btn btn-ghost btn-block" onClick={() => setSp(sp.get('cat') ? { cat: sp.get('cat') } : {}, { replace: true })}>Clear filters</button>}
     </div>
   );
 
   return (
     <div className="container shop">
+      {art && <div className="shop-hero"><DeviceArt type={art} /></div>}
       <div className="shop-head">
         <div>
-          <h1>{category ? category.name : q ? `Results for “${sp.get('q')}”` : 'All products'}</h1>
-          <p>{loading ? 'Loading…' : `${results.length} ${results.length === 1 ? 'product' : 'products'}`}{category?.description ? `. ${category.description}.` : ''}</p>
+          <h1>{heading || (category ? category.name : q ? `Results for “${sp.get('q')}”` : 'All products')}</h1>
+          <p>{intro ? `${intro} ` : ''}{loading ? 'Loading…' : `${results.length} ${results.length === 1 ? 'product' : 'products'}`}</p>
         </div>
         <div className="shop-tools">
           <button className="btn btn-ghost only-mobile" onClick={() => setSheet(true)}><LuSlidersHorizontal /> Filters{active ? ` (${active})` : ''}</button>
-          <select value={sort} onChange={(e) => set('sort', e.target.value === 'newest' ? '' : e.target.value)} aria-label="Sort products">
+          <select value={sort} onChange={(e) => set('sort', e.target.value === (preset.sort || 'featured') ? '' : e.target.value)} aria-label="Sort products">
             {Object.entries(SORTS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
         </div>

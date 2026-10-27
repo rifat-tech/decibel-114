@@ -1,136 +1,129 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LuHeart, LuMinus, LuPlus, LuShieldCheck, LuTruck, LuFileText } from 'react-icons/lu';
+import { LuHeart, LuMinus, LuPlus, LuShieldCheck, LuTruck, LuFileText, LuRotateCcw, LuStore } from 'react-icons/lu';
 import { FaWhatsapp } from 'react-icons/fa6';
 import DeviceArt, { artFor } from '../components/DeviceArt';
 import ProductCard from '../components/ProductCard';
 import { Empty, Spinner, StockTag, useTitle } from '../components/ui';
 import { getProductBySlug } from '../lib/db';
-import { useCatalog } from '../context/CatalogContext';
+import { useStore } from '../context/StoreContext';
 import { useCart } from '../context/CartContext';
-import { useWishlist } from '../context/WishlistContext';
-import { SITE, money, waHref } from '../config';
+import { useShopper } from '../context/ShopperContext';
+import { discountPct, money, waLink } from '../config';
 
 export default function Product() {
   const { slug } = useParams();
   const nav = useNavigate();
-  const { products, catById } = useCatalog();
+  const { products, catById, settings: st } = useStore();
   const cart = useCart();
-  const wish = useWishlist();
+  const sh = useShopper();
   const [p, setP] = useState(undefined);
   const [img, setImg] = useState(0);
   const [qty, setQty] = useState(1);
-  const [tab, setTab] = useState('specs');
+  const [opt, setOpt] = useState(null);
 
-  useEffect(() => { setP(undefined); setImg(0); setQty(1); getProductBySlug(slug).then(setP).catch(() => setP(null)); }, [slug]);
+  useEffect(() => { setP(undefined); setImg(0); setQty(1); setOpt(null); getProductBySlug(slug).then(setP).catch(() => setP(null)); }, [slug]);
+  useEffect(() => { if (p?.id) sh.viewed(p.id); }, [p?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   useTitle(p?.name || 'Product');
-
-  const related = useMemo(() => (p ? products.filter((x) => x.categoryId === p.categoryId && x.id !== p.id).slice(0, 4) : []), [p, products]);
+  const related = useMemo(() => (p ? products.filter((x) => x.categoryId === p.categoryId && x.id !== p.id).sort((a, b) => Math.abs(a.price - p.price) - Math.abs(b.price - p.price)).slice(0, 4) : []), [p, products]);
 
   if (p === undefined) return <Spinner full />;
   if (!p) return <div className="container"><Empty title="This product is no longer listed" action="Browse all products" to="/shop">It may have been renamed or sold out.</Empty></div>;
 
   const cat = catById[p.categoryId];
-  const images = p.images?.length ? p.images : [];
-  const off = p.originalPrice > p.price ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0;
-  const wa = waHref(`Hi Decibel-114, I'm interested in ${p.name} (${money(p.price)}).`);
-  const tabs = [
-    ['specs', 'Specifications', p.specs?.length],
-    ['about', 'Overview', p.description],
-    ['warranty', 'Warranty & delivery', true],
-  ].filter((t) => t[2]);
+  const images = p.images || [];
+  const price = opt?.price || p.price;
+  const off = discountPct(p);
+  const options = p.options?.[0];
+  const wa = waLink(st.whatsapp || st.phone, `Hi Decibel-114, I'm interested in ${p.name}${opt ? ` (${opt.label})` : ''}.`);
+  const fee = st.freeShippingOver && price >= st.freeShippingOver ? 'Free delivery' : `Delivery from ${money(st.shippingInsideDhaka)}`;
 
   return (
     <div className="container product">
       <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to="/shop">Products</Link>
-        {cat && <><span>/</span><Link to={`/shop?cat=${cat.id}`}>{cat.name}</Link></>}
-        {p.subcategory && <><span>/</span><Link to={`/shop?cat=${cat?.id || ''}&sub=${encodeURIComponent(p.subcategory)}`}>{p.subcategory}</Link></>}
+        <Link to="/">Home</Link><span>/</span>
+        {cat && <><Link to={`/shop?cat=${cat.id}`}>{cat.name}</Link><span>/</span></>}
+        {p.subcategory && <Link to={`/shop?cat=${cat?.id || ''}&sub=${encodeURIComponent(p.subcategory)}`}>{p.subcategory}</Link>}
       </nav>
+
+      <div className="product-top">
+        <h1>{p.name}</h1>
+        <div className="product-ids"><span>Brand: <Link to={p.brand === 'Apple' ? '/brand/apple' : `/shop?brand=${encodeURIComponent(p.brand)}`}>{p.brand}</Link></span>{p.sku && <span>Model: {p.sku}</span>}<span>Item: {p.id.toUpperCase()}</span></div>
+      </div>
 
       <div className="product-grid">
         <div className="gallery">
           <div className="gallery-main">
             <AnimatePresence mode="wait">
-              <motion.div key={img} className="gallery-frame" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <motion.div key={img} className="gallery-frame" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
                 {images.length ? <img src={images[img]} alt={p.name} /> : <DeviceArt type={artFor(p, cat)} />}
               </motion.div>
             </AnimatePresence>
-            {off > 0 && <span className="pcard-off big">−{off}%</span>}
           </div>
-          {images.length > 1 && (
-            <div className="thumbs">
-              {images.map((s, i) => (
-                <button key={s} className={i === img ? 'on' : ''} onClick={() => setImg(i)} aria-label={`Image ${i + 1}`}><img src={s} alt="" /></button>
-              ))}
-            </div>
+          {images.length > 1 && <div className="thumbs">{images.map((s, i) => <button key={s} className={i === img ? 'on' : ''} onClick={() => setImg(i)} aria-label={`Image ${i + 1}`}><img src={s} alt="" /></button>)}</div>}
+          <section className="pd-section">
+            <h2>Overview</h2>
+            <div className="prose">{String(p.description || p.shortDescription).split('\n').filter(Boolean).map((t, i) => <p key={i}>{t}</p>)}</div>
+          </section>
+          {p.specs?.length > 0 && (
+            <section className="pd-section">
+              <h2>Specifications</h2>
+              <table className="specs"><tbody>
+                {p.specs.map((s, i) => <tr key={i}><th>{s.key}</th><td>{s.value}</td></tr>)}
+                <tr><th>Brand</th><td>{p.brand}</td></tr>
+                <tr><th>Warranty</th><td>{p.warranty || 'Ask us'}</td></tr>
+              </tbody></table>
+            </section>
           )}
         </div>
 
-        <div className="buybox">
-          <div className="buy-brand">{p.brand}</div>
-          <h1>{p.name}</h1>
-          {p.shortDescription && <p className="buy-lede">{p.shortDescription}</p>}
+        <aside className="buybox">
           <div className="buy-price">
-            <strong>{money(p.price)}</strong>
-            {off > 0 && <s>{money(p.originalPrice)}</s>}
+            {price ? <strong>{money(price)}</strong> : <strong>Coming soon</strong>}
+            {off > 0 && !opt && <div className="buy-save"><span className="save-pill big">Save {money(p.originalPrice - p.price)}</span><span>Was <s>{money(p.originalPrice)}</s></span></div>}
           </div>
-          <StockTag stock={p.stock} />
-
+          {options && (
+            <div className="buy-options">
+              <div className="buy-label">{options.name}: <b>{opt?.label || options.values[0]?.label}</b></div>
+              <div className="opt-row">
+                {options.values.map((v, i) => (
+                  <button key={v.label} className={`opt ${(opt?.label || (i === 0 && !opt && options.values[0].label)) === v.label ? 'on' : ''}`} onClick={() => setOpt(v)}>
+                    <b>{v.label}</b><small>{money(v.price)}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <StockTag p={p} />
+          <ul className="buy-points">
+            <li><LuTruck /><span><b>{fee}</b> across Bangladesh. Dhaka in 1 to 2 days.</span></li>
+            <li><LuStore /><span>Cash on delivery{st.bkash ? ', bKash' : ''}{st.nagad ? ', Nagad' : ''} or bank transfer.</span></li>
+            <li><LuShieldCheck /><span>{p.warranty || 'Warranty details on request'}</span></li>
+            <li><LuRotateCcw /><span>{st.returnDays}-day return if unused and sealed.</span></li>
+          </ul>
           <div className="buy-row">
             <div className="qty" aria-label="Quantity">
               <button onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Decrease"><LuMinus /></button>
               <span>{qty}</span>
               <button onClick={() => setQty((q) => Math.min(p.stock || 99, q + 1))} aria-label="Increase"><LuPlus /></button>
             </div>
-            <button className="btn btn-primary btn-lg grow" disabled={p.stock <= 0} onClick={() => cart.add(p, qty)}>Add to cart</button>
-            <button className={`icon-btn bordered ${wish.has(p.id) ? 'on' : ''}`} onClick={() => wish.toggle(p.id)} aria-label="Save to wishlist"><LuHeart /></button>
+            <button className="btn btn-cart btn-lg grow" disabled={!p.price || p.stock <= 0} onClick={() => cart.add(p, qty, opt || options?.values?.[0] || null)}>{!p.price ? 'Coming soon' : p.stock <= 0 ? 'Sold out' : 'Add to cart'}</button>
           </div>
-          {p.stock > 0 && <button className="btn btn-dark btn-lg btn-block" onClick={() => { cart.add(p, qty); nav('/checkout'); }}>Buy now</button>}
-
+          {p.price > 0 && p.stock > 0 && <button className="btn btn-primary btn-lg btn-block" onClick={() => { cart.add(p, qty, opt || options?.values?.[0] || null); nav('/checkout'); }}>Buy now</button>}
           <div className="buy-alt">
+            <button className={`btn btn-ghost ${sh.hasWish(p.id) ? 'on' : ''}`} onClick={() => sh.toggleWish(p.id)}><LuHeart /> {sh.hasWish(p.id) ? 'Saved' : 'Save'}</button>
+            <label className="btn btn-ghost compare-btn"><input type="checkbox" checked={sh.inCompare(p.id)} onChange={() => sh.toggleCompare(p.id)} /> Compare</label>
             <Link to={`/quote?items=${encodeURIComponent(`${p.name} × ${Math.max(qty, 5)}`)}`} className="btn btn-ghost"><LuFileText /> Bulk quote</Link>
-            {wa && <a href={wa} target="_blank" rel="noreferrer" className="btn btn-ghost"><FaWhatsapp /> Ask on WhatsApp</a>}
+            {wa && <a href={wa} target="_blank" rel="noreferrer" className="btn btn-ghost"><FaWhatsapp /> WhatsApp</a>}
           </div>
-
-          <ul className="buy-points">
-            <li><LuShieldCheck /> {p.warranty ? `${p.warranty} official warranty` : 'Warranty details on request'}</li>
-            <li><LuTruck /> Delivery across Bangladesh, free over {money(SITE.freeShippingOver)}</li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="tabs" role="tablist">
-        {tabs.map(([k, l]) => (
-          <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>
-            {l}
-            {tab === k && <motion.span layoutId="tab-ink" className="tab-ink" />}
-          </button>
-        ))}
-      </div>
-      <div className="tab-body">
-        {tab === 'specs' && (
-          <table className="specs"><tbody>
-            {p.specs.map((s, i) => <tr key={i}><th>{s.key}</th><td>{s.value}</td></tr>)}
-            <tr><th>Brand</th><td>{p.brand}</td></tr>
-            {p.subcategory && <tr><th>Type</th><td>{p.subcategory}</td></tr>}
-          </tbody></table>
-        )}
-        {tab === 'about' && <div className="prose">{String(p.description).split('\n').filter(Boolean).map((t, i) => <p key={i}>{t}</p>)}</div>}
-        {tab === 'warranty' && (
-          <div className="prose">
-            <p>{p.warranty ? `This product carries ${p.warranty} of official warranty from the distributor.` : 'Ask us for the warranty terms of this product before ordering.'} Keep the box and invoice for claims.</p>
-            <p>Dhaka orders usually arrive in 1 to 2 working days and orders outside Dhaka in 2 to 4. We call to confirm every order before dispatch.</p>
-            <p>Read the <Link to="/page/warranty">warranty policy</Link> and <Link to="/page/returns">returns policy</Link>.</p>
-          </div>
-        )}
+        </aside>
       </div>
 
       {related.length > 0 && (
         <section className="section flush">
-          <div className="section-head"><h2>More in {cat?.name || 'this category'}</h2></div>
-          <div className="pgrid">{related.map((r) => <ProductCard key={r.id} product={r} category={cat} />)}</div>
+          <div className="section-head"><h2>Compare similar products</h2><Link to={`/shop?cat=${p.categoryId}`} className="link-strong">See all {cat?.name}</Link></div>
+          <div className="prow">{related.map((r) => <ProductCard key={r.id} product={r} category={cat} />)}</div>
         </section>
       )}
     </div>

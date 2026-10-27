@@ -5,7 +5,7 @@ import { LuPlus, LuTrash2, LuUpload, LuX, LuArrowUp } from 'react-icons/lu';
 import DeviceArt, { ART_TYPES, ProductVisual } from '../../components/DeviceArt';
 import { Field, Spinner, useTitle } from '../../components/ui';
 import { adminGetProduct, adminListProducts, deleteProduct, errText, saveProduct } from '../../lib/db';
-import { useCatalog } from '../../context/CatalogContext';
+import { useCatalog } from '../../context/StoreContext';
 import { CLOUDINARY, money, slugify } from '../../config';
 
 export function AdminProducts() {
@@ -14,6 +14,12 @@ export function AdminProducts() {
   const [items, setItems] = useState(null);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
+  const [sel, setSel] = useState([]);
+  const bulk = async (patch) => {
+    const list = (items || []).filter((p) => sel.includes(p.id));
+    try { for (const p of list) await saveProduct({ ...p, ...patch }); setItems((cur) => cur.map((x) => (sel.includes(x.id) ? { ...x, ...patch } : x))); reload(); toast.success(`${list.length} products updated`); setSel([]); }
+    catch (e) { toast.error(errText(e)); }
+  };
   const load = () => adminListProducts().then(setItems).catch((e) => { toast.error(errText(e)); setItems([]); });
   useEffect(() => { load(); }, []);
 
@@ -31,7 +37,7 @@ export function AdminProducts() {
 
   return (
     <div className="admin-page">
-      <div className="panel-head"><h1>Products</h1><Link to="/admin/products/new" className="btn btn-primary"><LuPlus /> Add product</Link></div>
+      <div className="panel-head"><h1>Products</h1><div className="row-gap"><Link to="/admin/import" className="btn btn-ghost">Import CSV</Link><Link to="/admin/products/new" className="btn btn-primary"><LuPlus /> Add product</Link></div></div>
       <div className="toolbar">
         <input placeholder="Search name, brand or SKU" value={q} onChange={(e) => setQ(e.target.value)} />
         <select value={cat} onChange={(e) => setCat(e.target.value)}>
@@ -39,20 +45,33 @@ export function AdminProducts() {
           {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
+      {sel.length > 0 && (
+        <div className="bulkbar">
+          <b>{sel.length} selected</b>
+          <button className="btn btn-ghost btn-sm" onClick={() => bulk({ status: 'active' })}>Make live</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => bulk({ status: 'inactive' })}>Hide</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => bulk({ deal: true })}>Mark as deal</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => bulk({ deal: false })}>Remove deal</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => bulk({ featured: true })}>Feature</button>
+          <button className="link" onClick={() => setSel([])}>Clear</button>
+        </div>
+      )}
       {!items ? <Spinner /> : (
         <div className="table-wrap">
           <table className="table products-table">
-            <thead><tr><th /><th>Product</th><th>Price</th><th>Stock</th><th>Flags</th><th>Visibility</th><th /></tr></thead>
+            <thead><tr><th><input type="checkbox" aria-label="Select all" checked={sel.length > 0 && sel.length === shown.length} onChange={(e) => setSel(e.target.checked ? shown.map((p) => p.id) : [])} /></th><th /><th>Product</th><th>Price (৳)</th><th>Stock</th><th>Flags</th><th>Visibility</th><th /></tr></thead>
             <tbody>
               {shown.map((p) => (
-                <tr key={p.id}>
+                <tr key={p.id} className={sel.includes(p.id) ? 'selected' : ''}>
+                  <td><input type="checkbox" aria-label={`Select ${p.name}`} checked={sel.includes(p.id)} onChange={(e) => setSel((c) => (e.target.checked ? [...c, p.id] : c.filter((x) => x !== p.id)))} /></td>
                   <td className="t-thumb"><ProductVisual product={p} category={catById[p.categoryId]} /></td>
                   <td><Link to={`/admin/products/${p.id}`}><b>{p.name}</b></Link><br /><small>{p.brand}, {catById[p.categoryId]?.name || 'no category'}</small></td>
-                  <td>{money(p.price)}</td>
+                  <td><input className="stock-input wide" inputMode="numeric" defaultValue={p.price} onBlur={(e) => Number(e.target.value) !== p.price && quick(p, { price: Number(e.target.value) || 0 })} aria-label={`Price for ${p.name}`} />{p.originalPrice > p.price && <><br /><small className="muted">was {money(p.originalPrice)}</small></>}</td>
                   <td><input className="stock-input" type="number" min="0" defaultValue={p.stock} onBlur={(e) => Number(e.target.value) !== p.stock && quick(p, { stock: Math.max(0, Number(e.target.value)) })} aria-label={`Stock for ${p.name}`} /></td>
                   <td>
                     <label className="check"><input type="checkbox" checked={!!p.featured} onChange={(e) => quick(p, { featured: e.target.checked })} /> Pick</label>
                     <label className="check"><input type="checkbox" checked={!!p.newArrival} onChange={(e) => quick(p, { newArrival: e.target.checked })} /> New</label>
+                    <label className="check"><input type="checkbox" checked={!!p.deal} onChange={(e) => quick(p, { deal: e.target.checked })} /> Deal</label>
                   </td>
                   <td>
                     <select value={p.status} onChange={(e) => quick(p, { status: e.target.value })} aria-label="Visibility">
@@ -82,7 +101,12 @@ async function uploadToCloudinary(file) {
   return j.secure_url.replace('/upload/', '/upload/f_auto,q_auto,w_1200/');
 }
 
-const EMPTY = { name: '', slug: '', sku: '', brand: '', categoryId: '', subcategory: '', price: '', originalPrice: '', stock: 10, warranty: '1 year', shortDescription: '', description: '', images: [], specs: [{ key: '', value: '' }], tags: [], featured: false, newArrival: true, status: 'active', art: '' };
+function parseOptions(text, name) {
+  const values = String(text || '').split('\n').map((l) => l.split('=').map((x) => x.trim())).filter(([a, b]) => a && Number(b?.replace(/[^\d]/g, ''))).map(([label, price]) => ({ label, price: Number(price.replace(/[^\d]/g, '')) }));
+  return values.length ? [{ name: name || 'Option', values }] : [];
+}
+
+const EMPTY = { name: '', slug: '', sku: '', brand: '', categoryId: '', subcategory: '', price: '', originalPrice: '', stock: 10, warranty: '1 year', shortDescription: '', description: '', images: [], specs: [{ key: '', value: '' }], tags: [], featured: false, newArrival: true, deal: false, status: 'active', art: '', options: [] };
 
 export function ProductForm() {
   const { id } = useParams();
@@ -94,6 +118,9 @@ export function ProductForm() {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(0);
   const [url, setUrl] = useState('');
+  const [optName, setOptName] = useState('Storage');
+  const [optText, setOptText] = useState('');
+  useEffect(() => { const o = f?.options?.[0]; if (o) { setOptName(o.name); setOptText(o.values.map((v) => `${v.label} = ${v.price}`).join('\n')); } }, [f?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isNew) return;
@@ -130,6 +157,7 @@ export function ProductForm() {
         stock: Math.max(0, Number(f.stock) || 0),
         specs: f.specs.filter((s) => s.key.trim() && s.value.trim()),
         tags: typeof f.tags === 'string' ? f.tags.split(',').map((t) => t.trim()).filter(Boolean) : f.tags,
+        options: parseOptions(optText, optName),
       };
       await saveProduct(clean);
       await reload();
@@ -222,11 +250,18 @@ export function ProductForm() {
             <Field label="Warranty"><input value={f.warranty} onChange={set('warranty')} placeholder="1 year" /></Field>
           </section>
           <section className="panel">
+            <h2>Variants</h2>
+            <p className="muted small">Optional. One per line as “label = price”, for example “256GB = 195000”. Customers pick one on the product page.</p>
+            <Field label="Variant name"><input value={optName} onChange={(e) => setOptName(e.target.value)} placeholder="Storage, Colour, Size…" /></Field>
+            <Field label="Values"><textarea rows={4} value={optText} onChange={(e) => setOptText(e.target.value)} placeholder={'256GB = 195000\n512GB = 220000\n1TB = 250000'} /></Field>
+          </section>
+          <section className="panel">
             <h2>Visibility</h2>
             <Field label="Status">
               <select value={f.status} onChange={set('status')}><option value="active">Live on the store</option><option value="draft">Draft</option><option value="inactive">Hidden</option></select>
             </Field>
-            <label className="check"><input type="checkbox" checked={f.featured} onChange={set('featured')} /> Show in Engineers’ picks</label>
+            <label className="check"><input type="checkbox" checked={f.featured} onChange={set('featured')} /> Featured on the home page</label>
+            <label className="check"><input type="checkbox" checked={!!f.deal} onChange={set('deal')} /> Eligible for Deal of the day</label>
             <label className="check"><input type="checkbox" checked={f.newArrival} onChange={set('newArrival')} /> Mark as new arrival</label>
             <Field label="Search keywords" hint="Comma-separated, e.g. wifi 7, ceiling, office"><input value={Array.isArray(f.tags) ? f.tags.join(', ') : f.tags} onChange={(e) => setF({ ...f, tags: e.target.value })} /></Field>
             <Field label="Web address"><input value={f.slug} onChange={set('slug')} placeholder={slugify(f.name) || 'auto from name'} /></Field>
