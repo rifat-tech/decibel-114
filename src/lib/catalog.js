@@ -2,6 +2,7 @@
 // Names, specs and prices were checked against Star Tech's public listings on 26 Oct 2026
 // (Ryans uses the same market range). Descriptions are written fresh for this store.
 // Update prices any time from Admin → Products or with a CSV import.
+import { DESCRIPTIONS } from './descriptions.js';
 
 export const CATEGORIES = [
   { id: 'laptop', name: 'Laptop', icon: 'laptop', order: 1, subs: ['MacBook', 'Ultrabook', 'Business laptop', 'Gaming laptop'] },
@@ -41,7 +42,7 @@ function P(categoryId, subcategory, brand, name, price, originalPrice, art, spec
     stock: price ? (extra.stock ?? 6) : 0,
     status: 'active',
     shortDescription: blurb,
-    description: extra.desc || `${blurb} ${s.slice(0, 3).map((x) => `${x.key}: ${x.value}.`).join(' ')}`,
+    description: extra.desc || DESCRIPTIONS[slug(name)] || `${blurb} ${s.slice(0, 3).map((x) => `${x.key}: ${x.value}.`).join(' ')}`,
     specs: s,
     warranty: extra.warranty || (brand === 'Apple' ? '1 year Apple warranty' : '1 year'),
     featured: !!extra.featured, newArrival: !!extra.new, deal: !!extra.deal,
