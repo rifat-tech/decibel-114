@@ -171,12 +171,19 @@ export default function Header() {
   const sh = useShopper();
   const menu = useMenuIndex();
   const [drawer, setDrawer] = useState(false);
+  // The masthead tightens once the page moves: utility strip folds away, a hairline shadow appears.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 48);
+    on(); window.addEventListener('scroll', on, { passive: true });
+    return () => window.removeEventListener('scroll', on);
+  }, []);
   const loc = useLocation();
   useEffect(() => { setDrawer(false); }, [loc.pathname, loc.search]);
   useEffect(() => { document.body.style.overflow = drawer ? 'hidden' : ''; }, [drawer]);
   const name = user ? (user.profile?.name?.split(' ')[0] || 'Account') : null;
   return (
-    <header className="hdr">
+    <header className={`hdr ${scrolled ? 'scrolled' : ''}`}>
       <div className="hdr-util">
         <div className="container util-row">
           <span className="util-note"><LuShieldCheck /> Official warranty on every product</span>

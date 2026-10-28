@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
-import { MotionConfig } from 'framer-motion';
+import { MotionConfig, motion, useReducedMotion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { StoreProvider } from './context/StoreContext';
@@ -52,13 +52,20 @@ function RequireStaff({ children, area = 'support' }) {
   return can(area) ? children : <div className="admin-page"><h1>No access</h1><p className="muted">Your role does not include this section. Ask an admin to change it.</p></div>;
 }
 
+// Each page settles in with a short fade and lift; skipped for reduced motion.
+function PageFade({ children }) {
+  const reduce = useReducedMotion();
+  if (reduce) return children;
+  return <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>{children}</motion.div>;
+}
+
 function StoreLayout() {
   const loc = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
   return (
     <div className="store">
       <Header />
-      <main className="store-main"><Outlet /></main>
+      <main className="store-main"><PageFade key={loc.pathname}><Outlet /></PageFade></main>
       <Footer />
       <CompareBar />
       <ChatWidget />

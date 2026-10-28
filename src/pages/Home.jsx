@@ -10,6 +10,7 @@ import { useStore } from '../context/StoreContext';
 import { useShopper } from '../context/ShopperContext';
 import { useCart } from '../context/CartContext';
 import { asset, discountPct, money } from '../config';
+import { Parallax, Reveal, SplitWords, Stagger, StaggerItem } from '../components/Motion';
 
 function CatThumb({ src, id }) {
   const [bad, setBad] = useState(false);
@@ -26,19 +27,23 @@ function Banners({ banners }) {
   return (
     <section className="banners" aria-roledescription="carousel">
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div key={b.id} className={`banner tone-${b.tone || 'blue'}`} initial={reduce ? false : { opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.3 }}>
+        <motion.div key={b.id} className={`banner tone-${b.tone || 'blue'}`} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduce ? undefined : { opacity: 0 }} transition={{ duration: 0.35 }}>
           <div className="banner-copy">
-            <h1>{b.title}</h1>
-            <p>{b.text}</p>
-            <Link to={b.link || '/shop'} className="btn btn-lg banner-cta">{b.cta || 'Shop now'}</Link>
+            <SplitWords text={b.title} />
+            <motion.p initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}>{b.text}</motion.p>
+            <motion.div initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+              <Link to={b.link || '/shop'} className="btn btn-lg banner-cta">{b.cta || 'Shop now'}</Link>
+            </motion.div>
           </div>
-          <div className={`banner-art ${b.blend ? 'blend' : ''} ${b.photo ? 'photo' : ''}`}>{b.image ? <img src={asset(b.image)} alt="" /> : <DeviceArt type={b.art || 'phone'} />}</div>
+          <motion.div className={`banner-art ${b.blend ? 'blend' : ''} ${b.photo ? 'photo' : ''}`} initial={reduce ? false : { opacity: 0, x: 60, scale: 0.94 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>
+            {b.image ? <img src={asset(b.image)} alt="" /> : <DeviceArt type={b.art || 'phone'} />}
+          </motion.div>
         </motion.div>
       </AnimatePresence>
       {n > 1 && (
         <div className="banner-nav">
           <button onClick={() => setI((x) => (x - 1 + n) % n)} aria-label="Previous banner"><LuChevronLeft /></button>
-          {banners.map((bb, k) => <button key={bb.id} className={`dot ${k === i % n ? 'on' : ''}`} onClick={() => setI(k)} aria-label={`Banner ${k + 1}`} />)}
+          {banners.map((bb, k) => <button key={k === i % n ? `${bb.id}-${i}` : bb.id} className={`dot ${k === i % n ? 'on' : ''}`} onClick={() => setI(k)} aria-label={`Banner ${k + 1}`} aria-current={k === i % n} />)}
           <button onClick={() => setI((x) => (x + 1) % n)} aria-label="Next banner"><LuChevronRight /></button>
         </div>
       )}
@@ -82,16 +87,18 @@ function AppleStore({ products, catById }) {
   return (
     <section className="section apple-band">
       <div className="container">
-        <div className="section-head">
+        <Reveal from="left" className="section-head">
           <div><h2>Shop Apple</h2><p>Official warranty on every iPhone, Mac, iPad and Watch.</p></div>
           <Link to="/brand/apple" className="link-strong">Visit the Apple store</Link>
-        </div>
+        </Reveal>
         <div className="tabs-pill" role="tablist">
           {APPLE_TABS.map(([t]) => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>{t}</button>)}
         </div>
-        <motion.div layout className="prow">
-          {items.map((p) => <ProductCard key={p.id} product={p} category={catById[p.categoryId]} />)}
-        </motion.div>
+        <AnimatePresence mode="wait">
+          <motion.div key={tab} className="prow" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
+            {items.map((p) => <ProductCard key={p.id} product={p} category={catById[p.categoryId]} />)}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   );
@@ -102,8 +109,8 @@ function Row({ title, sub, link, items, catById }) {
   return (
     <section className="section">
       <div className="container">
-        <div className="section-head"><div><h2>{title}</h2>{sub && <p>{sub}</p>}</div>{link && <Link to={link} className="link-strong">See all</Link>}</div>
-        <div className="prow">{items.map((p) => <ProductCard key={p.id} product={p} category={catById[p.categoryId]} />)}</div>
+        <Reveal from="left" className="section-head"><div><h2>{title}</h2>{sub && <p>{sub}</p>}</div>{link && <Link to={link} className="link-strong">See all</Link>}</Reveal>
+        <Stagger className="prow">{items.map((p, k) => <StaggerItem key={p.id} i={k} className="stg-item"><ProductCard product={p} category={catById[p.categoryId]} /></StaggerItem>)}</Stagger>
       </div>
     </section>
   );
@@ -140,25 +147,29 @@ export default function Home() {
 
       <section className="section tight">
         <div className="container">
-          <h2 className="h-sm">Shop by category</h2>
+          <Reveal as="h2" from="left" className="h-sm">Shop by category</Reveal>
           {error && <p className="error-box">{error}</p>}
-          <div className="cat-rail">
-            {(loading ? Array.from({ length: 10 }, (_, k) => ({ id: 'sk' + k })) : categories).map((c) => (
-              c.name
-                ? <Link key={c.id} to={`/shop?cat=${c.id}`} className="cat-chip"><span className="cat-chip-art"><CatThumb src={catPhoto[c.id]} id={c.id} /></span><span>{c.name}</span></Link>
-                : <div key={c.id} className="cat-chip"><span className="cat-chip-art skeleton" /></div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="cat-rail">{Array.from({ length: 10 }, (_, k) => <div key={k} className="cat-chip"><span className="cat-chip-art skeleton" /></div>)}</div>
+          ) : (
+            <Stagger className="cat-rail" step={0.035}>
+              {categories.map((c, k) => (
+                <StaggerItem key={c.id} i={k}>
+                  <Link to={`/shop?cat=${c.id}`} className="cat-chip"><span className="cat-chip-art"><CatThumb src={catPhoto[c.id]} id={c.id} /></span><span>{c.name}</span></Link>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          )}
         </div>
       </section>
 
       {(deals.length > 0 || topDeals.length > 0) && (
         <section className="section">
           <div className="container deals-grid">
-            <DealOfDay deals={deals} catById={catById} />
+            <Reveal from="left" duration={0.8}><DealOfDay deals={deals} catById={catById} /></Reveal>
             <div className="deals-list">
-              <div className="section-head"><div><h2>Top deals</h2><p>The biggest savings in the store right now.</p></div><Link to="/deals" className="link-strong">All deals</Link></div>
-              <div className="pgrid three">{topDeals.map((p) => <ProductCard key={p.id} product={p} category={catById[p.categoryId]} />)}</div>
+              <Reveal from="right" className="section-head"><div><h2>Top deals</h2><p>The biggest savings in the store right now.</p></div><Link to="/deals" className="link-strong">All deals</Link></Reveal>
+              <Stagger className="pgrid three">{topDeals.map((p, k) => <StaggerItem key={p.id} i={k} className="stg-item"><ProductCard product={p} category={catById[p.categoryId]} /></StaggerItem>)}</Stagger>
             </div>
           </div>
         </section>
@@ -170,14 +181,18 @@ export default function Home() {
 
       <section className="section">
         <div className="container promo-pair">
-          <Link to="/quote" className="promo promo-ink">
-            <div><h3>Buying for an office?</h3><p>Corporate invoices, volume pricing and VAT documents. Send a list and get one price.</p><span className="btn btn-yellow">Request a quote</span></div>
-            <DeviceArt type="laptop" />
-          </Link>
-          <Link to="/shop?cat=network" className="promo promo-blue">
-            <div><h3>Network and Starlink</h3><p>Routers, mesh Wi-Fi, switches and Starlink kits, with setup by engineers.</p><span className="btn btn-white">Shop network gear</span></div>
-            <DeviceArt type="dish" />
-          </Link>
+          <Reveal from="up" className="promo-wrap">
+            <Link to="/quote" className="promo promo-ink">
+              <div className="promo-copy"><span className="eyebrow">Corporate sales</span><h3>Buying for an office?</h3><p>Corporate invoices, volume pricing and VAT documents. Send a list and get one price.</p><span className="btn btn-yellow">Request a quote</span></div>
+              <Parallax className="promo-photo" distance={24}><img src={asset('/img/p/lenovo-thinkpad-e14-gen-7-core-ultra-5-225h-1.webp')} alt="" loading="lazy" /></Parallax>
+            </Link>
+          </Reveal>
+          <Reveal from="up" delay={0.12} className="promo-wrap">
+            <Link to="/shop?cat=network" className="promo promo-sun flip">
+              <div className="promo-copy"><span className="eyebrow">Network solutions</span><h3>Network and Starlink</h3><p>Routers, mesh Wi-Fi, switches and Starlink kits, with setup by engineers.</p><span className="btn btn-primary">Shop network gear</span></div>
+              <Parallax className="promo-photo" distance={32}><img src={asset('/img/b/starlink-standard-kit.webp')} alt="" loading="lazy" /></Parallax>
+            </Link>
+          </Reveal>
         </div>
       </section>
 
