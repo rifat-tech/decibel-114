@@ -202,7 +202,8 @@ const CAT_ART = { laptop: 'laptop', phone: 'phone', tablet: 'tablet', desktop: '
 export const artFor = (p, cat) => p?.art || CAT_ART[p?.categoryId] || cat?.icon || 'phone';
 
 export function ProductVisual({ product, category, className = '' }) {
-  const src = product?.images?.[0] || product?.image;
+  // Cards and lists load a smaller cut of Cloudinary photos.
+  const src = String(product?.images?.[0] || product?.image || '').replace('c_limit,w_1200', 'c_limit,w_480') || null;
   if (src) return <img src={src} alt={product.name} className={`product-photo ${className}`} loading="lazy" decoding="async" />;
   return <DeviceArt type={artFor(product, category)} className={className} seed={product?.slug || product?.name || ''} />;
 }

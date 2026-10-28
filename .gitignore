@@ -3,3 +3,4 @@ dist
 .env
 .env.local
 dist-demo
+scripts/upload-progress.json

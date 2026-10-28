@@ -146,9 +146,16 @@ const expand = (p) => {
 };
 function loadPriceList() {
   if (!listPromise) {
-    listPromise = fetch(`${import.meta.env.BASE_URL || '/'}catalog.json`)
-      .then((r) => (r.ok ? r.json() : { products: [] }))
-      .then((d) => d.products.map(expand))
+    const base = import.meta.env.BASE_URL || '/';
+    const get = (f, empty) => fetch(base + f).then((r) => (r.ok ? r.json() : empty)).catch(() => empty);
+    listPromise = Promise.all([get('catalog.json', { products: [] }), get('image-map.json', null)])
+      .then(([d, map]) => d.products.map((p) => {
+        const x = expand(p);
+        const ks = map?.items?.[p.id];
+        // Own photo gallery (Cloudinary) replaces the single distributor photo when available.
+        if (ks?.length) x.images = ks.map((k) => `https://res.cloudinary.com/${map.cloud}/image/upload/f_auto,q_auto,c_limit,w_1200/${map.folder}/${p.id}-${k}`);
+        return x;
+      }))
       .catch((e) => { console.warn('Price list not available', e); listPromise = null; return []; });
   }
   return listPromise;
