@@ -876,3 +876,4 @@ html { scrollbar-color: #B5ADA1 var(--paper); }
 .cat-chip-art img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
 .cat-chip-ico { font-size: 30px; color: var(--ink); stroke-width: 1.4; }
 .pcard-media .product-photo, .gallery-frame img, .suggest-img img { mix-blend-mode: multiply; }
+.shop-hero { display: none; }
