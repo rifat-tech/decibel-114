@@ -32,7 +32,7 @@ export function prepQuery(q) {
   for (const [bn, en] of BN_WORDS) s = s.replace(new RegExp(`${bn}[\u0980-\u09FF]*`, 'g'), ` ${en} `);
   return s.replace(/\s+/g, ' ').trim();
 }
-export const isBangla = (q) => /[ঀ-৿]/.test(q) || /\b(dam|koto|ache|achhe|chai|kivabe|kothay|kobe|vai|bhai|apnar|amar|ki)\b/i.test(q);
+export const isBangla = (q) => /[\u0980-\u09F1\u09F4-\u09FF]/.test(q) || /\b(dam|koto|ache|achhe|chai|kivabe|kothay|kobe|vai|bhai|apnar|amar|ki)\b/i.test(q);
 
 const STOP = new Set(('the a an and or for with of to in on is are am i me my you your we our do does can could would please plz pls want need show find have has any '
   + 'price prices cost costs how much what which whats best good top latest new buy get available availability stock in-stock '
@@ -234,11 +234,78 @@ export async function askAssistant({ question, history, catalog, settings }) {
   }
 }
 
+/* ── Broad questions ("phone", "router", "mikrotik", "iphone"): a short overview with the range,
+      popular picks, one-tap filters and a link to the full list ── */
+const plural = { phone: 'phones', laptop: 'laptops', tablet: 'tablets', monitor: 'monitors', printer: 'printers', router: 'routers', switch: 'switches', desktop: 'desktops', security: 'CCTV products', sound: 'audio products', gadget: 'gadgets' };
+function overview(question, catalog, bn) {
+  const pq = prepQuery(question);
+  if (readBudget(pq)) return null;
+  const all = words(pq).filter((w) => !STOP.has(w));
+  if (all.some((w) => /\d/.test(w))) return null; // a model number means a specific product
+  const toks = all.filter((w) => /[\p{L}]/u.test(w));
+  if (!toks.length || toks.length > 2) return null;
+  const P = catalog.products;
+  const brands = new Map(); const subs = new Map();
+  for (const p of P) { brands.set(norm(p.brand), p.brand); if (p.subcategory) subs.set(norm(p.subcategory), p.subcategory); }
+  const q = toks.join(' ');
+  let pool, label, link, kind;
+  const GENERIC = !['iphone', 'macbook', 'ipad'].includes(q);
+  const cat = toks.length === 1 && GENERIC && CAT_WORDS[q] && CAT_WORDS[q][0];
+  if (cat) {
+    pool = P.filter((p) => p.categoryId === cat || norm(p.subcategory) === cat); kind = 'cat';
+    label = plural[cat] || `${cat}s`; const c = pool.find((p) => norm(p.subcategory) === cat && p.categoryId !== cat);
+    link = c ? `/shop?cat=${c.categoryId}&sub=${encodeURIComponent(c.subcategory)}` : `/shop?cat=${cat}`;
+  } else if (subs.has(q)) {
+    const sub = subs.get(q); pool = P.filter((p) => norm(p.subcategory) === q); kind = 'sub';
+    label = sub; link = `/shop?cat=${pool[0]?.categoryId || ''}&sub=${encodeURIComponent(sub)}`;
+  } else if (brands.has(q)) {
+    const b = brands.get(q); pool = P.filter((p) => norm(p.brand) === q); kind = 'brand';
+    label = b; link = b === 'Apple' ? '/brand/apple' : `/shop?brand=${encodeURIComponent(b)}`;
+  } else return null;
+  if (pool.length < 2) return null;
+  const priced = pool.filter((p) => p.price > 0);
+  const onReq = pool.length - priced.length;
+  const top = (m) => [...m.entries()].sort((a, b) => b[1] - a[1]).map(([k]) => k);
+  const brandCount = new Map(); priced.forEach((p) => brandCount.set(p.brand, (brandCount.get(p.brand) || 0) + 1));
+  const subCount = new Map(); priced.forEach((p) => p.subcategory && subCount.set(p.subcategory, (subCount.get(p.subcategory) || 0) + 1));
+  const ours = (p) => p.images?.[0] && !/^https?:/.test(p.images[0]);
+  const picks = [...priced].filter((p) => p.stock > 0).sort((a, b) => (ours(b) - ours(a)) || ((b.featured ? 1 : 0) + (b.newArrival ? 1 : 0)) - ((a.featured ? 1 : 0) + (a.newArrival ? 1 : 0)) || a.price - b.price).slice(0, 3);
+  const prices = priced.map((p) => p.price).sort((a, b) => a - b);
+  const lo = prices[0], hi = prices[prices.length - 1];
+  // Budget steps at roughly the 40th and 75th percentile, rounded to a clean figure.
+  const step = (f) => { const v = prices[Math.floor((prices.length - 1) * f)]; const r = v > 100000 ? 10000 : v > 10000 ? 5000 : 500; return Math.ceil(v / r) * r; };
+  const budgets = prices.length >= 4 ? [...new Set([step(0.4), step(0.75)])].filter((v) => v < hi) : [];
+  const noun = kind === 'cat' ? label : `${label} products`;
+  const chips = [];
+  if (kind === 'brand') top(subCount).slice(0, 3).forEach((sub) => chips.push(`${label} ${sub}`));
+  else top(brandCount).filter((b) => norm(b) !== q).slice(0, kind === 'sub' ? 2 : 3).forEach((b) => chips.push(kind === 'cat' ? `${b} ${q}` : `${b} ${label}`));
+  budgets.forEach((v) => chips.push(`${kind === 'brand' ? label : q} under ${money(v)}`));
+  const brandList = top(brandCount);
+  const brandsTxt = brandList.length > 1 ? brandList.slice(0, 3).join(', ') : '';
+  const BN_LABEL = { phones: 'ফোন', laptops: 'ল্যাপটপ', tablets: 'ট্যাবলেট', monitors: 'মনিটর', printers: 'প্রিন্টার', routers: 'রাউটার', switches: 'সুইচ', desktops: 'ডেস্কটপ', 'CCTV products': 'সিসিটিভি', 'audio products': 'অডিও', gadgets: 'গ্যাজেট' };
+  const bnLabel = BN_LABEL[label] || label;
+  let text;
+  if (!priced.length) {
+    text = bn ? `${label}-এর ${pool.length}টা প্রোডাক্ট আছে, সবগুলোর দাম রিকোয়েস্টে। মডেল বললে টিম আজকের দাম জানিয়ে দেবে।`
+      : `We carry ${pool.length} ${noun}, all priced on request. Tell me the model and our team will share today's price.`;
+  } else {
+    const range = lo === hi ? money(lo) : (bn ? `${money(lo)} থেকে ${money(hi)}` : `${money(lo)} to ${money(hi)}`);
+    const one = priced.length === 1;
+    text = bn
+      ? `${bnLabel}: ${priced.length}টা মডেল, দাম ${range}${kind !== 'brand' && brandsTxt ? ` (${brandsTxt})` : ''}।${onReq ? ` আরও ${onReq}টার দাম রিকোয়েস্টে।` : ''} জনপ্রিয় কয়েকটা নিচে দিলাম। ব্র্যান্ড বা বাজেট বেছে নিলে আরও ঠিকঠাক দেখাব।`
+      : one
+        ? `We have one ${label} model with a listed price (${range})${onReq ? ` and ${onReq} more priced on request` : ''}. ${onReq ? 'Pick a type below or ask our team for today\'s prices.' : ''}`.trim()
+        : `We have ${priced.length} ${noun} from ${range}${kind !== 'brand' && brandsTxt ? `, mostly ${brandsTxt}` : ''}.${onReq ? ` ${onReq} more are priced on request.` : ''} Popular picks are below; pick a brand or budget to narrow it down.`;
+  }
+  return { text, products: picks.map((p) => p.slug), chips: chips.slice(0, 5).map((c) => c.charAt(0).toUpperCase() + c.slice(1)), link: { to: link, label: bn ? `সব ${bnLabel} দেখুন` : `See all ${noun}` } };
+}
+
 /** Answer without the AI model: store questions first, then the catalog. */
 export function localAnswer({ question, catalog, settings }) {
   const bn = isBangla(question);
   const pq = prepQuery(question);
   const intent = detectIntent(pq);
+  if (!intent || intent === 'greet') { const o = overview(question, catalog, bn); if (o) return { handoff: false, source: 'fallback', ...o }; }
   const hits = searchCatalog(catalog.products, question, 6);
   const base = { products: [], handoff: false, source: 'fallback' };
   if (intent === 'human') return { ...base, text: storeAnswer('human', settings, bn), handoff: true };

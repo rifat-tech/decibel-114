@@ -1197,3 +1197,11 @@ body { background: var(--paper); }
 .zoom { padding: 36px; }
 .zoom:not(.on) img { max-height: min(480px, 70vw); }
 .buybox { border-radius: 12px; }
+
+/* chat: quick filters and see-all link under an assistant reply */
+.chat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chat-chips button, .chat-prompts button { border: 1px solid #C5CCD6; background: #fff; color: #1D252C; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 500; transition: border-color .15s, background .15s; }
+.chat-chips button:hover, .chat-prompts button:hover { border-color: var(--bb-blue); background: #F2F7FF; }
+.chat-prompts { display: flex; flex-wrap: wrap; gap: 6px; }
+.chat-seeall { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-weight: 600; font-size: 13.5px; color: var(--bb-blue); }
+.chat-seeall:hover { text-decoration: underline; }

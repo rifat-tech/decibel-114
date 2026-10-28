@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LuMessageCircle, LuX, LuSend, LuUserCircle2, LuSparkles } from 'react-icons/lu';
+import { LuMessageCircle, LuX, LuSend, LuUserCircle2, LuSparkles, LuArrowRight } from 'react-icons/lu';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { ProductVisual } from './DeviceArt';
 import { useStore } from '../context/StoreContext';
@@ -11,7 +11,7 @@ import { chatCol, ensureChat, msgCol, postMessage, rid } from '../lib/db';
 import { money, waLink } from '../config';
 
 const KEY = 'd114_chat_id';
-const PROMPTS = ['Best iPhone under ৳1,50,000?', 'MacBook for a university student', 'Starlink kit price and setup', 'Do you deliver outside Dhaka?'];
+const PROMPTS = ['Phone', 'iPhone', 'Laptop', 'Router', 'MikroTik', 'Starlink', 'Laptop under ৳80,000', 'Delivery charge?'];
 
 function ProductChip({ p }) {
   return (
@@ -73,7 +73,7 @@ export default function ChatWidget() {
     setThinking(true);
     try {
       const r = await askAssistant({ question, history, catalog: store, settings: s });
-      await postMessage(id, { from: 'ai', text: r.text, products: r.products });
+      await postMessage(id, { from: 'ai', text: r.text, products: r.products, ...(r.chips?.length ? { chips: r.chips } : {}), ...(r.link ? { link: r.link } : {}) });
       if (r.handoff) await handoff(id);
     } finally { setThinking(false); }
   };
@@ -116,6 +116,8 @@ export default function ChatWidget() {
                   {m.from === 'agent' && <small className="msg-who">{m.agent || 'Agent'}</small>}
                   {m.text && <p>{m.text}</p>}
                   {(m.products || []).map((slug) => store.bySlug[slug] && <ProductChip key={slug} p={store.bySlug[slug]} />)}
+                  {m.link?.to && <Link to={m.link.to} className="chat-seeall" onClick={() => setOpen(false)}>{m.link.label} <LuArrowRight /></Link>}
+                  {m.chips?.length > 0 && m.id === list[list.length - 1]?.id && <div className="chat-chips">{m.chips.map((c) => <button key={c} type="button" onClick={() => send(c)}>{c}</button>)}</div>}
                 </div>
               ))}
               {thinking && <div className="msg ai typing"><span /><span /><span /></div>}
