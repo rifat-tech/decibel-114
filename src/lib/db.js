@@ -113,7 +113,7 @@ export const DEFAULT_SETTINGS = {
     { id: 'b1', title: 'iPhone 18 Pro Max in Burgundy', text: 'A20 Pro chip and three 48MP cameras. Official warranty, delivered across Bangladesh.', cta: 'Shop iPhone 18 Pro Max', link: '/product/iphone-18-pro-max', tone: 'sky', image: '/img/b/iphone-18-pro-max-burgundy.webp' },
     { id: 'b2', title: 'MacBook Neo from ৳97,000', text: 'The most affordable MacBook, in four colours. Built for students and everyday work.', cta: 'Shop MacBook Neo', link: '/shop?cat=laptop&sub=MacBook', tone: 'sun', image: '/img/b/macbook-neo.webp' },
     { id: 'b3', title: 'MikroTik for ISPs and offices', text: 'RouterOS routers and switches, preconfigured by our network team on request.', cta: 'Shop MikroTik', link: '/shop?cat=network&brand=MikroTik', tone: 'mist', image: '/img/b/mikrotik-hex-lite.webp' },
-    { id: 'b4', title: 'Starlink, delivered and set up', text: 'High-speed satellite internet anywhere in Bangladesh. Standard, Mini and accessories in stock.', cta: 'Shop Starlink', link: '/shop?cat=network&sub=Starlink', tone: 'sky', image: '/img/b/starlink-standard.webp', photo: true },
+    { id: 'b4', title: 'Starlink, delivered and set up', text: 'High-speed satellite internet anywhere in Bangladesh. Standard, Mini and accessories in stock.', cta: 'Shop Starlink', link: '/shop?cat=network&sub=Starlink', tone: 'sky', image: '/img/b/starlink-standard-kit.webp', photo: true },
   ],
   ai: {
     enabled: true, model: 'gemini-2.5-flash', name: 'Decibel Assistant',

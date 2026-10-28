@@ -949,3 +949,4 @@ html { scrollbar-color: #9DB0C8 var(--paper); }
 .footer-base { border-top-color: rgba(255,255,255,.1); }
 .banner-art.photo { filter: none; }
 .banner-art.photo img { border-radius: 10px; box-shadow: 0 24px 40px -18px rgba(10,22,48,.45); }
+.banner-art.photo img { background: #fff; padding: 8px; }
