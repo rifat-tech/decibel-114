@@ -191,7 +191,7 @@ export default function Header() {
       <div className="hdr-main">
         <div className="container hdr-row">
           <button className="icon-btn on-blue only-mobile" onClick={() => setDrawer(true)} aria-label="Open categories"><LuMenu /></button>
-          <Link to="/" className="hdr-logo" aria-label="Decibel-114 home"><Logo onBlue /></Link>
+          <Link to="/" className="hdr-logo" aria-label="Decibel-114 home"><Logo onYellow /></Link>
           <Search />
           <nav className="hdr-actions" aria-label="Your shopping">
             <Link to="/deals" className="hdr-act only-desktop"><LuBadgePercent /><span className="act-txt"><b>Offers</b><small>Latest deals</small></span></Link>

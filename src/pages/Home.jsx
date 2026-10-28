@@ -121,8 +121,10 @@ export default function Home() {
   // One real product photo per category for the category rail (prefers a priced, in-stock item).
   const catPhoto = useMemo(() => {
     const m = {};
+    const PREFER = { network: /ruijie|router|mikrotik/i };
     const ok = (p) => p.images?.[0] && p.price > 0 && p.stock > 0 && !/cable|adapter|converter/i.test(p.name);
     // Our own curated photos first (always load), distributor photos only as a fallback.
+    for (const p of products) if (!m[p.categoryId] && ok(p) && PREFER[p.categoryId]?.test(p.name) && !/^https?:/.test(p.images[0])) m[p.categoryId] = p.images[0];
     for (const p of products) if (!m[p.categoryId] && ok(p) && !/^https?:/.test(p.images[0])) m[p.categoryId] = p.images[0];
     for (const p of products) if (!m[p.categoryId] && ok(p)) m[p.categoryId] = p.images[0];
     return m;
