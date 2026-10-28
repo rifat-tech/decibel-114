@@ -9,7 +9,12 @@ import { useTitle } from '../components/ui';
 import { useStore } from '../context/StoreContext';
 import { useShopper } from '../context/ShopperContext';
 import { useCart } from '../context/CartContext';
-import { discountPct, money } from '../config';
+import { asset, discountPct, money } from '../config';
+
+function CatThumb({ src, id }) {
+  const [bad, setBad] = useState(false);
+  return src && !bad ? <img src={src} alt="" loading="lazy" onError={() => setBad(true)} /> : <CatIcon id={id} className="cat-chip-ico" />;
+}
 
 function Banners({ banners }) {
   const [i, setI] = useState(0);
@@ -27,7 +32,7 @@ function Banners({ banners }) {
             <p>{b.text}</p>
             <Link to={b.link || '/shop'} className="btn btn-lg banner-cta">{b.cta || 'Shop now'}</Link>
           </div>
-          <div className="banner-art">{b.image ? <img src={b.image} alt="" /> : <DeviceArt type={b.art || 'phone'} />}</div>
+          <div className={`banner-art ${b.blend ? 'blend' : ''} ${b.photo ? 'photo' : ''}`}>{b.image ? <img src={asset(b.image)} alt="" /> : <DeviceArt type={b.art || 'phone'} />}</div>
         </motion.div>
       </AnimatePresence>
       {n > 1 && (
@@ -116,7 +121,10 @@ export default function Home() {
   // One real product photo per category for the category rail (prefers a priced, in-stock item).
   const catPhoto = useMemo(() => {
     const m = {};
-    for (const p of products) if (!m[p.categoryId] && p.images?.[0] && p.price > 0 && p.stock > 0 && !/cable|adapter|converter/i.test(p.name)) m[p.categoryId] = p.images[0];
+    const ok = (p) => p.images?.[0] && p.price > 0 && p.stock > 0 && !/cable|adapter|converter/i.test(p.name);
+    // Our own curated photos first (always load), distributor photos only as a fallback.
+    for (const p of products) if (!m[p.categoryId] && ok(p) && !/^https?:/.test(p.images[0])) m[p.categoryId] = p.images[0];
+    for (const p of products) if (!m[p.categoryId] && ok(p)) m[p.categoryId] = p.images[0];
     return m;
   }, [products]);
   const brands = useMemo(() => {
@@ -135,7 +143,7 @@ export default function Home() {
           <div className="cat-rail">
             {(loading ? Array.from({ length: 10 }, (_, k) => ({ id: 'sk' + k })) : categories).map((c) => (
               c.name
-                ? <Link key={c.id} to={`/shop?cat=${c.id}`} className="cat-chip"><span className="cat-chip-art">{catPhoto[c.id] ? <img src={catPhoto[c.id]} alt="" loading="lazy" /> : <CatIcon id={c.id} className="cat-chip-ico" />}</span><span>{c.name}</span></Link>
+                ? <Link key={c.id} to={`/shop?cat=${c.id}`} className="cat-chip"><span className="cat-chip-art"><CatThumb src={catPhoto[c.id]} id={c.id} /></span><span>{c.name}</span></Link>
                 : <div key={c.id} className="cat-chip"><span className="cat-chip-art skeleton" /></div>
             ))}
           </div>

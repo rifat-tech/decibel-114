@@ -28,3 +28,6 @@ export const HASH = env.VITE_HASH_ROUTER === '1';
 /** No price + not flagged "soon" means the price is given on request (corporate/project items). */
 export const priceText = (p) => (p.price ? money(p.price) : p.soon ? 'Coming soon' : 'Price on request');
 export const quoteLink = (p) => `/quote?items=${encodeURIComponent(`${p.name} x 1`)}`;
+
+/** Site-relative asset path that also works when the app is served from a sub-folder. */
+export const asset = (u) => (typeof u === 'string' && u.startsWith('/') && !u.startsWith('//') ? (import.meta.env?.BASE_URL || '/') + u.slice(1) : u);

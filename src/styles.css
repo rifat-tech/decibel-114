@@ -877,3 +877,75 @@ html { scrollbar-color: #B5ADA1 var(--paper); }
 .cat-chip-ico { font-size: 30px; color: var(--ink); stroke-width: 1.4; }
 .pcard-media .product-photo, .gallery-frame img, .suggest-img img { mix-blend-mode: multiply; }
 .shop-hero { display: none; }
+
+/* ═══════ brand v4: navy masthead from the logo, sun yellow for action, sky blue for accents ═══════ */
+:root {
+  --navy: #0A1630; --navy-2: #0F2147; --navy-3: #16306A;
+  --sky: #1EA7FF; --sky-ink: #0A6FB8; --sky-soft: #E6F4FF;
+  --sun: #FFCC00; --sun-2: #F2B900;
+  --yellow: var(--sun); --yellow-2: var(--sun-2);
+  --gold-text: var(--sky-ink);
+  --blue: var(--navy); --blue-2: #06101F; --blue-3: #050D1A; --blue-soft: var(--sky-soft);
+  --paper: #F4F8FC; --tile: #F7FAFD; --line: #D3DEEA; --line-soft: #E3EBF4;
+  --muted: #54627A; --faint: #8592A6; --text: #14203A; --ink: #0A1630;
+  --stage: var(--navy); --on-blue: #F3F7FC; --on-blue-soft: #A9BAD3;
+}
+::selection { background: #CDEBFF; color: var(--ink); }
+:focus-visible { outline-color: var(--sky); }
+html { scrollbar-color: #9DB0C8 var(--paper); }
+
+.logo img { height: 40px; width: auto; display: block; }
+.logo.small img { height: 32px; }
+@media (max-width: 640px) { .hdr .logo img { height: 32px; } }
+
+.hdr, .hdr-main { background: var(--navy); }
+.hdr-util { background: #071024; color: #A9BAD3; border-bottom-color: rgba(255,255,255,.06); }
+.hdr-util svg { color: var(--sun); }
+.catbar, .mcats { background: var(--navy-2); border-top-color: rgba(255,255,255,.07); }
+.catbar a:hover, .catbar button:hover { color: var(--sun); }
+.mcat { border-color: rgba(255,255,255,.16); color: #DCE6F3; }
+.mcat svg { color: var(--sky); }
+.hsearch input { background: #fff !important; color: var(--ink) !important; border: 1px solid #fff !important; }
+.hsearch input::placeholder { color: #7C8AA0; }
+.hsearch input:focus { border-color: var(--sun) !important; }
+.hsearch-go { background: var(--sun); color: var(--navy); }
+.hsearch-go:hover { background: var(--sun-2); }
+.cart-count, .nav-badge { background: var(--sun); color: var(--navy); }
+.hdr-chip.strong { color: var(--sun); }
+.hdr-chip::after { background: var(--sun); }
+
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--navy-3); }
+.btn-cart { background: var(--sun); color: var(--navy); }
+.btn-cart:hover:not(:disabled) { background: var(--sun-2); box-shadow: none; }
+.btn-yellow, .banner-cta { background: var(--sky) !important; color: #fff !important; }
+.btn-yellow:hover, .banner-cta:hover { background: var(--sky-ink) !important; }
+.link, .link-strong, .suggest-all { text-decoration-color: var(--sky); }
+.pcard-name:hover { text-decoration-color: var(--sky); }
+.compare-check input { accent-color: var(--sky-ink); }
+.cat-chip:hover .cat-chip-art { border-color: var(--sky); }
+.dotd { border-color: var(--sky); }
+.order-no { background: var(--sun); }
+.msg.agent p { border-color: var(--sky); }
+
+/* hero banners: light stages, navy type, real product cut-outs */
+.banner { color: var(--navy); }
+.banner p { color: #3E4E6B !important; }
+.tone-sky, .tone-sun, .tone-mist { color: var(--navy); border: 0; }
+.tone-sky { background: linear-gradient(115deg, #EAF6FF 0%, #CFEAFF 55%, #A8D9FF 100%); }
+.tone-sun { background: linear-gradient(115deg, #FFF9E0 0%, #FFEFA8 55%, #FFE066 100%); }
+.tone-mist { background: linear-gradient(115deg, #F4F8FC 0%, #E3EEF8 60%, #CFE3F5 100%); }
+.tone-sun .banner-cta { background: var(--navy) !important; }
+.tone-sun .banner-cta:hover { background: var(--navy-3) !important; }
+.banner-art { filter: drop-shadow(0 24px 30px rgba(10,22,48,.22)); }
+.banner-art.blend img { mix-blend-mode: multiply; }
+.banner-nav button { background: rgba(255,255,255,.7); color: var(--navy); border-color: rgba(10,22,48,.15); }
+.banner-nav .dot { background: rgba(10,22,48,.22); }
+.banner-nav .dot.on { background: var(--navy); }
+
+.promo-ink, .promo-blue { background: var(--navy); }
+.footer { background: var(--navy); color: #A9BAD3; }
+.footer a:hover { color: var(--sun); }
+.footer-base { border-top-color: rgba(255,255,255,.1); }
+.banner-art.photo { filter: none; }
+.banner-art.photo img { border-radius: 10px; box-shadow: 0 24px 40px -18px rgba(10,22,48,.45); }

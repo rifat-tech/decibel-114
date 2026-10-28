@@ -51,7 +51,7 @@ function P(categoryId, subcategory, brand, name, price, originalPrice, art, spec
     featured: !!extra.featured, newArrival: !!extra.new, deal: !!extra.deal,
     tags: extra.tags || [],
     options: extra.options || [],
-    images: IMAGES[slug(name)] || [],
+    images: (IMAGES[slug(name)] || []).map((u) => (import.meta.env?.BASE_URL || '/') + u.slice(1)),
     createdAt: T - n * 60000,
   };
 }
