@@ -3,6 +3,7 @@
 // (Ryans uses the same market range). Descriptions are written fresh for this store.
 // Update prices any time from Admin → Products or with a CSV import.
 import { DESCRIPTIONS } from './descriptions.js';
+import IMAGES from './curatedImages.json';
 
 export const CATEGORIES = [
   { id: 'laptop', name: 'Laptop', short: 'Laptop', order: 1, subs: ['MacBook', 'Premium laptop', 'Business laptop', 'Gaming laptop', 'Everyday laptop', 'Ultrabook'] },
@@ -50,7 +51,7 @@ function P(categoryId, subcategory, brand, name, price, originalPrice, art, spec
     featured: !!extra.featured, newArrival: !!extra.new, deal: !!extra.deal,
     tags: extra.tags || [],
     options: extra.options || [],
-    images: [],
+    images: IMAGES[slug(name)] || [],
     createdAt: T - n * 60000,
   };
 }
