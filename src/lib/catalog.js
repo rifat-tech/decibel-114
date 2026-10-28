@@ -61,7 +61,7 @@ const RAW = [
   P('phone', 'iPhone', 'Apple', 'iPhone 18 Pro Max', 273000, 299999, 'phone',
     'Display: 6.9" LTPO Super Retina XDR OLED, 120Hz, Dolby Vision; Chip: A20 Pro (2nm), 6-core CPU, 7-core GPU; Camera: Triple 48MP rear, 18MP front; Features: Face ID, USB-C, IP68, MagSafe',
     'The largest iPhone with the new 2nm A20 Pro chip and three 48MP cameras.', { featured: true, new: true, tags: ['iphone 18', 'pro max', 'apple phone'] }),
-  P('phone', 'iPhone', 'Apple', 'iPhone 18 Pro', 274999, 0, 'phone',
+  P('phone', 'iPhone', 'Apple', 'iPhone 18 Pro', 250000, 274999, 'phone',
     'Display: 6.3" LTPO Super Retina XDR OLED, 120Hz, Dolby Vision; Chip: A20 Pro (2nm), 6-core CPU, 7-core GPU; Camera: Triple 48MP rear, 18MP front; Features: Face ID, USB-C, IP68, MagSafe',
     'Pro cameras and the A20 Pro chip in a one-hand 6.3-inch size.', { new: true, tags: ['iphone 18'] }),
   P('phone', 'iPhone', 'Apple', 'iPhone 17 Pro Max', 195000, 249999, 'phone',
