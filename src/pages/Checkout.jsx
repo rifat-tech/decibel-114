@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { checkCoupon, createOrder, errText } from '../lib/db';
 import { money, paymentMethods } from '../config';
+import { trackOrder } from '../lib/analytics';
 
 export default function Checkout() {
   useTitle('Checkout');
@@ -45,6 +46,7 @@ export default function Checkout() {
         subtotal: cart.subtotal, discount, coupon: coupon?.code || '', shipping: fee, total,
         paymentMethod: f.payment, paymentRef: f.paymentRef.trim(), notes: f.notes.trim(),
       }, user);
+      trackOrder();
       cart.clear();
       nav(`/order/${res.orderNumber}`, { replace: true, state: { total, phone: f.phone } });
     } catch (err) { toast.error(errText(err)); setBusy(false); }

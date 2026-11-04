@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
+import { useEffect , useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export function useTitle(t) {
@@ -27,3 +28,16 @@ export const StockTag = ({ p }) => {
   if (p.stock <= 3) return <span className="stock low">Only {p.stock} left</span>;
   return <span className="stock in">In stock, ships in 24 hours</span>;
 };
+
+/** Password box with a show/hide eye, so people can check what they typed. */
+export function PasswordInput({ className = '', ...props }) {
+  const [show, setShow] = useState(false);
+  return (
+    <span className={`pw-field ${className}`}>
+      <input {...props} type={show ? 'text' : 'password'} />
+      <button type="button" className="pw-eye" onClick={() => setShow((v) => !v)} aria-label={show ? 'Hide password' : 'Show password'} aria-pressed={show}>
+        {show ? <LuEyeOff /> : <LuEye />}
+      </button>
+    </span>
+  );
+}

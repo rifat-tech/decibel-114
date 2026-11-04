@@ -23,9 +23,11 @@ import Account from './pages/Account';
 import { Login, Register } from './pages/Auth';
 import { InfoPage, NotFound, Quote, Solutions, Wishlist } from './pages/Misc';
 import { HASH } from './config';
+import { trackPage } from './lib/analytics';
 
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const Analytics = lazy(() => import('./pages/admin/Analytics'));
 const Orders = lazy(() => import('./pages/admin/Orders'));
 const Leads = lazy(() => import('./pages/admin/Leads'));
 const Customers = lazy(() => import('./pages/admin/Customers'));
@@ -62,6 +64,7 @@ function PageFade({ children }) {
 function StoreLayout() {
   const loc = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
+  useEffect(() => { const t = setTimeout(() => trackPage(loc.pathname), 400); return () => clearTimeout(t); }, [loc.pathname]);
   return (
     <div className="store">
       <Header />
@@ -114,6 +117,7 @@ export default function App() {
                       <Route path="leads" element={<RequireStaff area="sales"><Leads /></RequireStaff>} />
                       <Route path="customers" element={<RequireStaff area="sales"><Customers /></RequireStaff>} />
                       <Route path="inbox" element={<Inbox />} />
+                      <Route path="analytics" element={<RequireStaff area="sales"><Analytics /></RequireStaff>} />
                       <Route path="products" element={<RequireStaff area="catalog"><AdminProducts /></RequireStaff>} />
                       <Route path="products/new" element={<RequireStaff area="catalog"><ProductForm /></RequireStaff>} />
                       <Route path="products/:id" element={<RequireStaff area="catalog"><ProductForm /></RequireStaff>} />

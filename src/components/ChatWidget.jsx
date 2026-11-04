@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { askAssistant } from '../lib/ai';
 import { chatCol, ensureChat, msgCol, postMessage, rid } from '../lib/db';
 import { money, waLink } from '../config';
+import { trackSearch } from '../lib/analytics';
 
 const KEY = 'd114_chat_id';
 const PROMPTS = ['Phone', 'iPhone', 'Laptop', 'Router', 'MikroTik', 'Starlink', 'Laptop under ৳80,000', 'Delivery charge?'];
@@ -73,6 +74,7 @@ export default function ChatWidget() {
     setThinking(true);
     try {
       const r = await askAssistant({ question, history, catalog: store, settings: s });
+      trackSearch(question, r.products?.length || 0, 'chat');
       await postMessage(id, { from: 'ai', text: r.text, products: r.products, ...(r.chips?.length ? { chips: r.chips } : {}), ...(r.link ? { link: r.link } : {}) });
       if (r.handoff) await handoff(id);
     } finally { setThinking(false); }

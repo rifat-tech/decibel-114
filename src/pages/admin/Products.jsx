@@ -116,7 +116,8 @@ export function ProductForm() {
   useTitle(isNew ? 'Add product' : 'Edit product');
   const nav = useNavigate();
   const { categories, catById, reload, brands } = useCatalog();
-  const [f, setF] = useState(isNew ? EMPTY : null);
+  // "Add product" from the searches panel pre-fills the name people searched for.
+  const [f, setF] = useState(isNew ? { ...EMPTY, name: new URLSearchParams(window.location.search).get('name') || EMPTY.name || '' } : null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(0);
   const [url, setUrl] = useState('');

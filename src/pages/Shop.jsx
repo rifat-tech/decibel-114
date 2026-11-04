@@ -7,6 +7,7 @@ import { Empty, Spinner, useTitle } from '../components/ui';
 import { useCatalog } from '../context/StoreContext';
 import { discountPct } from '../config';
 import DeviceArt from '../components/DeviceArt';
+import { trackSearch } from '../lib/analytics';
 
 const PAGE = 48;
 const SORTS = { featured: 'Best match', newest: 'Newest', discount: 'Biggest savings', 'price-asc': 'Price: low to high', 'price-desc': 'Price: high to low', name: 'Name' };
@@ -66,6 +67,8 @@ export default function Shop({ preset = {}, heading, intro, art }) {
     }[sort];
     return by ? [...r].sort(by) : r;
   }, [scoped, sub, brands, min, max, stockOnly, newOnly, q, sort, catById]);
+  // Record what people search for, and which searches find nothing.
+  useEffect(() => { if (q && !loading) trackSearch(q, results.length); }, [q, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const active = [sub, ...brands, min, max, stockOnly, newOnly, q].filter(Boolean).length;
 

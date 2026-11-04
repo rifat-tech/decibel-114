@@ -1,5 +1,6 @@
 rules_version = '2';
 // Decibel-114 security rules. Paste into Firebase console → Firestore → Rules → Publish.
+// Project: decibel-114 ONLY. (SPORTY has its own Firebase project and its own rules; never paste those here.)
 service cloud.firestore {
   match /databases/{db}/documents {
     function signedIn() { return request.auth != null; }
@@ -68,6 +69,16 @@ service cloud.firestore {
                       || (request.resource.data.from == 'agent' && isStaff());
         allow update, delete: if isAdmin();
       }
+    }
+
+    // Visitor stats: one counter document per day (stats/YYYY-MM-DD). The site may only add to
+    // the known counters; staff can read them in Admin → Visitors & searches.
+    match /stats/{day} {
+      allow read: if isSales();
+      allow create, update: if day.matches('^20[0-9]{2}-[01][0-9]-[0-3][0-9]$')
+        && request.resource.data.keys().hasOnly(['views', 'sessions', 'visitors', 'newVisitors', 'searches', 'addToCart', 'orders',
+             'page', 'search', 'chat', 'noResult', 'product', 'cart', 'source', 'device']);
+      allow delete: if isAdmin();
     }
 
     // People: users edit their own profile (never role or disabled); sales can read; admins manage

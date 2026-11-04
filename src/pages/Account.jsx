@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Field, Spinner, useTitle } from '../components/ui';
+import { Field, Spinner, useTitle, PasswordInput } from '../components/ui';
 import { StatusSteps } from './Track';
 import { useAuth } from '../context/AuthContext';
 import { changeMyPassword, errText, logout, myOrders, updateMyProfile } from '../lib/db';
@@ -37,7 +37,7 @@ export default function Account() {
         <form className="panel warn" onSubmit={changePw}>
           <h2>Set your own password</h2>
           <p>Your account was created by Decibel-114 with a temporary password. Choose a new one to finish setting it up.</p>
-          <div className="row-gap"><input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="New password" autoComplete="new-password" /><button className="btn btn-primary">Save password</button></div>
+          <div className="row-gap"><PasswordInput value={pw} onChange={(e) => setPw(e.target.value)} placeholder="New password" autoComplete="new-password" /><button className="btn btn-primary">Save password</button></div>
         </form>
       )}
 
@@ -63,7 +63,7 @@ export default function Account() {
           {!p.mustChangePassword && (
             <form className="panel" onSubmit={changePw}>
               <h2>Change password</h2>
-              <Field label="New password"><input type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /></Field>
+              <Field label="New password"><PasswordInput value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" /></Field>
               <button className="btn btn-ghost">Change password</button>
             </form>
           )}

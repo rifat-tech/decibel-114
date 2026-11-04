@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { trackCart } from '../lib/analytics';
 
 const KEY = 'd114_cart_v1';
 const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
@@ -15,6 +16,7 @@ export function CartProvider({ children }) {
     count: items.reduce((n, i) => n + i.quantity, 0),
     subtotal: items.reduce((n, i) => n + i.price * i.quantity, 0),
     add(p, qty = 1, option = null) {
+      trackCart(p.slug || p.id);
       if (!p.price) return toast('This product is coming soon. Chat with us to pre-order.');
       if (p.stock <= 0) return toast.error('Out of stock right now. Chat with us for the next shipment.');
       const price = option?.price || p.price;

@@ -174,7 +174,9 @@ export default function Header() {
   // The masthead tightens once the page moves: utility strip folds away, a hairline shadow appears.
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 48);
+    // Two thresholds: folding the strip shortens the page, which used to push scrollY back under a
+    // single threshold and made the header flicker (jump) on phones. The gap is wider than the strip.
+    const on = () => setScrolled((was) => (was ? window.scrollY > 8 : window.scrollY > 96));
     on(); window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);

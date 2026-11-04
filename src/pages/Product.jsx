@@ -12,6 +12,7 @@ import { useStore } from '../context/StoreContext';
 import { useCart } from '../context/CartContext';
 import { useShopper } from '../context/ShopperContext';
 import { discountPct, money, priceText, quoteLink, waLink } from '../config';
+import { trackProduct } from '../lib/analytics';
 
 export default function Product() {
   const { slug } = useParams();
@@ -25,7 +26,7 @@ export default function Product() {
   const [opt, setOpt] = useState(null);
 
   useEffect(() => { setP(undefined); setImg(0); setQty(1); setOpt(null); getProductBySlug(slug).then(setP).catch(() => setP(null)); }, [slug]);
-  useEffect(() => { if (p?.id) sh.viewed(p.id); }, [p?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (p?.id) { sh.viewed(p.id); trackProduct(p.slug); } }, [p?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   useTitle(p?.name || 'Product');
   const related = useMemo(() => (p ? products.filter((x) => x.categoryId === p.categoryId && x.id !== p.id).sort((a, b) => Math.abs(a.price - p.price) - Math.abs(b.price - p.price)).slice(0, 4) : []), [p, products]);
 
