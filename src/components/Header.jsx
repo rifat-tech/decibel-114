@@ -85,7 +85,7 @@ function CategoryBar({ menu, onAll }) {
   return (
     <div className="catbar" onMouseLeave={leave}>
       <div className="container catbar-row">
-        <button className="catbar-all" onClick={onAll}><LuLayoutGrid /> All categories</button>
+        <button className="catbar-all" onClick={onAll}>All categories</button>
         <nav className="catbar-list" aria-label="Product categories">
           {menu.map((c) => (
             <Link key={c.id} to={`/shop?cat=${c.id}`} className={`catbar-item ${open === c.id ? 'on' : ''}`}
@@ -186,40 +186,23 @@ export default function Header() {
   const name = user ? (user.profile?.name?.split(' ')[0] || 'Account') : null;
   return (
     <header className={`hdr ${scrolled ? 'scrolled' : ''}`}>
-      <div className="hdr-util">
-        <div className="container util-row">
-          <span className="util-note"><LuShieldCheck /> Official warranty on every product</span>
-          <span className="util-note only-desktop"><LuTruck /> Delivery across Bangladesh</span>
-          <span className="grow" />
-          {st.phone && <a href={telHref(st.phone)} className="util-link"><LuPhone /> {st.phone}</a>}
-          <Link to="/track" className="util-link only-desktop">Track order</Link>
-          <Link to="/quote" className="util-link only-desktop">Corporate sales</Link>
-          <Link to="/solutions" className="util-link only-desktop">Network solutions</Link>
-        </div>
-      </div>
       <div className="hdr-main">
         <div className="container hdr-row">
           <button className="icon-btn on-blue only-mobile" onClick={() => setDrawer(true)} aria-label="Open categories"><LuMenu /></button>
-          <Link to="/" className="hdr-logo" aria-label="Decibel-114 home"><Logo onYellow /></Link>
+          <Link to="/" className="hdr-logo" aria-label="Decibel-114 home"><Logo /></Link>
           <Search />
           <nav className="hdr-actions" aria-label="Your shopping">
-            <Link to="/deals" className="hdr-act only-desktop"><LuBadgePercent /><span className="act-txt"><b>Offers</b><small>Latest deals</small></span></Link>
+            <Link to="/deals" className="hdr-act only-desktop" aria-label="Offers"><LuBadgePercent /></Link>
             <Link to="/compare" className="hdr-act only-desktop" aria-label={`Compare, ${sh.compare.length} items`}><span className="act-ico"><LuArrowLeftRight />{sh.compare.length > 0 && <i className="badge">{sh.compare.length}</i>}</span></Link>
             <Link to="/saved" className="hdr-act" aria-label={`Saved, ${sh.wish.length} items`}><span className="act-ico"><LuHeart />{sh.wish.length > 0 && <i className="badge">{sh.wish.length}</i>}</span></Link>
-            <Link to={user ? (isStaff ? '/admin' : '/account') : '/login'} className="hdr-act"><LuUser /><span className="act-txt only-desktop"><b>{name || 'Account'}</b><small>{user ? (isStaff ? 'Admin panel' : 'Orders & profile') : 'Sign in or register'}</small></span></Link>
+            <Link to={user ? (isStaff ? '/admin' : '/account') : '/login'} className="hdr-act" aria-label={user ? `${name}: ${isStaff ? 'admin panel' : 'account'}` : 'Sign in'}><LuUser /></Link>
             <Link to="/cart" className="hdr-act cart" aria-label={`Cart, ${cart.count} items`}>
               <span className="act-ico"><LuShoppingBag />{cart.count > 0 && <motion.i key={cart.bump} className="badge gold" initial={{ scale: 1.6 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 18 }}>{cart.count}</motion.i>}</span>
-              <span className="act-txt only-desktop"><b>Cart</b><small>{cart.count ? money(cart.subtotal) : 'Empty'}</small></span>
             </Link>
           </nav>
         </div>
       </div>
       <div className="only-desktop-block"><CategoryBar menu={menu} onAll={() => setDrawer(true)} /></div>
-      <div className="mcats only-mobile-block">
-        <div className="container mcats-row">
-          {menu.map((c) => <Link key={c.id} to={`/shop?cat=${c.id}`} className="mcat"><CatIcon id={c.id} />{c.short || c.name}</Link>)}
-        </div>
-      </div>
       <AnimatePresence>{drawer && <MenuDrawer menu={menu} onClose={() => setDrawer(false)} />}</AnimatePresence>
     </header>
   );

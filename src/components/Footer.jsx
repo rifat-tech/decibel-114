@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer-grid">
         <div className="footer-brand">
-          <Logo onBlue />
+          <Logo small />
           <p>{s.tagline}. Official-warranty products, honest prices and delivery across Bangladesh.</p>
           {s.phone && <a href={telHref(s.phone)} className="footer-strong">{s.phone}</a>}
           {s.email && <a href={`mailto:${s.email}`} className="footer-strong">{s.email}</a>}
