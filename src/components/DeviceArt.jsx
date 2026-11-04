@@ -203,7 +203,11 @@ export const artFor = (p, cat) => p?.art || CAT_ART[p?.categoryId] || cat?.icon 
 
 export function ProductVisual({ product, category, className = '' }) {
   // Cards and lists load a smaller cut of Cloudinary photos.
-  const src = String(product?.images?.[0] || product?.image || '').replace('c_limit,w_1200', 'c_limit,w_480') || null;
-  if (src) return <img src={src} alt={product.name} className={`product-photo ${className}`} loading="lazy" decoding="async" />;
+  const raw = String(product?.images?.[0] || product?.image || '');
+  const src = raw.replace('c_limit,w_1200', 'c_limit,w_480') || null;
+  // Sharp screens (most phones) get the larger cut: supplier photos exist at 600px, Cloudinary at any size.
+  const big = /-400x400\.(webp|jpe?g|png)$/i.test(raw) ? raw.replace(/-400x400\.(webp|jpe?g|png)$/i, '-600x600.$1')
+    : raw.includes('c_limit,w_1200') ? raw.replace('c_limit,w_1200', 'c_limit,w_960') : '';
+  if (src) return <img src={src} srcSet={big ? `${src} 1x, ${big} 2x` : undefined} alt={product.name} className={`product-photo ${className}`} loading="lazy" decoding="async" />;
   return <DeviceArt type={artFor(product, category)} className={className} seed={product?.slug || product?.name || ''} />;
 }
