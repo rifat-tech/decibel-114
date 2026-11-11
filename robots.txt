@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /login
+Disallow: /register
+Disallow: /saved
+Disallow: /compare
+Disallow: /order/
+
+Sitemap: https://decibel-114.com/sitemap.xml
