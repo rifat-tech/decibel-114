@@ -79,7 +79,7 @@ function StoreLayout() {
   );
 }
 
-const Apple = () => <Shop preset={{ brand: 'Apple' }} heading="Apple store" intro="iPhone, Mac, iPad, Apple Watch, AirPods and accessories with official warranty." art="laptop" />;
+const Apple = () => <Shop preset={{ brand: 'Apple' }} heading="Apple store" intro="iPhone, Mac, iPad, Apple Watch, AirPods and accessories with official warranty." />;
 const Deals = () => <Shop preset={{ deals: true, sort: 'discount' }} heading="Top deals" intro="Every product currently priced below its regular price." />;
 
 export default function App() {

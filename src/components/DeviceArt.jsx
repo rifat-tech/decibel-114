@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 // Product illustrations shown until a real photo is uploaded. Drawn flat, on a white
 // product-shot floor, one consistent light source (top-left) across every device.
 const G = { body: '#2A2A2D', edge: '#161618', mid: '#46454A', light: '#DEDAD3', silver: '#C9C5BE', screenA: '#2B2C31', screenB: '#8C8576', accent: '#C9A86A', led: '#C9A86A' };
@@ -204,10 +204,17 @@ export const artFor = (p, cat) => p?.art || CAT_ART[p?.categoryId] || cat?.icon 
 export function ProductVisual({ product, category, className = '' }) {
   // Cards and lists load a smaller cut of Cloudinary photos.
   const raw = String(product?.images?.[0] || product?.image || '');
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [raw]);
   const src = raw.replace('c_limit,w_1200', 'c_limit,w_480') || null;
   // Sharp screens (most phones) get the larger cut: supplier photos exist at 600px, Cloudinary at any size.
   const big = /-400x400\.(webp|jpe?g|png)$/i.test(raw) ? raw.replace(/-400x400\.(webp|jpe?g|png)$/i, '-600x600.$1')
     : raw.includes('c_limit,w_1200') ? raw.replace('c_limit,w_1200', 'c_limit,w_960') : '';
-  if (src) return <img src={src} srcSet={big ? `${src} 1x, ${big} 2x` : undefined} alt={product.name} className={`product-photo ${className}`} loading="lazy" decoding="async" />;
-  return <DeviceArt type={artFor(product, category)} className={className} seed={product?.slug || product?.name || ''} />;
+  if (src && !failed) return <img src={src} srcSet={big ? `${src} 1x, ${big} 2x` : undefined} alt={product.name} className={`product-photo ${className}`} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
+  return <PhotoPending product={product} className={className} />;
+}
+
+/** Shown only while a product has no usable photo: a quiet brand label, never a drawing. */
+export function PhotoPending({ product, className = '' }) {
+  return <span className={`photo-pending ${className}`} role="img" aria-label={product?.name || 'Product'}><b>{product?.brand || 'Decibel-114'}</b></span>;
 }

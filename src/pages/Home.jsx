@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { LuShieldCheck, LuTruck, LuWrench, LuBuilding2, LuMessageCircle, LuChevronRight } from 'react-icons/lu';
 import DeviceArt, { ProductVisual } from '../components/DeviceArt';
-import { CatIcon } from '../components/CatIcon';
+import { categoryPhoto } from '../lib/catPhoto';
 import Carousel from '../components/Carousel';
 import { Reveal, SplitWords, Parallax } from '../components/Motion';
 import { useTitle } from '../components/ui';
@@ -81,7 +81,6 @@ export default function Home() {
     .sort((a, b) => (b.originalPrice - b.price) - (a.originalPrice - a.price)).slice(0, 10), [products]);
   const popular = useMemo(() => products.filter((p) => p.featured && p.brand !== 'Apple' && p.price && local(p)).slice(0, 10), [products]);
   const viewed = useMemo(() => recent.map((id) => products.find((p) => p.id === id)).filter(Boolean).slice(0, 10), [recent, products]);
-  const photo = (fn) => (products.find((p) => fn(p) && local(p) && p.price) || products.find((p) => fn(p) && p.images?.[0]))?.images?.[0];
   const brands = useMemo(() => {
     const count = {}; products.forEach((p) => { count[p.brand] = (count[p.brand] || 0) + 1; });
     return Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 18).map(([b]) => b);
@@ -102,10 +101,10 @@ export default function Home() {
       <div className="container">
         <Carousel label="Shop by category" className="ap-cats">
           {(loading ? [] : categories).map((c) => {
-            const img = photo((p) => p.categoryId === c.id && !/cable|adapter|converter|stand/i.test(p.name) && (c.id !== 'network' || /router|mikrotik|ruijie/i.test(p.name)));
+            const img = categoryPhoto(products, c.id);
             return (
               <Link key={c.id} to={`/shop?cat=${c.id}`} className="ap-cat">
-                <span className="ap-cat-img">{img ? <img src={img} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }} /> : null}<CatIcon id={c.id} style={{ display: img ? 'none' : 'block' }} /></span>
+                <span className="ap-cat-img">{img && <img src={img} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />}</span>
                 <span>{c.short || c.name}</span>
               </Link>
             );

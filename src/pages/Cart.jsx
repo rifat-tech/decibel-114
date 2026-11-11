@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LuMinus, LuPlus, LuTrash2 } from 'react-icons/lu';
-import DeviceArt from '../components/DeviceArt';
+import { PhotoPending } from '../components/DeviceArt';
 import { Empty, useTitle } from '../components/ui';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
@@ -21,7 +21,7 @@ export default function Cart() {
           <AnimatePresence initial={false}>
             {cart.items.map((i) => (
               <motion.li key={i.key} layout exit={{ opacity: 0, height: 0, marginBottom: 0 }} transition={{ duration: 0.18 }} className="cart-item">
-                <Link to={`/product/${i.slug}`} className="cart-thumb">{i.image ? <img src={i.image} alt="" /> : <DeviceArt type={i.art || 'phone'} />}</Link>
+                <Link to={`/product/${i.slug}`} className="cart-thumb">{i.image ? <img src={i.image} alt="" /> : <PhotoPending product={i} />}</Link>
                 <div className="cart-info">
                   <Link to={`/product/${i.slug}`}>{i.name}</Link>
                   <span>{[i.brand, i.option].filter(Boolean).join(', ')}</span>

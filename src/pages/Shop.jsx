@@ -6,7 +6,6 @@ import ProductCard from '../components/ProductCard';
 import { Empty, Spinner, useTitle } from '../components/ui';
 import { useCatalog } from '../context/StoreContext';
 import { discountPct } from '../config';
-import DeviceArt from '../components/DeviceArt';
 import { trackSearch } from '../lib/analytics';
 
 const PAGE = 48;
@@ -19,7 +18,7 @@ const CAT_SOLUTION = {
   server: ['/it-solutions#servers-storage', 'Setting up a server room? See our server, storage and data centre solutions.'],
 };
 
-export default function Shop({ preset = {}, heading, intro, art }) {
+export default function Shop({ preset = {}, heading, intro }) {
   const { categories, products, catById, loading } = useCatalog();
   const [sp, setSp] = useSearchParams();
   const [sheet, setSheet] = useState(false);
@@ -122,7 +121,6 @@ export default function Shop({ preset = {}, heading, intro, art }) {
 
   return (
     <div className="container shop">
-      {art && <div className="shop-hero"><DeviceArt type={art} /></div>}
       <div className="shop-head">
         <div>
           <h1>{heading || (category ? category.name : q ? `Results for “${sp.get('q')}”` : 'All products')}</h1>

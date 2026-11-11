@@ -1607,3 +1607,8 @@ font[style*="background-color"], .goog-text-highlight { background: none !import
 .pd-solution-links b { font-size: 15.5px; }
 .pd-solution-links small { grid-column: 1; font-size: 13px; color: var(--ap-soft); }
 .pd-solution-links svg { grid-row: 1 / span 2; grid-column: 2; color: #4B4FD1; }
+
+/* product without a usable photo: a quiet brand label on the white photo floor, no drawing */
+.photo-pending { display: grid; place-items: center; width: 100%; height: 100%; min-height: 120px; aspect-ratio: 1; background: #fff; }
+.photo-pending b { font-size: 15px; font-weight: 600; letter-spacing: .02em; color: #A1A1A6; text-transform: uppercase; }
+.ap-cat-img img { object-fit: contain; }

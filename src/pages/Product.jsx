@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LuArrowRight, LuHeart, LuMinus, LuPlus, LuShieldCheck, LuTruck, LuFileText, LuRotateCcw, LuStore } from 'react-icons/lu';
 import { FaWhatsapp } from 'react-icons/fa6';
-import DeviceArt, { artFor } from '../components/DeviceArt';
+import { PhotoPending } from '../components/DeviceArt';
 import ProductCard from '../components/ProductCard';
 import ZoomImage from '../components/ZoomImage';
 import { Empty, Spinner, StockTag } from '../components/ui';
@@ -74,7 +74,7 @@ export default function Product() {
           <div className="gallery-main">
             <AnimatePresence mode="wait">
               <motion.div key={img} className="gallery-frame" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                {images.length ? <ZoomImage images={images} index={img} alt={p.name} onIndex={setImg} /> : <DeviceArt type={artFor(p, cat)} />}
+                {images.length ? <ZoomImage images={images} index={img} alt={p.name} onIndex={setImg} /> : <PhotoPending product={p} />}
               </motion.div>
             </AnimatePresence>
           </div>
