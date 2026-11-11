@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LuHeart, LuMinus, LuPlus, LuShieldCheck, LuTruck, LuFileText, LuRotateCcw, LuStore } from 'react-icons/lu';
+import { LuArrowRight, LuHeart, LuMinus, LuPlus, LuShieldCheck, LuTruck, LuFileText, LuRotateCcw, LuStore } from 'react-icons/lu';
 import { FaWhatsapp } from 'react-icons/fa6';
 import DeviceArt, { artFor } from '../components/DeviceArt';
 import ProductCard from '../components/ProductCard';
@@ -14,6 +14,7 @@ import { useCart } from '../context/CartContext';
 import { useShopper } from '../context/ShopperContext';
 import { discountPct, money, priceText, quoteLink, waLink } from '../config';
 import { trackProduct } from '../lib/analytics';
+import { solutionsFor } from '../segments';
 
 export default function Product() {
   const { slug } = useParams();
@@ -35,7 +36,14 @@ export default function Product() {
     image: abs(p.images?.[0]),
     jsonLd: productLd(p),
   } : { title: 'Product' });
-  const related = useMemo(() => (p ? products.filter((x) => x.categoryId === p.categoryId && x.id !== p.id).sort((a, b) => Math.abs(a.price - p.price) - Math.abs(b.price - p.price)).slice(0, 4) : []), [p, products]);
+  // Closest matches first: same subcategory, then same brand, then nearest price. Eight links keep every product reachable.
+  const related = useMemo(() => {
+    if (!p) return [];
+    const score = (x) => (p.subcategory && x.subcategory === p.subcategory ? 0 : 2) + (x.brand === p.brand ? 0 : 1);
+    return products.filter((x) => x.categoryId === p.categoryId && x.id !== p.id)
+      .sort((a, b) => score(a) - score(b) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price)).slice(0, 8);
+  }, [p, products]);
+  const solutions = useMemo(() => (p ? solutionsFor(p) : []), [p]);
 
   if (p === undefined) return <Spinner full />;
   if (!p) return <div className="container"><Empty title="This product is no longer listed" action="Browse all products" to="/shop">It may have been renamed or sold out.</Empty></div>;
@@ -130,6 +138,15 @@ export default function Product() {
           </div>
         </aside>
       </div>
+
+      {solutions.length > 0 && (
+        <section className="pd-solution">
+          <div><h2>Need it installed?</h2><p>Our engineers design, install and support complete systems for offices, factories and farms.</p></div>
+          <div className="pd-solution-links">
+            {solutions.map((s) => <Link key={s.slug} to={s.href}><b>{s.t}</b><small>{s.area} · Price TBA</small><LuArrowRight /></Link>)}
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="section flush">

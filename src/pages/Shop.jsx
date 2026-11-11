@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LuSlidersHorizontal, LuX } from 'react-icons/lu';
+import { LuArrowRight, LuServer, LuSlidersHorizontal, LuX } from 'react-icons/lu';
 import ProductCard from '../components/ProductCard';
 import { Empty, Spinner, useTitle } from '../components/ui';
 import { useCatalog } from '../context/StoreContext';
@@ -11,6 +11,13 @@ import { trackSearch } from '../lib/analytics';
 
 const PAGE = 48;
 const SORTS = { featured: 'Best match', newest: 'Newest', discount: 'Biggest savings', 'price-asc': 'Price: low to high', 'price-desc': 'Price: high to low', name: 'Name' };
+
+// Category pages point buyers who need a full installation to the matching IT solution.
+const CAT_SOLUTION = {
+  network: ['/it-solutions#enterprise-networking', 'Planning a whole office network? See our network installation and office Wi-Fi solutions.'],
+  security: ['/it-solutions#cctv-installation', 'Need cameras installed? See CCTV installation and network security solutions.'],
+  server: ['/it-solutions#servers-storage', 'Setting up a server room? See our server, storage and data centre solutions.'],
+};
 
 export default function Shop({ preset = {}, heading, intro, art }) {
   const { categories, products, catById, loading } = useCatalog();
@@ -128,6 +135,10 @@ export default function Shop({ preset = {}, heading, intro, art }) {
           </select>
         </div>
       </div>
+
+      {CAT_SOLUTION[cat] && (
+        <Link to={CAT_SOLUTION[cat][0]} className="shop-solution"><LuServer /><span>{CAT_SOLUTION[cat][1]}</span><LuArrowRight /></Link>
+      )}
 
       <div className="shop-layout">
         <aside className="only-desktop">{Filters}</aside>

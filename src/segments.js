@@ -25,25 +25,25 @@ export const IT_SOLUTIONS = {
   servicesTitle: 'Solutions for every layer of your IT.',
   servicesIntro: 'Each solution is scoped to your site after a survey. Prices depend on size and equipment, so we quote every project individually.',
   services: [
-    { img: 'photo-1594915440248-1e419eba6611', cat: 'network', t: 'Enterprise networking', d: 'Core, distribution and access switching with routing, VLANs and redundancy, built to carry data, voice and video without slowdowns.',
+    { img: 'photo-1594915440248-1e419eba6611', cat: 'network', slug: 'enterprise-networking', t: 'Enterprise networking', d: 'Core, distribution and access switching with routing, VLANs and redundancy, built to carry data, voice and video without slowdowns.',
       inc: ['Managed L2/L3 switching and routing', 'VLAN design and network segmentation', 'Multi-branch and site-to-site connectivity', 'Network documentation and labelling'] },
-    { img: 'photo-1497366754035-f200968a6e72', cat: 'network', t: 'Enterprise Wi-Fi', d: 'Seamless coverage across floors, warehouses and campuses, planned from a heat-map survey so there are no dead zones or dropped calls.',
+    { img: 'photo-1497366754035-f200968a6e72', cat: 'network', slug: 'enterprise-wifi', t: 'Enterprise Wi-Fi', d: 'Seamless coverage across floors, warehouses and campuses, planned from a heat-map survey so there are no dead zones or dropped calls.',
       inc: ['RF site survey and heat mapping', 'Controller-managed access points', 'Guest Wi-Fi with captive portal', 'Roaming for large floors and campuses'] },
-    { img: 'photo-1614064641938-3bbee52942c7', cat: 'security', t: 'Network security and firewall', d: 'Next-generation firewalls at the edge, secure remote access for staff and endpoint protection on every device.',
+    { img: 'photo-1614064641938-3bbee52942c7', cat: 'security', slug: 'network-security-firewall', t: 'Network security and firewall', d: 'Next-generation firewalls at the edge, secure remote access for staff and endpoint protection on every device.',
       inc: ['NGFW with web and application filtering', 'Site-to-site and remote-access VPN', 'Endpoint antivirus and EDR', 'Security audit and hardening'] },
-    { img: 'photo-1544197150-b99a580bb7a8', t: 'Structured cabling and fibre', d: 'Standards-based Cat6, Cat6A and fibre-optic cabling, neatly dressed, labelled and tested so the network is easy to manage and grow.',
+    { img: 'photo-1544197150-b99a580bb7a8', slug: 'structured-cabling', t: 'Structured cabling and fibre', d: 'Standards-based Cat6, Cat6A and fibre-optic cabling, neatly dressed, labelled and tested so the network is easy to manage and grow.',
       inc: ['Cat6 / Cat6A copper cabling', 'Single-mode and multi-mode fibre', 'Racks, patch panels and cable management', 'Certification testing and as-built drawings'] },
-    { img: 'photo-1557597774-9d273605dfa9', cat: 'security', t: 'CCTV and surveillance', d: 'IP camera systems with NVR recording, on their own secured network, viewable live from your phone wherever you are.',
+    { img: 'photo-1557597774-9d273605dfa9', cat: 'security', slug: 'cctv-installation', t: 'CCTV and surveillance', d: 'IP camera systems with NVR recording, on their own secured network, viewable live from your phone wherever you are.',
       inc: ['IP and PoE camera design', 'NVR recording and storage planning', 'Mobile and remote viewing', 'Access control and door entry'] },
-    { img: 'photo-1695668548342-c0c1ad479aee', cat: 'server', t: 'Servers, storage and data centre', d: 'Rack and tower servers, NAS and backup systems, virtualisation and power protection for ERP, files and business applications.',
+    { img: 'photo-1695668548342-c0c1ad479aee', cat: 'server', slug: 'servers-storage', t: 'Servers, storage and data centre', d: 'Rack and tower servers, NAS and backup systems, virtualisation and power protection for ERP, files and business applications.',
       inc: ['Server supply, setup and virtualisation', 'NAS, SAN and backup solutions', 'Online UPS and power planning', 'Server room and rack build-out'] },
-    { img: 'photo-1526666923127-b2970f64b422', cat: 'network', t: 'Internet and Starlink connectivity', d: 'Starlink satellite, 4G/5G and fibre links with automatic failover, for sites that cannot afford to go offline, even in remote areas.',
+    { img: 'photo-1526666923127-b2970f64b422', cat: 'network', slug: 'starlink-internet', t: 'Internet and Starlink connectivity', d: 'Starlink satellite, 4G/5G and fibre links with automatic failover, for sites that cannot afford to go offline, even in remote areas.',
       inc: ['Starlink supply, mounting and setup', '4G/5G backup links', 'Dual-WAN load balancing and failover', 'Point-to-point wireless links'] },
-    { img: 'photo-1525182008055-f88b95ff7980', t: 'IP telephony and unified communications', d: 'IP PBX systems with desk and mobile extensions, call recording and video conferencing, replacing old analogue lines.',
+    { img: 'photo-1525182008055-f88b95ff7980', slug: 'ip-pbx', t: 'IP telephony and unified communications', d: 'IP PBX systems with desk and mobile extensions, call recording and video conferencing, replacing old analogue lines.',
       inc: ['IP PBX setup and extensions', 'IP desk phones and softphones', 'Call recording and IVR', 'Meeting-room video conferencing'] },
-    { img: 'photo-1551434678-e076c223a692', t: 'Managed IT and AMC', d: 'A dedicated support team for your business, with scheduled maintenance, monitoring and fast on-site response under an annual contract.',
+    { img: 'photo-1551434678-e076c223a692', slug: 'managed-it-amc', t: 'Managed IT and AMC', d: 'A dedicated support team for your business, with scheduled maintenance, monitoring and fast on-site response under an annual contract.',
       inc: ['Annual maintenance contract (AMC)', 'Remote monitoring and helpdesk', 'Preventive maintenance visits', 'Priority on-site support'] },
-    { img: 'photo-1758691737124-05c5bffe46f0', t: 'Cloud and business email', d: 'Professional email on your own domain, cloud file sharing and collaboration, migrated and secured by our team.',
+    { img: 'photo-1758691737124-05c5bffe46f0', slug: 'business-email', t: 'Cloud and business email', d: 'Professional email on your own domain, cloud file sharing and collaboration, migrated and secured by our team.',
       inc: ['Business email on your domain', 'Microsoft 365 and Google Workspace', 'Data migration from old systems', 'Backup and access policies'] },
   ],
   industriesTitle: 'Industries we serve.',
@@ -86,23 +86,23 @@ export const AGRICULTURE = {
   servicesTitle: 'Agricultural technology solutions.',
   servicesIntro: 'Every farm is different. We assess your land, crops or livestock first, then recommend and quote the right solution.',
   services: [
-    { img: 'photo-1713952160156-bb59cac789a9', t: 'Agricultural drones', d: 'Precision spraying, seeding and crop mapping by drone, covering fields quickly with less chemical, less water and less labour.',
+    { img: 'photo-1713952160156-bb59cac789a9', slug: 'agricultural-drones', t: 'Agricultural drones', d: 'Precision spraying, seeding and crop mapping by drone, covering fields quickly with less chemical, less water and less labour.',
       inc: ['Crop spraying and spreading drones', 'Field mapping and crop health imaging', 'Pilot training and operation', 'Drone spraying as a service'] },
-    { img: 'photo-1738598665698-7fd7af4b5e0c', t: 'Smart irrigation', d: 'Drip and sprinkler systems controlled by soil-moisture sensors and timers, giving crops exactly the water they need.',
+    { img: 'photo-1738598665698-7fd7af4b5e0c', slug: 'smart-irrigation', t: 'Smart irrigation', d: 'Drip and sprinkler systems controlled by soil-moisture sensors and timers, giving crops exactly the water they need.',
       inc: ['Drip and sprinkler system design', 'Soil-moisture based automation', 'Mobile app control and schedules', 'Fertigation (fertiliser through water)'] },
-    { img: 'photo-1509391366360-2e959784a276', t: 'Solar irrigation and farm power', d: 'Solar-powered pumps and off-grid power systems that cut diesel and electricity bills and keep working where the grid does not reach.',
+    { img: 'photo-1509391366360-2e959784a276', slug: 'solar-irrigation', t: 'Solar irrigation and farm power', d: 'Solar-powered pumps and off-grid power systems that cut diesel and electricity bills and keep working where the grid does not reach.',
       inc: ['Solar water pumps', 'Off-grid and hybrid solar systems', 'Battery storage for night use', 'Remote pump monitoring'] },
-    { img: 'photo-1524486361537-8ad15938e1a3', t: 'Greenhouse and nursery automation', d: 'Automatic control of temperature, humidity, ventilation, shading and misting for year-round, high-value production.',
+    { img: 'photo-1524486361537-8ad15938e1a3', slug: 'greenhouse-automation', t: 'Greenhouse and nursery automation', d: 'Automatic control of temperature, humidity, ventilation, shading and misting for year-round, high-value production.',
       inc: ['Climate sensors and controllers', 'Automatic fans, shading and misting', 'Nutrient and hydroponic systems', 'Alerts on your phone'] },
-    { img: 'photo-1773493063756-b821d463daf0', t: 'Soil and weather monitoring', d: 'IoT sensors and on-farm weather stations that show soil, rain, temperature and humidity in real time, so decisions are based on data.',
+    { img: 'photo-1773493063756-b821d463daf0', slug: 'soil-weather-monitoring', t: 'Soil and weather monitoring', d: 'IoT sensors and on-farm weather stations that show soil, rain, temperature and humidity in real time, so decisions are based on data.',
       inc: ['Soil moisture, pH and NPK sensors', 'On-farm weather stations', 'Live dashboard and history', 'Frost, heat and rain alerts'] },
-    { img: 'photo-1441122456239-401e92b73c65', t: 'Poultry and dairy farm automation', d: 'Climate control, automatic feeding and drinking, and monitoring for poultry houses and dairy farms, improving animal health and output.',
+    { img: 'photo-1441122456239-401e92b73c65', slug: 'poultry-dairy-automation', t: 'Poultry and dairy farm automation', d: 'Climate control, automatic feeding and drinking, and monitoring for poultry houses and dairy farms, improving animal health and output.',
       inc: ['Shed temperature and ventilation control', 'Automatic feeders and drinkers', 'Ammonia and air-quality sensors', 'CCTV for sheds and barns'] },
-    { img: 'photo-1758656911249-c0f1af7dcaec', t: 'Fish farm monitoring', d: 'Water-quality sensors and automatic aerators for ponds and cages, protecting stock from oxygen drops and disease.',
+    { img: 'photo-1758656911249-c0f1af7dcaec', slug: 'fish-farm-monitoring', t: 'Fish farm monitoring', d: 'Water-quality sensors and automatic aerators for ponds and cages, protecting stock from oxygen drops and disease.',
       inc: ['Dissolved oxygen, pH and temperature sensors', 'Automatic aerator control', 'Instant alerts on your phone', 'Solar-powered pond systems'] },
-    { img: 'photo-1684695749267-233af13276d0', t: 'Cold storage and warehouse monitoring', d: 'Round-the-clock temperature and humidity monitoring for cold rooms and stores, with alerts before produce is at risk.',
+    { img: 'photo-1684695749267-233af13276d0', slug: 'cold-storage-monitoring', t: 'Cold storage and warehouse monitoring', d: 'Round-the-clock temperature and humidity monitoring for cold rooms and stores, with alerts before produce is at risk.',
       inc: ['Temperature and humidity loggers', 'Power-failure and door alarms', 'Stock-area CCTV', 'Reports for buyers and certification'] },
-    { img: 'photo-1761839257870-06874bda71b5', t: 'Farm connectivity and security', d: 'Internet for remote farms with Starlink and long-range Wi-Fi, plus CCTV to protect fields, equipment and livestock.',
+    { img: 'photo-1761839257870-06874bda71b5', slug: 'farm-connectivity', t: 'Farm connectivity and security', d: 'Internet for remote farms with Starlink and long-range Wi-Fi, plus CCTV to protect fields, equipment and livestock.',
       inc: ['Starlink and 4G/5G internet', 'Long-range outdoor Wi-Fi', 'Solar-powered CCTV cameras', 'Remote viewing on your phone'] },
   ],
   industriesTitle: 'Who we work with.',
@@ -128,3 +128,22 @@ export const AGRICULTURE = {
     ['Do the systems need internet?', 'Many work offline, and for remote alerts we can add Starlink or 4G connectivity.'],
   ],
 };
+
+/** The solution a product leads to: used for the "Need it installed?" box and the SEO pages. */
+export function solutionsFor(p) {
+  const text = `${p?.name || ''} ${p?.brand || ''} ${p?.subcategory || ''}`.toLowerCase();
+  const it = (slug) => { const s = IT_SOLUTIONS.services.find((x) => x.slug === slug); return { ...s, href: `/it-solutions#${slug}`, area: 'IT Solutions' }; };
+  const ag = (slug) => { const s = AGRICULTURE.services.find((x) => x.slug === slug); return { ...s, href: `/agriculture#${slug}`, area: 'Agriculture' }; };
+  if (/starlink/.test(text)) return [it('starlink-internet'), ag('farm-connectivity')];
+  if (/firewall|watchguard|fortinet|fortigate|sophos|panda|antivirus|endpoint/.test(text)) return [it('network-security-firewall')];
+  if (/ip phone|pbx|voip|grandstream|telephon/.test(text)) return [it('ip-pbx')];
+  if (p?.categoryId === 'security' || /cctv|camera|nvr|dvr|surveillance/.test(text)) return [it('cctv-installation')];
+  if (p?.categoryId === 'server' || /\bnas\b|server|\bups\b|rack/.test(text)) return [it('servers-storage')];
+  if (/drone|irrigation|solar pump|weather station/.test(text)) return [ag(/drone/.test(text) ? 'agricultural-drones' : 'smart-irrigation')];
+  if (p?.categoryId === 'network') {
+    if (/access point|wi-?fi|wireless|\bap\b|mesh|u6|u7|unifi ap|ruckus/.test(text)) return [it('enterprise-wifi')];
+    if (/cable|fiber|fibre|patch|cat6|cat 6|connector|keystone/.test(text)) return [it('structured-cabling')];
+    return [it('enterprise-networking')];
+  }
+  return [];
+}

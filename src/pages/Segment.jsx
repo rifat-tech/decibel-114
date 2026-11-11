@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LuArrowRight, LuCheck, LuChevronDown, LuMessageCircle, LuPhone, LuServer, LuShoppingBag, LuSprout,
   LuBuilding2, LuBadgeCheck, LuWrench, LuHeadphones, LuDroplets, LuActivity, LuSun, LuUsers,
@@ -41,6 +41,13 @@ function SegmentPage({ data, name }) {
   const wa = waLink(settings?.whatsapp || settings?.phone, `Hello Decibel-114, I would like to discuss ${name}.`);
   const others = SEGMENTS.filter((s) => s.id !== data.id);
   const whyIcons = WHY_ICONS[data.id];
+  const { hash } = useLocation();
+  // Links like /it-solutions#cctv-installation open at that service.
+  useEffect(() => {
+    if (!hash) return;
+    const t = setTimeout(() => document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350);
+    return () => clearTimeout(t);
+  }, [hash]);
 
   return (
     <div className={`segpage segpage-${data.id}`}>
@@ -67,7 +74,7 @@ function SegmentPage({ data, name }) {
         </div>
         <div className="segp-grid">
           {data.services.map((s) => (
-            <article key={s.t} className="segp-card">
+            <article key={s.t} id={s.slug} className="segp-card">
               <div className="segp-card-media"><Img id={s.img} alt={s.t} /></div>
               <div className="segp-card-body">
                 <h3>{s.t}</h3>

@@ -10,7 +10,7 @@ import { createServer } from 'vite';
 const out = path.resolve(process.argv[2] || 'dist');
 const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });
 const { PRODUCTS, CATEGORIES } = await vite.ssrLoadModule('/src/lib/catalog.js');
-const { IT_SOLUTIONS, AGRICULTURE, unsplash } = await vite.ssrLoadModule('/src/segments.js');
+const { IT_SOLUTIONS, AGRICULTURE, unsplash, solutionsFor } = await vite.ssrLoadModule('/src/segments.js');
 const { SITE_URL, SITE_NAME, DEFAULT_DESC, DEFAULT_IMAGE, canonical, productLd, serviceLd, abs } = await vite.ssrLoadModule('/src/lib/seo.js');
 await vite.close();
 
@@ -81,7 +81,7 @@ urls.push([page({ urlPath: '/', title: '', description: DEFAULT_DESC, ld: org,
 // Segment pages
 for (const seg of [IT_SOLUTIONS, AGRICULTURE]) {
   const body = `<h1>${esc(seg.title)}</h1><p>${esc(seg.intro)}</p>${nav}<h2>${esc(seg.servicesTitle)}</h2>` +
-    seg.services.map((s) => `<section><h3>${esc(s.t)}</h3><p>${esc(s.d)}</p><ul>${s.inc.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><p>Price: TBA</p></section>`).join('') +
+    seg.services.map((s) => `<section id="${s.slug}"><h3>${esc(s.t)}</h3><p>${esc(s.d)}</p><ul>${s.inc.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><p>Price: TBA</p></section>`).join('') +
     `<h2>${esc(seg.industriesTitle)}</h2><ul>${seg.industries.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` +
     `<h2>Questions, answered</h2>${seg.faq.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('')}`;
   urls.push([page({ urlPath: seg.path, title: seg.seoTitle, description: seg.seoDescription, keywords: seg.keywords, image: unsplash(seg.hero, 1200), ld: serviceLd(seg), body }), '0.9', 'weekly']);
@@ -106,10 +106,31 @@ for (const [p, t, d, pr, cf] of simple) {
 }
 for (const c of CATEGORIES) urls.push([`${SITE_URL}/shop?cat=${c.id}`, '0.8', 'daily']);
 
-// Products
+// Products: each page links to up to 8 close matches (same subcategory, then brand, then category),
+// so every product receives internal links and none is an orphan.
+const groups = new Map();
+const add = (k, p) => { if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); };
+for (const p of products) { add(`c:${p.categoryId}`, p); if (p.subcategory) add(`s:${p.categoryId}:${p.subcategory}`, p); if (p.brand) add(`b:${p.categoryId}:${p.brand}`, p); }
+function relatedTo(p) {
+  const out = [], seen = new Set([p.slug]);
+  for (const k of [`s:${p.categoryId}:${p.subcategory}`, `b:${p.categoryId}:${p.brand}`, `c:${p.categoryId}`]) {
+    const g = groups.get(k) || [];
+    const i = g.indexOf(p); // neighbours in list order, so links spread across the whole group
+    for (let d = 1; d < g.length && out.length < 8; d++) for (const x of [g.at((i + d) % g.length), g.at((i - d + g.length) % g.length)]) {
+      if (x && !seen.has(x.slug) && out.length < 8) { seen.add(x.slug); out.push(x); }
+    }
+    if (out.length >= 8) break;
+  }
+  // Plus the next product in its category, so the category forms a chain that reaches every item.
+  const g = groups.get(`c:${p.categoryId}`) || [];
+  const next = g.at((g.indexOf(p) + 1) % g.length);
+  if (next && !seen.has(next.slug)) out.push(next);
+  return out;
+}
 let n = 0;
 for (const p of products) {
   const cat = catName[p.categoryId] || '';
+  const rel = relatedTo(p), sol = solutionsFor(p);
   const specs = (p.specs || []).filter((x) => x.value).slice(0, 12);
   const desc = clip(`Buy ${p.name} in Bangladesh from Decibel-114. ${p.price ? `Price ${money(p.price)}. ` : ''}${p.shortDescription || specs.slice(0, 3).map((x) => x.value).join(', ')}. Official warranty, delivery across Bangladesh.`, 300);
   const title = clip(`${p.name}${p.price ? ' Price in Bangladesh' : ''}`, 110);
@@ -121,7 +142,9 @@ for (const p of products) {
     `<h1>${esc(p.name)}</h1>${p.images?.[0] ? `<img src="${esc(abs(p.images[0]))}" alt="${esc(p.name)}" width="400" height="400" />` : ''}` +
     `<p>${p.price ? `Price: ${money(p.price)}` : 'Price on request'}${p.brand ? ` · Brand: ${esc(p.brand)}` : ''}</p>` +
     (p.description ? `<p>${esc(clip(p.description, 1200))}</p>` : '') +
-    (specs.length ? `<h2>Specifications</h2><ul>${specs.map((x) => `<li>${x.key ? `<b>${esc(x.key)}:</b> ` : ''}${esc(x.value)}</li>`).join('')}</ul>` : '');
+    (specs.length ? `<h2>Specifications</h2><ul>${specs.map((x) => `<li>${x.key ? `<b>${esc(x.key)}:</b> ` : ''}${esc(x.value)}</li>`).join('')}</ul>` : '') +
+    (sol.length ? `<h2>Need it installed?</h2><ul>${sol.map((x) => `<li><a href="${x.href.replace('#', '/#')}">${esc(x.t)}</a> (${esc(x.area)})</li>`).join('')}</ul>` : '') +
+    (rel.length ? `<h2>Similar products</h2><ul>${rel.map((x) => `<li><a href="/product/${x.slug}/">${esc(x.name)}</a></li>`).join('')}</ul>` : '');
   urls.push([page({ urlPath: `/product/${p.slug}`, title, description: desc, image: abs(p.images?.[0]), ld: [productLd(p), crumbs], body, type: 'product' }), p.price ? '0.7' : '0.5', 'weekly']);
   n++;
 }
