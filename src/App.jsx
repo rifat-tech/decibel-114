@@ -3,7 +3,7 @@ import { BrowserRouter, HashRouter, Navigate, Outlet, Route, Routes, useLocation
 import { MotionConfig, motion, useReducedMotion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { StoreProvider } from './context/StoreContext';
+import { StoreProvider, useStore } from './context/StoreContext';
 import { CartProvider } from './context/CartContext';
 import { ShopperProvider } from './context/ShopperContext';
 import Header from './components/Header';
@@ -41,6 +41,7 @@ const Categories = lazy(() => import('./pages/admin/Categories'));
 const Coupons = lazy(() => import('./pages/admin/Coupons'));
 const People = lazy(() => import('./pages/admin/People'));
 const Settings = lazy(() => import('./pages/admin/Settings'));
+const Content = lazy(() => import('./pages/admin/Content'));
 
 function RequireUser({ children }) {
   const { user, loading } = useAuth();
@@ -65,6 +66,10 @@ function PageFade({ children }) {
 
 function StoreLayout() {
   const loc = useLocation();
+  const { content } = useStore();
+  // Page background colour from Admin → Website content.
+  const bg = content.site.theme?.bg;
+  useEffect(() => { if (/^#[0-9a-f]{6}$/i.test(bg || '')) document.documentElement.style.setProperty('--ap-bg', bg); }, [bg]);
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
   useEffect(() => { const t = setTimeout(() => trackPage(loc.pathname), 400); return () => clearTimeout(t); }, [loc.pathname]);
   return (
@@ -131,6 +136,7 @@ export default function App() {
                       <Route path="coupons" element={<RequireStaff area="catalog"><Coupons /></RequireStaff>} />
                       <Route path="team" element={<RequireStaff area="admin"><People /></RequireStaff>} />
                       <Route path="settings" element={<RequireStaff area="admin"><Settings /></RequireStaff>} />
+                      <Route path="content" element={<RequireStaff area="admin"><Content /></RequireStaff>} />
                     </Route>
                   </Routes>
                 </Suspense>

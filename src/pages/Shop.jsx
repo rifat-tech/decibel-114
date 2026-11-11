@@ -19,7 +19,7 @@ const CAT_SOLUTION = {
 };
 
 export default function Shop({ preset = {}, heading, intro }) {
-  const { categories, products, catById, loading } = useCatalog();
+  const { categories, products, catById, loading, content } = useCatalog();
   const [sp, setSp] = useSearchParams();
   const [sheet, setSheet] = useState(false);
   const cat = sp.get('cat') || preset.cat || '';
@@ -134,7 +134,7 @@ export default function Shop({ preset = {}, heading, intro }) {
         </div>
       </div>
 
-      {CAT_SOLUTION[cat] && (
+      {CAT_SOLUTION[cat] && content.it.enabled !== false && (
         <Link to={CAT_SOLUTION[cat][0]} className="shop-solution"><LuServer /><span>{CAT_SOLUTION[cat][1]}</span><LuArrowRight /></Link>
       )}
 

@@ -1,10 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { getCatalog, getSettings, DEFAULT_SETTINGS } from '../lib/db';
+import { getCatalog, getContent, getSettings, DEFAULT_SETTINGS } from '../lib/db';
+import { DEFAULT_CONTENT } from '../segments';
 
 const Ctx = createContext(null);
 export function StoreProvider({ children }) {
   const [data, setData] = useState({ categories: [], products: [], loading: true, error: '' });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  // Solution pages, entry popup, languages and colours, as edited in Admin → Website content.
+  const [content, setContent] = useState(DEFAULT_CONTENT);
   // Curated products render first; the full price list (~6k items) streams in right after.
   const load = useCallback(async (fresh = false) => {
     try {
@@ -15,13 +18,14 @@ export function StoreProvider({ children }) {
     } catch (e) { console.error(e); setData((s) => ({ ...s, loading: false, error: 'The catalog could not load. Check your connection and refresh the page.' })); }
   }, []);
   const loadSettings = useCallback(() => getSettings().then(setSettings), []);
-  useEffect(() => { load(); loadSettings(); }, [load, loadSettings]);
+  const loadContent = useCallback(() => getContent().then((c) => setContent({ ...c, loaded: true })), []);
+  useEffect(() => { load(); loadSettings(); loadContent(); }, [load, loadSettings, loadContent]);
   const value = useMemo(() => {
     const catById = Object.fromEntries(data.categories.map((c) => [c.id, c]));
     const bySlug = Object.fromEntries(data.products.map((p) => [p.slug, p]));
     const brands = [...new Set(data.products.map((p) => p.brand).filter(Boolean))].sort();
-    return { ...data, catById, bySlug, brands, settings, reload: () => load(true), reloadSettings: loadSettings };
-  }, [data, settings, load, loadSettings]);
+    return { ...data, catById, bySlug, brands, settings, content, reload: () => load(true), reloadSettings: loadSettings, reloadContent: loadContent };
+  }, [data, settings, content, load, loadSettings, loadContent]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export const useStore = () => useContext(Ctx);

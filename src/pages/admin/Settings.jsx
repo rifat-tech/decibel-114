@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { LuPlus, LuTrash2, LuArrowUp } from 'react-icons/lu';
-import DeviceArt, { ART_TYPES } from '../../components/DeviceArt';
+import { ImageField } from './AdminFields';
 import { Field, Spinner, useTitle } from '../../components/ui';
 import { errText, getSettings, rid, saveSettings } from '../../lib/db';
 import { useStore } from '../../context/StoreContext';
@@ -65,18 +65,18 @@ export default function Settings() {
           <p className="muted">The large rotating banners at the top of the home page.</p>
           {s.banners.map((b, i) => (
             <div key={b.id} className="banner-edit">
-              <div className={`banner-preview tone-${b.tone}`}>{b.image ? <img src={b.image} alt="" /> : <DeviceArt type={b.art} />}</div>
+              <div className={`banner-preview tone-${b.tone}`}>{b.image && <img src={b.image} alt="" />}</div>
               <div className="banner-fields">
                 <div className="grid-2">
                   <Field label="Headline"><input value={b.title} onChange={(e) => setBanner(i, 'title', e.target.value)} /></Field>
                   <Field label="Button text"><input value={b.cta} onChange={(e) => setBanner(i, 'cta', e.target.value)} /></Field>
                 </div>
                 <Field label="Sentence"><input value={b.text} onChange={(e) => setBanner(i, 'text', e.target.value)} /></Field>
+                <ImageField label="Photo" kind="photo" value={b.image || ''} onChange={(v) => setBanner(i, 'image', v)} hint="A product photo on a plain background works best." />
                 <div className="grid-2">
                   <Field label="Link"><input value={b.link} onChange={(e) => setBanner(i, 'link', e.target.value)} placeholder="/shop?cat=phone" /></Field>
                   <Field label="Colour"><select value={b.tone} onChange={(e) => setBanner(i, 'tone', e.target.value)}><option value="blue">Blue</option><option value="ink">Dark</option><option value="yellow">Yellow</option><option value="light">Light</option></select></Field>
-                  <Field label="Picture"><select value={b.art} onChange={(e) => setBanner(i, 'art', e.target.value)}>{ART_TYPES.map((t) => <option key={t}>{t}</option>)}</select></Field>
-                  <Field label="Or image link"><input value={b.image || ''} onChange={(e) => setBanner(i, 'image', e.target.value)} placeholder="https://…" /></Field>
+
                 </div>
                 <div className="row-gap">
                   {i > 0 && <button className="btn btn-ghost btn-sm" onClick={() => { const a = [...s.banners]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; setS({ ...s, banners: a }); }}><LuArrowUp /> Move up</button>}
@@ -85,7 +85,7 @@ export default function Settings() {
               </div>
             </div>
           ))}
-          <button className="btn btn-ghost" onClick={() => setS({ ...s, banners: [...s.banners, { id: rid(6), title: 'New banner', text: '', cta: 'Shop now', link: '/shop', tone: 'blue', art: 'phone' }] })}><LuPlus /> Add banner</button>
+          <button className="btn btn-ghost" onClick={() => setS({ ...s, banners: [...s.banners, { id: rid(6), title: 'New banner', text: '', cta: 'Shop now', link: '/shop', tone: 'blue', image: '' }] })}><LuPlus /> Add banner</button>
         </section>
       )}
 

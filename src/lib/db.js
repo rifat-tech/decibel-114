@@ -1,3 +1,4 @@
+import { AGRICULTURE, DEFAULT_SITE, IT_SOLUTIONS } from '../segments';
 // Data layer. One small collection API (`C(name)`) works on Firestore or, in demo mode,
 // on localStorage. Everything else (orders, CRM, chat, coupons…) is built on top of it.
 import { DEMO, auth, fs, withSecondaryAuth } from './firebase';
@@ -125,6 +126,27 @@ export async function getSettings() {
   catch { return DEFAULT_SETTINGS; }
 }
 export const saveSettings = (s) => { const { id, ...rest } = s; return C('settings').set('store', rest, true); };
+
+/* ═════════════ website content (Admin → Website content) ═════════════
+   Three documents in `settings`: `site` (entry popup, languages, colours), `solutions-it` and
+   `solutions-agri` (the two solution pages). Anything not saved yet uses the built-in defaults. */
+const CONTENT_DOCS = { site: 'site', it: 'solutions-it', agri: 'solutions-agri' };
+export async function getContent() {
+  const read = (id) => withTimeout(C('settings').get(id), 6000).catch(() => null);
+  const [site, it, agri] = await Promise.all(Object.values(CONTENT_DOCS).map(read));
+  const strip = (d) => { if (!d) return {}; const { id, updatedAt, ...rest } = d; return rest; };
+  return {
+    site: { ...DEFAULT_SITE, ...strip(site), popup: { ...DEFAULT_SITE.popup, ...(site?.popup || {}) }, languages: { ...DEFAULT_SITE.languages, ...(site?.languages || {}) }, theme: { ...DEFAULT_SITE.theme, ...(site?.theme || {}) } },
+    it: { ...IT_SOLUTIONS, ...fromStore(strip(it)) },
+    agri: { ...AGRICULTURE, ...fromStore(strip(agri)) },
+  };
+}
+// Firestore cannot hold a list inside a list, so [title, text] pairs are saved as {t, d}.
+const PAIRS = ['steps', 'why', 'faq'];
+function toStore(v) { const o = { ...v }; PAIRS.forEach((k) => { if (Array.isArray(o[k])) o[k] = o[k].map(([t, d]) => ({ t: t || '', d: d || '' })); }); return o; }
+function fromStore(v) { const o = { ...v }; PAIRS.forEach((k) => { if (Array.isArray(o[k])) o[k] = o[k].map((x) => (Array.isArray(x) ? x : [x.t, x.d])); }); return o; }
+export const saveContent = (key, value) => C('settings').set(CONTENT_DOCS[key], { ...toStore(value), updatedAt: Date.now() });
+export const resetContent = (key) => C('settings').remove(CONTENT_DOCS[key]);
 
 /* ═════════════ catalog ═════════════
    Base catalog = curated products (catalog.js) + the distributor price list (public/catalog.json, ~5,900 items,

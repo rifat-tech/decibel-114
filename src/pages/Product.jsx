@@ -19,7 +19,7 @@ import { solutionsFor } from '../segments';
 export default function Product() {
   const { slug } = useParams();
   const nav = useNavigate();
-  const { products, catById, settings: st } = useStore();
+  const { products, catById, settings: st, content } = useStore();
   const cart = useCart();
   const sh = useShopper();
   const [p, setP] = useState(undefined);
@@ -43,7 +43,7 @@ export default function Product() {
     return products.filter((x) => x.categoryId === p.categoryId && x.id !== p.id)
       .sort((a, b) => score(a) - score(b) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price)).slice(0, 8);
   }, [p, products]);
-  const solutions = useMemo(() => (p ? solutionsFor(p) : []), [p]);
+  const solutions = useMemo(() => (p ? solutionsFor(p, content.it, content.agri) : []), [p, content]);
 
   if (p === undefined) return <Spinner full />;
   if (!p) return <div className="container"><Empty title="This product is no longer listed" action="Browse all products" to="/shop">It may have been renamed or sold out.</Empty></div>;

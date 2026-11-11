@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { LuTrash2 } from 'react-icons/lu';
-import DeviceArt, { ART_TYPES } from '../../components/DeviceArt';
+import { ImageField } from './AdminFields';
+import { categoryPhoto } from '../../lib/catPhoto';
 import { Field, useTitle } from '../../components/ui';
 import { deleteCategory, errText, saveCategory } from '../../lib/db';
 import { useCatalog } from '../../context/StoreContext';
 import { slugify } from '../../config';
 
-const BLANK = { name: '', description: '', icon: 'router', order: 99, subs: '' };
+const BLANK = { name: '', description: '', icon: 'router', image: '', order: 99, subs: '' };
 
 export default function Categories() {
   useTitle('Categories');
@@ -38,7 +39,7 @@ export default function Categories() {
           <table className="table"><thead><tr><th /><th>Name</th><th>Products</th><th>Order</th><th /></tr></thead><tbody>
             {categories.map((c) => (
               <tr key={c.id}>
-                <td className="t-thumb"><DeviceArt type={c.icon} /></td>
+                <td className="t-thumb">{(c.image || categoryPhoto(products, c.id)) && <img src={c.image || categoryPhoto(products, c.id)} alt="" />}</td>
                 <td><button className="link" onClick={() => setF({ ...c, subs: (c.subs || []).join(', ') })}><b>{c.name}</b></button><br /><small>{c.description}</small></td>
                 <td>{count(c.id)}</td><td>{c.order}</td>
                 <td><button className="icon-btn" onClick={() => remove(c)} aria-label={`Delete ${c.name}`}><LuTrash2 /></button></td>
@@ -52,10 +53,8 @@ export default function Categories() {
           <Field label="Short description"><input value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></Field>
           <Field label="Types inside it" hint="Comma-separated. Used as the Type filter."><input value={f.subs} onChange={(e) => setF({ ...f, subs: e.target.value })} placeholder="PoE switch, Managed switch" /></Field>
           <Field label="Position in menus"><input type="number" value={f.order} onChange={(e) => setF({ ...f, order: e.target.value })} /></Field>
-          <span className="field-label">Illustration</span>
-          <div className="art-pick">
-            {ART_TYPES.map((t) => <button type="button" key={t} className={f.icon === t ? 'on' : ''} onClick={() => setF({ ...f, icon: t })} aria-label={t}><DeviceArt type={t} /></button>)}
-          </div>
+          <ImageField label="Photo on the home page" kind="product" value={f.image || ''} onChange={(image) => setF({ ...f, image })}
+            hint="Leave empty to use a photo of a product from this category automatically." />
           <div className="row-gap">
             <button className="btn btn-primary">{editing ? 'Save category' : 'Add category'}</button>
             {editing && <button type="button" className="btn btn-ghost" onClick={() => setF(BLANK)}>Cancel</button>}

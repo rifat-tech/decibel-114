@@ -5,7 +5,8 @@ import {
   LuBuilding2, LuBadgeCheck, LuWrench, LuHeadphones, LuDroplets, LuActivity, LuSun, LuUsers,
 } from 'react-icons/lu';
 import { useCatalog } from '../context/StoreContext';
-import { AGRICULTURE, IT_SOLUTIONS, SEGMENTS, unsplash } from '../segments';
+import { imgSrc } from '../segments';
+import { NotFound } from './Misc';
 import { serviceLd, useSeo } from '../lib/seo';
 import { telHref, waLink } from '../config';
 
@@ -14,10 +15,12 @@ const WHY_ICONS = { it: [LuUsers, LuBadgeCheck, LuWrench, LuHeadphones], agri: [
 const quoteFor = (what) => `/quote?items=${encodeURIComponent(`${what}: project enquiry`)}`;
 
 function Img({ id, alt, w = 900, className = '', eager }) {
+  if (!id) return null;
+  const isUnsplash = /^photo-/.test(id);
   return (
-    <img className={className} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async"
-      src={unsplash(id, w)} srcSet={`${unsplash(id, Math.round(w / 2))} ${Math.round(w / 2)}w, ${unsplash(id, w)} ${w}w, ${unsplash(id, w * 2)} ${w * 2}w`}
-      sizes={w >= 1600 ? '(min-width: 960px) 100vw, 200vw' : '(min-width: 1100px) 400px, (min-width: 700px) 50vw, 100vw'} />
+    <img className={className} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" src={imgSrc(id, w)}
+      srcSet={isUnsplash ? `${imgSrc(id, Math.round(w / 2))} ${Math.round(w / 2)}w, ${imgSrc(id, w)} ${w}w, ${imgSrc(id, w * 2)} ${w * 2}w` : undefined}
+      sizes={isUnsplash ? (w >= 1600 ? '(min-width: 960px) 100vw, 200vw' : '(min-width: 1100px) 400px, (min-width: 700px) 50vw, 100vw') : undefined} />
   );
 }
 
@@ -35,12 +38,14 @@ function Faq({ items }) {
   );
 }
 
-function SegmentPage({ data, name }) {
-  const { settings } = useCatalog();
-  useSeo({ title: data.seoTitle, description: data.seoDescription, keywords: data.keywords, path: data.path, image: unsplash(data.hero, 1200), jsonLd: serviceLd(data) });
+function SegmentPage({ which, name }) {
+  const { settings, content } = useCatalog();
+  const data = content[which];
+  useSeo({ title: data.seoTitle, description: data.seoDescription, keywords: data.keywords, path: data.path, image: /^data:/.test(data.hero) ? undefined : imgSrc(data.hero, 1200), jsonLd: serviceLd(data) });
   const wa = waLink(settings?.whatsapp || settings?.phone, `Hello Decibel-114, I would like to discuss ${name}.`);
-  const others = SEGMENTS.filter((s) => s.id !== data.id);
+  const others = content.site.popup.options.filter((s) => s.id !== data.id && (s.id === 'products' || content[s.id]?.enabled !== false));
   const whyIcons = WHY_ICONS[data.id];
+  const services = (data.services || []).filter((s) => s.t);
   const { hash } = useLocation();
   // Links like /it-solutions#cctv-installation open at that service.
   useEffect(() => {
@@ -49,6 +54,7 @@ function SegmentPage({ data, name }) {
     return () => clearTimeout(t);
   }, [hash]);
 
+  if (data.enabled === false) return <NotFound />;
   return (
     <div className={`segpage segpage-${data.id}`}>
       <section className="segp-hero">
@@ -63,7 +69,7 @@ function SegmentPage({ data, name }) {
             {wa && <a href={wa} target="_blank" rel="noreferrer" className="segp-ghost"><LuMessageCircle /> WhatsApp us</a>}
             {settings?.phone && <a href={telHref(settings.phone)} className="segp-ghost"><LuPhone /> {settings.phone}</a>}
           </div>
-          <ul className="segp-trust">{data.trust.map((t) => <li key={t}><LuCheck /> {t}</li>)}</ul>
+          {data.trust?.length > 0 && <ul className="segp-trust">{data.trust.map((t) => <li key={t}><LuCheck /> {t}</li>)}</ul>}
         </div>
       </section>
 
@@ -73,15 +79,15 @@ function SegmentPage({ data, name }) {
           <p>{data.servicesIntro}</p>
         </div>
         <div className="segp-grid">
-          {data.services.map((s) => (
-            <article key={s.t} id={s.slug} className="segp-card">
+          {services.map((s) => (
+            <article key={s.slug || s.t} id={s.slug} className="segp-card">
               <div className="segp-card-media"><Img id={s.img} alt={s.t} /></div>
               <div className="segp-card-body">
                 <h3>{s.t}</h3>
                 <p>{s.d}</p>
-                <ul>{s.inc.map((x) => <li key={x}><LuCheck /> {x}</li>)}</ul>
+                {s.inc?.length > 0 && <ul>{s.inc.map((x) => <li key={x}><LuCheck /> {x}</li>)}</ul>}
                 <div className="segp-card-foot">
-                  <div className="segp-price"><small>Price</small><b>TBA</b></div>
+                  <div className="segp-price"><small>Price</small><b>{s.price || 'TBA'}</b></div>
                   <Link to={quoteFor(s.t)} className="segp-quote">Get a quote <LuArrowRight /></Link>
                 </div>
                 {s.cat && <Link to={`/shop?cat=${s.cat}`} className="segp-shop">Browse related products</Link>}
@@ -91,41 +97,41 @@ function SegmentPage({ data, name }) {
         </div>
       </section>
 
-      <section className="segp-band">
+      {data.why?.length > 0 && <section className="segp-band">
         <div className="container">
           <div className="segp-head"><h2>Why Decibel-114.</h2></div>
           <div className="segp-why">
-            {data.why.map(([t, d], i) => { const I = whyIcons[i]; return (
+            {data.why.map(([t, d], i) => { const I = whyIcons[i % whyIcons.length]; return (
               <div key={t}><span className="segp-why-ico"><I /></span><h3>{t}</h3><p>{d}</p></div>
             ); })}
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section className="container segp-sec">
+      {data.steps?.length > 0 && <section className="container segp-sec">
         <div className="segp-head"><h2>How we work.</h2></div>
         <ol className="segp-steps">
           {data.steps.map(([t, d], i) => <li key={t}><span>{String(i + 1).padStart(2, '0')}</span><b>{t}</b><p>{d}</p></li>)}
         </ol>
-      </section>
+      </section>}
 
-      <section className="container segp-sec">
-        <div className="segp-head"><h2>{data.industriesTitle}</h2></div>
-        <ul className="segp-chips">{data.industries.map((x) => <li key={x}><LuBuilding2 /> {x}</li>)}</ul>
-        {data.brands.length > 0 && (
+      {(data.industries?.length > 0 || data.brands?.length > 0) && <section className="container segp-sec">
+        {data.industries?.length > 0 && <div className="segp-head"><h2>{data.industriesTitle}</h2></div>}
+        {data.industries?.length > 0 && <ul className="segp-chips">{data.industries.map((x) => <li key={x}><LuBuilding2 /> {x}</li>)}</ul>}
+        {data.brands?.length > 0 && (
           <>
             <div className="segp-head segp-head-sub"><h2>{data.brandsTitle}</h2></div>
             <ul className="segp-brands notranslate" translate="no">{data.brands.map((b) => <li key={b}>{b}</li>)}</ul>
           </>
         )}
-      </section>
+      </section>}
 
-      <section className="container segp-sec">
+      {data.faq?.length > 0 && <section className="container segp-sec">
         <div className="segp-faq-wrap">
           <div className="segp-head"><h2>Questions, answered.</h2><p>Anything else? Our team is a message away.</p></div>
           <Faq items={data.faq} />
         </div>
-      </section>
+      </section>}
 
       <section className="container segp-sec">
         <div className="segp-final">
@@ -158,5 +164,5 @@ function SegmentPage({ data, name }) {
   );
 }
 
-export const ITSolutions = () => <SegmentPage data={IT_SOLUTIONS} name="IT Solutions" />;
-export const Agriculture = () => <SegmentPage data={AGRICULTURE} name="Agriculture" />;
+export const ITSolutions = () => <SegmentPage which="it" name="IT Solutions" />;
+export const Agriculture = () => <SegmentPage which="agri" name="Agriculture" />;

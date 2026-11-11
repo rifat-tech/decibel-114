@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { LuShieldCheck, LuTruck, LuWrench, LuBuilding2, LuMessageCircle, LuChevronRight } from 'react-icons/lu';
-import DeviceArt, { ProductVisual } from '../components/DeviceArt';
+import { ProductVisual } from '../components/DeviceArt';
 import { categoryPhoto } from '../lib/catPhoto';
 import Carousel from '../components/Carousel';
 import { Reveal, SplitWords, Parallax } from '../components/Motion';
@@ -28,7 +28,7 @@ function HeroTile({ b, size = 'full', eager }) {
         </div>
       </div>
       <Parallax className="ap-tile-art" distance={size === 'full' ? 30 : 18}>
-        {b.image ? <img src={asset(b.image)} alt="" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} /> : <DeviceArt type={b.art || 'phone'} />}
+        {b.image && <img src={asset(b.image)} alt="" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} />}
       </Parallax>
     </Reveal>
   );
@@ -101,7 +101,7 @@ export default function Home() {
       <div className="container">
         <Carousel label="Shop by category" className="ap-cats">
           {(loading ? [] : categories).map((c) => {
-            const img = categoryPhoto(products, c.id);
+            const img = c.image || categoryPhoto(products, c.id);
             return (
               <Link key={c.id} to={`/shop?cat=${c.id}`} className="ap-cat">
                 <span className="ap-cat-img">{img && <img src={img} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />}</span>

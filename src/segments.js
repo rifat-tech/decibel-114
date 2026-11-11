@@ -3,6 +3,8 @@
 
 // Photos: Unsplash (free licence, commercial use allowed), served from Unsplash's image CDN.
 export const unsplash = (id, w = 1200) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=72`;
+/** An image field holds an Unsplash photo id, a full link, an uploaded photo (data: URL) or a site path. */
+export const imgSrc = (v, w = 1200) => (!v ? '' : /^photo-[\w-]+$/.test(v) ? unsplash(v, w) : v);
 
 export const SEGMENTS = [
   { id: 'products', to: '/', title: 'Products', sub: 'Phones, laptops, Apple, networking and electronics, delivered across Bangladesh.' },
@@ -12,6 +14,7 @@ export const SEGMENTS = [
 
 export const IT_SOLUTIONS = {
   id: 'it',
+  enabled: true,
   path: '/it-solutions',
   seoTitle: 'IT Solutions in Bangladesh: Networking, Wi-Fi, Firewall, CCTV, Servers',
   seoDescription: 'Decibel-114 IT Solutions designs, supplies, installs and supports business networks in Dhaka and across Bangladesh: enterprise Wi-Fi, switching, firewall, CCTV, structured cabling, servers, Starlink and managed IT.',
@@ -73,6 +76,7 @@ export const IT_SOLUTIONS = {
 
 export const AGRICULTURE = {
   id: 'agri',
+  enabled: true,
   path: '/agriculture',
   seoTitle: 'Smart Agriculture Technology in Bangladesh: Drones, Irrigation, Sensors, Solar',
   seoDescription: 'Decibel-114 Agriculture brings smart farming to Bangladesh: agricultural drones, automated irrigation, soil and weather sensors, greenhouse control, solar pumps, poultry and dairy automation, fish farm monitoring and farm connectivity.',
@@ -130,20 +134,33 @@ export const AGRICULTURE = {
 };
 
 /** The solution a product leads to: used for the "Need it installed?" box and the SEO pages. */
-export function solutionsFor(p) {
+export function solutionsFor(p, itSeg = IT_SOLUTIONS, agriSeg = AGRICULTURE) {
   const text = `${p?.name || ''} ${p?.brand || ''} ${p?.subcategory || ''}`.toLowerCase();
-  const it = (slug) => { const s = IT_SOLUTIONS.services.find((x) => x.slug === slug); return { ...s, href: `/it-solutions#${slug}`, area: 'IT Solutions' }; };
-  const ag = (slug) => { const s = AGRICULTURE.services.find((x) => x.slug === slug); return { ...s, href: `/agriculture#${slug}`, area: 'Agriculture' }; };
-  if (/starlink/.test(text)) return [it('starlink-internet'), ag('farm-connectivity')];
-  if (/firewall|watchguard|fortinet|fortigate|sophos|panda|antivirus|endpoint/.test(text)) return [it('network-security-firewall')];
-  if (/ip phone|pbx|voip|grandstream|telephon/.test(text)) return [it('ip-pbx')];
-  if (p?.categoryId === 'security' || /cctv|camera|nvr|dvr|surveillance/.test(text)) return [it('cctv-installation')];
-  if (p?.categoryId === 'server' || /\bnas\b|server|\bups\b|rack/.test(text)) return [it('servers-storage')];
-  if (/drone|irrigation|solar pump|weather station/.test(text)) return [ag(/drone/.test(text) ? 'agricultural-drones' : 'smart-irrigation')];
+  const it = (slug) => { const s = itSeg.enabled !== false && itSeg.services.find((x) => x.slug === slug); return s && { ...s, href: `/it-solutions#${slug}`, area: 'IT Solutions' }; };
+  const ag = (slug) => { const s = agriSeg.enabled !== false && agriSeg.services.find((x) => x.slug === slug); return s && { ...s, href: `/agriculture#${slug}`, area: 'Agriculture' }; };
+  if (/starlink/.test(text)) return [it('starlink-internet'), ag('farm-connectivity')].filter(Boolean);
+  if (/firewall|watchguard|fortinet|fortigate|sophos|panda|antivirus|endpoint/.test(text)) return [it('network-security-firewall')].filter(Boolean);
+  if (/ip phone|pbx|voip|grandstream|telephon/.test(text)) return [it('ip-pbx')].filter(Boolean);
+  if (p?.categoryId === 'security' || /cctv|camera|nvr|dvr|surveillance/.test(text)) return [it('cctv-installation')].filter(Boolean);
+  if (p?.categoryId === 'server' || /\bnas\b|server|\bups\b|rack/.test(text)) return [it('servers-storage')].filter(Boolean);
+  if (/drone|irrigation|solar pump|weather station/.test(text)) return [ag(/drone/.test(text) ? 'agricultural-drones' : 'smart-irrigation')].filter(Boolean);
   if (p?.categoryId === 'network') {
-    if (/access point|wi-?fi|wireless|\bap\b|mesh|u6|u7|unifi ap|ruckus/.test(text)) return [it('enterprise-wifi')];
-    if (/cable|fiber|fibre|patch|cat6|cat 6|connector|keystone/.test(text)) return [it('structured-cabling')];
-    return [it('enterprise-networking')];
+    if (/access point|wi-?fi|wireless|\bap\b|mesh|u6|u7|unifi ap|ruckus/.test(text)) return [it('enterprise-wifi')].filter(Boolean);
+    if (/cable|fiber|fibre|patch|cat6|cat 6|connector|keystone/.test(text)) return [it('structured-cabling')].filter(Boolean);
+    return [it('enterprise-networking')].filter(Boolean);
   }
   return [];
 }
+
+/** Everything the admin panel can change on the site, with the built-in defaults. */
+export const DEFAULT_SITE = {
+  popup: {
+    enabled: true,
+    title: 'Welcome to Decibel-114.',
+    lead: 'What are you looking for today?',
+    options: SEGMENTS,
+  },
+  languages: { enabled: true, list: ['en', 'zh-CN', 'ru'] },
+  theme: { bg: '#EEF4FA' },
+};
+export const DEFAULT_CONTENT = { site: DEFAULT_SITE, it: IT_SOLUTIONS, agri: AGRICULTURE };

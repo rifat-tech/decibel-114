@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LuArrowRight, LuServer, LuShoppingBag, LuSprout, LuX } from 'react-icons/lu';
 import Logo from './Logo';
-import { SEGMENTS } from '../segments';
+import { useStore } from '../context/StoreContext';
 
 const KEY = 'd114-segment-seen';
 const ICON = { products: LuShoppingBag, it: LuServer, agri: LuSprout };
@@ -14,7 +14,14 @@ const markSeen = () => { try { sessionStorage.setItem(KEY, '1'); } catch { /* pr
 export default function SegmentGate() {
   const loc = useLocation();
   const nav = useNavigate();
-  const [open, setOpen] = useState(() => !seen() && !['/it-solutions', '/agriculture'].includes(loc.pathname));
+  const { content } = useStore();
+  const popup = content.site.popup;
+  const options = (popup.options || []).filter((s) => s.id === 'products' || content[s.id]?.enabled !== false);
+  const [open, setOpen] = useState(false);
+  // Opens once the saved settings have loaded, so a popup turned off in the admin never flashes.
+  useEffect(() => {
+    if (content.loaded && popup.enabled !== false && options.length > 1 && !seen() && !/^\/(it-solutions|agriculture|login|register|account|cart|checkout|order|track)/.test(loc.pathname)) setOpen(true);
+  }, [content.loaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!open) return;
@@ -39,11 +46,11 @@ export default function SegmentGate() {
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
             <button className="seg-close" onClick={close} aria-label="Close and continue to products"><LuX /></button>
             <div className="seg-logo"><Logo /></div>
-            <h2 id="seg-title">Welcome to Decibel-114.</h2>
-            <p className="seg-lead">What are you looking for today?</p>
+            <h2 id="seg-title">{popup.title}</h2>
+            {popup.lead && <p className="seg-lead">{popup.lead}</p>}
             <div className="seg-options">
-              {SEGMENTS.map((s, i) => {
-                const Icon = ICON[s.id];
+              {options.map((s, i) => {
+                const Icon = ICON[s.id] || LuShoppingBag;
                 return (
                   <motion.button key={s.id} className={`seg-opt seg-${s.id}`} onClick={() => pick(s)}
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 + i * 0.07, duration: 0.35 }}>

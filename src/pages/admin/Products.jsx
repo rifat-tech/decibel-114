@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { LuPlus, LuTrash2, LuUpload, LuX, LuArrowUp } from 'react-icons/lu';
-import DeviceArt, { ART_TYPES, ProductVisual } from '../../components/DeviceArt';
+import { ProductVisual } from '../../components/DeviceArt';
 import { Field, Spinner, useTitle } from '../../components/ui';
 import { adminGetProduct, adminListProducts, deleteProduct, errText, saveProduct } from '../../lib/db';
 import { useCatalog } from '../../context/StoreContext';
-import { CLOUDINARY, money, slugify } from '../../config';
+import { money, slugify } from '../../config';
+import { uploadImage } from '../../lib/media';
 
 export function AdminProducts() {
   useTitle('Products');
@@ -92,17 +93,6 @@ export function AdminProducts() {
   );
 }
 
-async function uploadToCloudinary(file) {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY.preset);
-  fd.append('folder', 'decibel114');
-  const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloud}/image/upload`, { method: 'POST', body: fd });
-  const j = await r.json();
-  if (!r.ok) throw new Error(j?.error?.message || 'Upload failed');
-  return j.secure_url.replace('/upload/', '/upload/f_auto,q_auto,w_1200/');
-}
-
 function parseOptions(text, name) {
   const values = String(text || '').split('\n').map((l) => l.split('=').map((x) => x.trim())).filter(([a, b]) => a && Number(b?.replace(/[^\d]/g, ''))).map(([label, price]) => ({ label, price: Number(price.replace(/[^\d]/g, '')) }));
   return values.length ? [{ name: name || 'Option', values }] : [];
@@ -135,12 +125,11 @@ export function ProductForm() {
   const subs = catById[f.categoryId]?.subs || [];
 
   const onFiles = async (files) => {
-    if (!CLOUDINARY.cloud || !CLOUDINARY.preset) return toast.error('Add VITE_CLOUDINARY_CLOUD and VITE_CLOUDINARY_PRESET to upload photos, or paste an image link below.');
     const list = [...files].slice(0, 8);
     setUploading(list.length);
     try {
       const urls = [];
-      for (const file of list) { urls.push(await uploadToCloudinary(file)); setUploading((n) => n - 1); }
+      for (const file of list) { urls.push(await uploadImage(file, 'product')); setUploading((n) => n - 1); }
       setF((cur) => ({ ...cur, images: [...cur.images, ...urls] }));
     } catch (e) { toast.error(e.message); } finally { setUploading(0); }
   };
@@ -219,16 +208,7 @@ export function ProductForm() {
               </label>
             </div>
             <div className="row-gap"><input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…or paste an image link" /><button type="button" className="btn btn-ghost" onClick={addUrl}>Add link</button></div>
-            {!f.images.length && (
-              <>
-                <p className="muted small">No photo yet, so the store shows this illustration:</p>
-                <div className="art-pick">
-                  {ART_TYPES.map((t) => (
-                    <button type="button" key={t} className={(f.art || '') === t ? 'on' : ''} onClick={() => setF({ ...f, art: t })} aria-label={t}><DeviceArt type={t} /></button>
-                  ))}
-                </div>
-              </>
-            )}
+            {!f.images.length && <p className="muted small">No photo yet. The store shows the brand name on a white tile until you add one.</p>}
           </section>
 
           <section className="panel">

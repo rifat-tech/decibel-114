@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LuCheck, LuLanguages } from 'react-icons/lu';
+import { useStore } from '../context/StoreContext';
 
 // Whole-page translation through Google's website translator, so product names,
 // descriptions and every page follow the chosen language. English needs no script.
@@ -49,6 +50,12 @@ export default function LangSwitch() {
   const [open, setOpen] = useState(false);
   const lang = currentLang();
   const ref = useRef();
+  const { content } = useStore();
+  const cfg = content.site.languages;
+  const langs = LANGS.filter((l) => l.code === 'en' || (cfg.list || []).includes(l.code));
+  const off = content.loaded && (cfg.enabled === false || langs.length < 2);
+  // Switched off in the admin while a visitor still has a translation saved: back to English.
+  useEffect(() => { if (off && lang !== 'en') { writeCookie('en'); location.reload(); } }, [off]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!open) return;
     const off = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
@@ -66,6 +73,7 @@ export default function LangSwitch() {
   }
 
   const cur = LANGS.find((l) => l.code === lang);
+  if (off) return null;
   return (
     <div className="lang notranslate" translate="no" ref={ref}>
       <button className="lang-btn" onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open} aria-label={`Language: ${cur.label}. Change language`}>
@@ -73,7 +81,7 @@ export default function LangSwitch() {
       </button>
       {open && (
         <ul className="lang-menu" role="listbox" aria-label="Choose language">
-          {LANGS.map((l) => (
+          {langs.map((l) => (
             <li key={l.code}>
               <button role="option" aria-selected={l.code === lang} lang={l.code} onClick={() => choose(l.code)}>
                 {l.label}{l.code === lang && <LuCheck />}

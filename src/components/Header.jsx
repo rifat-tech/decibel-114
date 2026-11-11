@@ -77,6 +77,20 @@ function Search() {
 }
 
 /* Desktop category bar with hover mega panels. */
+// Links to the solution pages that are switched on in Admin → Website content.
+function SolutionLinks({ className, drawer }) {
+  const { content } = useStore();
+  const it = content.it.enabled !== false, agri = content.agri.enabled !== false;
+  if (!it && !agri) return null;
+  if (drawer) return (
+    <>
+      {it && <Link to="/it-solutions" className="menu-cat featured"><span className="mc-ico"><LuServer /></span> IT Solutions <LuChevronRight /></Link>}
+      {agri && <Link to="/agriculture" className="menu-cat featured"><span className="mc-ico"><LuSprout /></span> Agriculture <LuChevronRight /></Link>}
+    </>
+  );
+  return <nav className={className} aria-label="Solutions">{it && <Link to="/it-solutions">IT Solutions</Link>}{agri && <Link to="/agriculture">Agriculture</Link>}</nav>;
+}
+
 function CategoryBar({ menu, onAll }) {
   const [open, setOpen] = useState(null);
   const t = useRef();
@@ -97,10 +111,7 @@ function CategoryBar({ menu, onAll }) {
             </Link>
           ))}
         </nav>
-        <nav className="catbar-seg" aria-label="Solutions">
-          <Link to="/it-solutions">IT Solutions</Link>
-          <Link to="/agriculture">Agriculture</Link>
-        </nav>
+        <SolutionLinks className="catbar-seg" />
       </div>
       <AnimatePresence>
         {cat && (
@@ -149,8 +160,7 @@ function MenuDrawer({ menu, onClose }) {
           <nav className="menu-cats">
             <Link to="/brand/apple" className="menu-cat featured"><span className="mc-ico"><CatIcon id="apple" /></span> Apple store <LuChevronRight /></Link>
             <Link to="/deals" className="menu-cat featured"><span className="mc-ico"><LuBadgePercent /></span> Offers <LuChevronRight /></Link>
-            <Link to="/it-solutions" className="menu-cat featured"><span className="mc-ico"><LuServer /></span> IT Solutions <LuChevronRight /></Link>
-            <Link to="/agriculture" className="menu-cat featured"><span className="mc-ico"><LuSprout /></span> Agriculture <LuChevronRight /></Link>
+            <SolutionLinks drawer />
             {menu.map((c) => (
               <button key={c.id} className={`menu-cat ${active === c.id ? 'on' : ''}`} onMouseEnter={() => matchMedia('(min-width: 640px)').matches && setActive(c.id)} onClick={() => setActive(c.id)}>
                 <span className="mc-ico"><CatIcon id={c.id} /></span> {c.name} <LuChevronRight />
