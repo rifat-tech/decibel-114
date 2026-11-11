@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { LuX, LuZoomIn, LuZoomOut, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 
 // Distributor photos come in fixed sizes; use the larger cut when it exists.
-const large = (u) => String(u).replace(/-(?:200x200|400x400)\.(webp|jpe?g|png)$/i, '-600x600.$1');
+const large = (u) => String(u).replace(/-(?:200x200|400x400|600x600)\.(webp|jpe?g|png)$/i, '-800x800.$1');
 function Big({ src, ...rest }) {
   const [u, setU] = useState(large(src));
   useEffect(() => setU(large(src)), [src]);

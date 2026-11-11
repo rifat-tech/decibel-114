@@ -204,13 +204,14 @@ export const artFor = (p, cat) => p?.art || CAT_ART[p?.categoryId] || cat?.icon 
 export function ProductVisual({ product, category, className = '' }) {
   // Cards and lists load a smaller cut of Cloudinary photos.
   const raw = String(product?.images?.[0] || product?.image || '');
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [raw]);
+  // 0 = photo with sharp-screen version, 1 = plain photo (sharp version missing), 2 = no usable photo
+  const [level, setLevel] = useState(0);
+  useEffect(() => setLevel(0), [raw]);
   const src = raw.replace('c_limit,w_1200', 'c_limit,w_480') || null;
   // Sharp screens (most phones) get the larger cut: supplier photos exist at 600px, Cloudinary at any size.
-  const big = /-400x400\.(webp|jpe?g|png)$/i.test(raw) ? raw.replace(/-400x400\.(webp|jpe?g|png)$/i, '-600x600.$1')
+  const big = /-400x400\.(webp|jpe?g|png)$/i.test(raw) ? raw.replace(/-400x400\.(webp|jpe?g|png)$/i, '-800x800.$1')
     : raw.includes('c_limit,w_1200') ? raw.replace('c_limit,w_1200', 'c_limit,w_960') : '';
-  if (src && !failed) return <img src={src} srcSet={big ? `${src} 1x, ${big} 2x` : undefined} alt={product.name} className={`product-photo ${className}`} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
+  if (src && level < 2) return <img src={src} srcSet={big && level === 0 ? `${src} 1x, ${big} 2x` : undefined} alt={product.name} className={`product-photo ${className}`} loading="lazy" decoding="async" onError={() => setLevel((l) => (big && l === 0 ? 1 : 2))} />;
   return <PhotoPending product={product} className={className} />;
 }
 
