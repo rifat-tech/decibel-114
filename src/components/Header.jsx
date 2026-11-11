@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -148,13 +149,13 @@ function MenuDrawer({ menu, onClose }) {
           <nav className="menu-cats">
             <Link to="/brand/apple" className="menu-cat featured"><span className="mc-ico"><CatIcon id="apple" /></span> Apple store <LuChevronRight /></Link>
             <Link to="/deals" className="menu-cat featured"><span className="mc-ico"><LuBadgePercent /></span> Offers <LuChevronRight /></Link>
+            <Link to="/it-solutions" className="menu-cat featured"><span className="mc-ico"><LuServer /></span> IT Solutions <LuChevronRight /></Link>
+            <Link to="/agriculture" className="menu-cat featured"><span className="mc-ico"><LuSprout /></span> Agriculture <LuChevronRight /></Link>
             {menu.map((c) => (
               <button key={c.id} className={`menu-cat ${active === c.id ? 'on' : ''}`} onMouseEnter={() => matchMedia('(min-width: 640px)').matches && setActive(c.id)} onClick={() => setActive(c.id)}>
                 <span className="mc-ico"><CatIcon id={c.id} /></span> {c.name} <LuChevronRight />
               </button>
             ))}
-            <Link to="/it-solutions" className="menu-cat featured"><span className="mc-ico"><LuServer /></span> IT Solutions <LuChevronRight /></Link>
-            <Link to="/agriculture" className="menu-cat featured"><span className="mc-ico"><LuSprout /></span> Agriculture <LuChevronRight /></Link>
             <Link to="/quote" className="menu-cat"><span className="mc-ico"><LuBuilding2 /></span> Corporate & bulk <LuChevronRight /></Link>
             <Link to="/track" className="menu-cat"><span className="mc-ico"><LuTruck /></span> Track order <LuChevronRight /></Link>
           </nav>
@@ -212,7 +213,8 @@ export default function Header() {
         </div>
       </div>
       <div className="only-desktop-block"><CategoryBar menu={menu} onAll={() => setDrawer(true)} /></div>
-      <AnimatePresence>{drawer && <MenuDrawer menu={menu} onClose={() => setDrawer(false)} />}</AnimatePresence>
+      {/* Rendered on <body>: the header's frosted-glass blur would otherwise trap the full-screen menu inside the header box. */}
+      {createPortal(<AnimatePresence>{drawer && <MenuDrawer menu={menu} onClose={() => setDrawer(false)} />}</AnimatePresence>, document.body)}
     </header>
   );
 }
