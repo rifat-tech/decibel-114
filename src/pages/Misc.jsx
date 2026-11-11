@@ -1,7 +1,6 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import QuoteForm from '../components/QuoteForm';
-import DeviceArt from '../components/DeviceArt';
 import { Empty, useTitle } from '../components/ui';
 import { useCatalog } from '../context/StoreContext';
 import { useShopper } from '../context/ShopperContext';
@@ -38,41 +37,6 @@ export function Quote() {
         {SITE.phone && <p>Prefer to talk? Call <a href={telHref(SITE.phone)}>{SITE.phone}</a>.</p>}
       </div>
       <div className="panel"><QuoteForm initialItems={sp.get('items') || ''} /></div>
-    </div>
-  );
-}
-
-const SOLUTIONS = [
-  { art: 'ap', t: 'Office Wi-Fi', d: 'Seamless roaming across floors with UniFi, Ruijie or Ruckus, planned from a coverage survey so there are no dead zones.' },
-  { art: 'switch', t: 'Structured cabling and switching', d: 'Cat6 and fibre runs, patch panels and PoE switching for cameras, phones and access points, labelled end to end.' },
-  { art: 'firewall', t: 'Firewall and security', d: 'WatchGuard or Fortinet at the edge, VPN for remote staff, and Panda endpoint protection on every PC.' },
-  { art: 'dish', t: 'Backup internet', d: 'Starlink or 5G as a second link with automatic failover, for sites that cannot go offline.' },
-  { art: 'server', t: 'Servers and storage', d: 'NAS for shared files and backups, rack servers for ERP, and UPS sized for clean shutdowns.' },
-  { art: 'camera', t: 'Surveillance', d: 'IP cameras on their own VLAN with NVR recording and remote viewing on your phone.' },
-];
-
-export function Solutions() {
-  useTitle('For business');
-  const { products } = useCatalog();
-  const from = (cat) => { const ps = products.filter((p) => p.categoryId === cat && p.price > 0); return ps.length ? Math.min(...ps.map((p) => p.price)) : 0; };
-  const map = { ap: 'wifi', switch: 'switches', firewall: 'security', dish: 'connectivity', server: 'servers', camera: 'surveillance' };
-  return (
-    <div className="container">
-      <div className="solutions-head">
-        <h1>Networks for business</h1>
-        <p>Tell us about the site and the people using it. We specify, supply, install and support the whole network, so one team answers for it.</p>
-        <Link to="/quote" className="btn btn-primary btn-lg">Start with a quote</Link>
-      </div>
-      <div className="solutions-grid">
-        {SOLUTIONS.map((s) => (
-          <article key={s.t} className="solution">
-            <DeviceArt type={s.art} />
-            <h3>{s.t}</h3>
-            <p>{s.d}</p>
-            <Link to={`/shop?cat=${map[s.art]}`} className="link-strong">{from(map[s.art]) ? `Products from ${money(from(map[s.art]))}` : 'See products'}</Link>
-          </article>
-        ))}
-      </div>
     </div>
   );
 }

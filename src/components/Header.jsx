@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  LuServer, LuSprout,
   LuSearch, LuShoppingBag, LuUser, LuMenu, LuX, LuChevronRight, LuHeart, LuArrowLeftRight, LuBadgePercent,
   LuPhone, LuTruck, LuBuilding2, LuLayoutGrid, LuShieldCheck,
 } from 'react-icons/lu';
 import Logo from './Logo';
+import LangSwitch from './LangSwitch';
 import { ProductVisual } from './DeviceArt';
 import { CatIcon } from './CatIcon';
 import { useCart } from '../context/CartContext';
@@ -94,6 +96,10 @@ function CategoryBar({ menu, onAll }) {
             </Link>
           ))}
         </nav>
+        <nav className="catbar-seg" aria-label="Solutions">
+          <Link to="/it-solutions">IT Solutions</Link>
+          <Link to="/agriculture">Agriculture</Link>
+        </nav>
       </div>
       <AnimatePresence>
         {cat && (
@@ -147,6 +153,8 @@ function MenuDrawer({ menu, onClose }) {
                 <span className="mc-ico"><CatIcon id={c.id} /></span> {c.name} <LuChevronRight />
               </button>
             ))}
+            <Link to="/it-solutions" className="menu-cat featured"><span className="mc-ico"><LuServer /></span> IT Solutions <LuChevronRight /></Link>
+            <Link to="/agriculture" className="menu-cat featured"><span className="mc-ico"><LuSprout /></span> Agriculture <LuChevronRight /></Link>
             <Link to="/quote" className="menu-cat"><span className="mc-ico"><LuBuilding2 /></span> Corporate & bulk <LuChevronRight /></Link>
             <Link to="/track" className="menu-cat"><span className="mc-ico"><LuTruck /></span> Track order <LuChevronRight /></Link>
           </nav>
@@ -199,6 +207,7 @@ export default function Header() {
             <Link to="/cart" className="hdr-act cart" aria-label={`Cart, ${cart.count} items`}>
               <span className="act-ico"><LuShoppingBag />{cart.count > 0 && <motion.i key={cart.bump} className="badge gold" initial={{ scale: 1.6 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 18 }}>{cart.count}</motion.i>}</span>
             </Link>
+            <LangSwitch />
           </nav>
         </div>
       </div>

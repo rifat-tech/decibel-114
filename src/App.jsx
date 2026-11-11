@@ -21,7 +21,9 @@ import OrderPlaced from './pages/OrderPlaced';
 import Track from './pages/Track';
 import Account from './pages/Account';
 import { Login, Register } from './pages/Auth';
-import { InfoPage, NotFound, Quote, Solutions, Wishlist } from './pages/Misc';
+import { InfoPage, NotFound, Quote, Wishlist } from './pages/Misc';
+import { Agriculture, ITSolutions } from './pages/Segment';
+import SegmentGate from './components/SegmentGate';
 import { HASH } from './config';
 import { trackPage } from './lib/analytics';
 
@@ -72,6 +74,7 @@ function StoreLayout() {
       <Footer />
       <CompareBar />
       <ChatWidget />
+      <SegmentGate />
     </div>
   );
 }
@@ -104,7 +107,9 @@ export default function App() {
                       <Route path="order/:no" element={<OrderPlaced />} />
                       <Route path="track" element={<Track />} />
                       <Route path="quote" element={<Quote />} />
-                      <Route path="solutions" element={<Solutions />} />
+                      <Route path="solutions" element={<Navigate to="/it-solutions" replace />} />
+                      <Route path="it-solutions" element={<ITSolutions />} />
+                      <Route path="agriculture" element={<Agriculture />} />
                       <Route path="login" element={<Login />} />
                       <Route path="register" element={<Register />} />
                       <Route path="account" element={<RequireUser><Account /></RequireUser>} />
