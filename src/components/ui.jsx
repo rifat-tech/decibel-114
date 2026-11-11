@@ -1,9 +1,10 @@
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { useEffect , useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSeo } from '../lib/seo';
 
-export function useTitle(t) {
-  useEffect(() => { document.title = t ? `${t} | Decibel-114` : 'Decibel-114 | Apple, gadgets and network gear in Bangladesh'; }, [t]);
+export function useTitle(t, description) {
+  useSeo({ title: t, description });
 }
 export const Spinner = ({ full }) => <div className={full ? 'spinner-wrap full' : 'spinner-wrap'}><div className="spinner" aria-label="Loading" /></div>;
 export function Empty({ title, children, action, to, onAction }) {

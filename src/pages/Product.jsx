@@ -6,7 +6,8 @@ import { FaWhatsapp } from 'react-icons/fa6';
 import DeviceArt, { artFor } from '../components/DeviceArt';
 import ProductCard from '../components/ProductCard';
 import ZoomImage from '../components/ZoomImage';
-import { Empty, Spinner, StockTag, useTitle } from '../components/ui';
+import { Empty, Spinner, StockTag } from '../components/ui';
+import { abs, productLd, useSeo } from '../lib/seo';
 import { getProductBySlug } from '../lib/db';
 import { useStore } from '../context/StoreContext';
 import { useCart } from '../context/CartContext';
@@ -27,7 +28,13 @@ export default function Product() {
 
   useEffect(() => { setP(undefined); setImg(0); setQty(1); setOpt(null); getProductBySlug(slug).then(setP).catch(() => setP(null)); }, [slug]);
   useEffect(() => { if (p?.id) { sh.viewed(p.id); trackProduct(p.slug); } }, [p?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  useTitle(p?.name || 'Product');
+  useSeo(p ? {
+    title: `${p.name}${p.price ? ` price in Bangladesh` : ''}`,
+    description: `Buy ${p.name} in Bangladesh from Decibel-114. ${p.price ? `Price ${money(p.price)}. ` : ''}${String(p.shortDescription || '').slice(0, 110)} Official warranty and delivery across Bangladesh.`.slice(0, 300),
+    path: `/product/${p.slug}`,
+    image: abs(p.images?.[0]),
+    jsonLd: productLd(p),
+  } : { title: 'Product' });
   const related = useMemo(() => (p ? products.filter((x) => x.categoryId === p.categoryId && x.id !== p.id).sort((a, b) => Math.abs(a.price - p.price) - Math.abs(b.price - p.price)).slice(0, 4) : []), [p, products]);
 
   if (p === undefined) return <Spinner full />;
