@@ -17,7 +17,7 @@ function Img({ id, alt, w = 900, className = '', eager }) {
   return (
     <img className={className} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async"
       src={unsplash(id, w)} srcSet={`${unsplash(id, Math.round(w / 2))} ${Math.round(w / 2)}w, ${unsplash(id, w)} ${w}w, ${unsplash(id, w * 2)} ${w * 2}w`}
-      sizes={w >= 1600 ? '100vw' : '(min-width: 1100px) 400px, (min-width: 700px) 50vw, 100vw'} />
+      sizes={w >= 1600 ? '(min-width: 960px) 100vw, 200vw' : '(min-width: 1100px) 400px, (min-width: 700px) 50vw, 100vw'} />
   );
 }
 
