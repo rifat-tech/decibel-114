@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import { LuPlus, LuTrash2, LuArrowUp } from 'react-icons/lu';
 import { ImageField } from './AdminFields';
 import SignaturePad from './SignaturePad';
@@ -92,7 +93,16 @@ export default function Settings() {
 
       {tab === 'invoice' && (
         <section className="panel narrow-panel">
-          <p className="muted small">These details print on every invoice. The company address, phone and email come from Store details.</p>
+          <div className="howto">
+            <b>Where things go</b>
+            <ol>
+              <li><b>Customer, products and prices:</b> on each invoice. Open <Link to="/admin/invoices/new">New invoice</Link> (left menu), or open an order in <Link to="/admin/orders">Orders</Link> and press “Invoice”.</li>
+              <li><b>Your seal and signature:</b> further down this page, under “Seal and signature”. They print on every invoice.</li>
+              <li><b>Company address, phone and email:</b> the <button type="button" className="linklike" onClick={() => setTab('store')}>Store details</button> tab.</li>
+            </ol>
+            <Link className="btn btn-primary btn-sm" to="/admin/invoices/new">Create a new invoice</Link>
+          </div>
+          <h2>Details printed on every invoice</h2>
           <div className="grid-2">
             <Field label="Website shown on the invoice"><input value={s.website || ''} onChange={set('website')} /></Field>
             <Field label="Payment due after (days)" hint="For unpaid invoices."><input inputMode="numeric" value={s.invoiceDueDays ?? 7} onChange={setNum('invoiceDueDays')} /></Field>

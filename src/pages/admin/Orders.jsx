@@ -75,7 +75,7 @@ export default function Orders() {
   const [pay, setPay] = useState('');
   useEffect(() => { adminListOrders().then(setOrders).catch((e) => { toast.error(errText(e)); setOrders([]); }); }, []);
 
-  const shown = useMemo(() => (orders || []).filter((o) => (!status || o.status === status) && (!pay || o.paymentStatus === pay) && (!q || `${o.orderNumber} ${o.customer?.name} ${o.customer?.phone} ${o.items.map((i) => i.name).join(' ')}`.toLowerCase().includes(q.toLowerCase()))), [orders, status, q, pay]);
+  const shown = useMemo(() => (orders || []).filter((o) => (!status || o.status === status) && (!pay || o.paymentStatus === pay) && (!q || `${o.orderNumber} ${o.invoiceNo || ""} ${o.customer?.company || ""} ${o.customer?.name} ${o.customer?.phone} ${o.items.map((i) => i.name).join(' ')}`.toLowerCase().includes(q.toLowerCase()))), [orders, status, q, pay]);
   const counts = useMemo(() => (orders || []).reduce((m, o) => ((m[o.status] = (m[o.status] || 0) + 1), m), {}), [orders]);
   const open = (orders || []).find((o) => o.id === openId);
   const setParam = (k, v) => { const n = new URLSearchParams(sp); v ? n.set(k, v) : n.delete(k); setSp(n, { replace: true }); };
