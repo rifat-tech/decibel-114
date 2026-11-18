@@ -1,0 +1,1 @@
+const t=[{slug:"ismail-hossain",name:"MD Ismail Hossain",title:"Head of Infrastructure & Security",focus:["Network infrastructure","Cabling","CCTV & security"],phone:"+8801944422257",whatsapp:"8801944422257",email:"",company:"Decibel-114",website:"https://decibel-114.com"}],a=s=>t.find(e=>e.slug===s);export{a as cardBySlug,t as cards};
