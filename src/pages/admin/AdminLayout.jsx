@@ -10,7 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const GROUPS = [
   ['', [['/admin', 'Overview', LuLayoutDashboard, 'support', true], ['/admin/analytics', 'Visitors & searches', LuBarChart3, 'sales']]],
-  ['Sales', [['/admin/orders', 'Orders', LuReceipt, 'sales'], ['/admin/invoices/new', 'New invoice', LuFilePlus, 'sales'], ['/admin/leads', 'Leads pipeline', LuKanban, 'sales'], ['/admin/customers', 'Customers', LuUsers, 'sales']]],
+  ['Sales', [['/admin/orders', 'Orders', LuReceipt, 'sales'], ['/admin/invoices', 'Invoices', LuFilePlus, 'sales'], ['/admin/leads', 'Leads pipeline', LuKanban, 'sales'], ['/admin/customers', 'Customers', LuUsers, 'sales']]],
   ['Support', [['/admin/inbox', 'Inbox', LuMessagesSquare, 'support', false, 'inbox']]],
   ['Catalog', [['/admin/products', 'Products', LuPackage, 'catalog'], ['/admin/categories', 'Categories', LuShapes, 'catalog'], ['/admin/import', 'Import & export', LuFileSpreadsheet, 'catalog'], ['/admin/coupons', 'Promo codes', LuBadgePercent, 'catalog']]],
   ['Website', [['/admin/content', 'Website content', LuLayoutTemplate, 'admin'], ['/admin/settings', 'Store settings', LuSettings, 'admin']]],

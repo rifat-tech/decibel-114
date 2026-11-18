@@ -44,6 +44,7 @@ const Settings = lazy(() => import('./pages/admin/Settings'));
 const Content = lazy(() => import('./pages/admin/Content'));
 const InvoicePage = lazy(() => import('./pages/admin/InvoicePage'));
 const NewInvoice = lazy(() => import('./pages/admin/NewInvoice'));
+const Invoices = lazy(() => import('./pages/admin/Invoices'));
 
 function RequireUser({ children }) {
   const { user, loading } = useAuth();
@@ -127,7 +128,9 @@ export default function App() {
                     <Route path="admin" element={<RequireStaff><AdminLayout /></RequireStaff>}>
                       <Route index element={<Dashboard />} />
                       <Route path="orders" element={<RequireStaff area="sales"><Orders /></RequireStaff>} />
+                      <Route path="invoices" element={<RequireStaff area="sales"><Invoices /></RequireStaff>} />
                       <Route path="invoices/new" element={<RequireStaff area="sales"><NewInvoice /></RequireStaff>} />
+                      <Route path="invoices/:id/edit" element={<RequireStaff area="sales"><NewInvoice /></RequireStaff>} />
                       <Route path="leads" element={<RequireStaff area="sales"><Leads /></RequireStaff>} />
                       <Route path="customers" element={<RequireStaff area="sales"><Customers /></RequireStaff>} />
                       <Route path="inbox" element={<Inbox />} />

@@ -269,6 +269,7 @@ export async function trackOrder(no, phone) {
 export const myOrders = (uid) => C('orders').list({ where: [['uid', '==', uid]] }).then((r) => r.sort((a, b) => b.createdAt - a.createdAt));
 export const adminListOrders = () => C('orders').list({ order: ['createdAt', 'desc'], limit: 1000 });
 export const adminGetOrder = (id) => C('orders').get(id);
+export const adminDeleteOrder = (id) => C('orders').remove(id);
 export async function updateOrder(order, patch, by = 'staff') {
   const t = now();
   const p = { ...patch, updatedAt: t };

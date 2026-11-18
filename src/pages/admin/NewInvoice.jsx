@@ -1,21 +1,28 @@
-// Admin → New invoice: fill the form on the left, the finished invoice updates on the right.
-// Saved as an order (source: manual), so it also appears in Orders and the customer profile.
+// Admin → Invoices → New / Edit / Duplicate: form on the left, the A4 invoice updates live on the right.
+// Invoices are stored in the orders collection (source: 'manual'), so they need no extra
+// database rules and also show in Orders and the customer profile.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { LuPlus, LuTrash2, LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import Invoice from '../../components/Invoice';
-import { Field, useTitle } from '../../components/ui';
+import { Field, Spinner, useTitle } from '../../components/ui';
 import { adminGetOrder, adminListOrders, createOrder, errText, getSettings, updateOrder } from '../../lib/db';
 import { useStore } from '../../context/StoreContext';
 import { useAuth } from '../../context/AuthContext';
 
 const UNITS = ['', 'Pcs', 'Set', 'Box', 'Pair', 'Roll', 'Metre', 'Feet', 'Kg', 'Litre', 'Hour', 'Day', 'Month', 'Year', 'Lot', 'Job'];
+const DEFAULT_PAYMENT_TERMS = [
+  'Payment by bank transfer, account-payee cheque or pay order in favour of “Decibel-114”.',
+  'Prices are in BDT, excluding VAT & AIT unless shown above.',
+  'Please quote the invoice number with every payment.',
+];
 const blankItem = () => ({ name: '', note: '', unit: 'Pcs', price: '', quantity: 1 });
 const num = (v) => Number(String(v ?? '').replace(/[^\d.]/g, '')) || 0;
 const toDateInput = (t) => new Date(t - new Date(t).getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 const fromDateInput = (v) => { const [y, m, d] = String(v).split('-').map(Number); return y ? new Date(y, m - 1, d, 12).getTime() : Date.now(); };
 const move = (a, i, d) => { const b = [...a]; const j = i + d; if (j < 0 || j >= b.length) return b; [b[i], b[j]] = [b[j], b[i]]; return b; };
+const lines = (t) => t.split('\n').map((x) => x.trim()).filter(Boolean);
 
 /** Scales the A4 invoice to fit the preview column. */
 function Preview({ children }) {
@@ -29,35 +36,65 @@ function Preview({ children }) {
   return <div className="ni-preview" ref={box} style={{ height: h }}><div ref={inner} style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: 794 }}>{children}</div></div>;
 }
 
+const nextNumber = (list, year) => {
+  const prefix = `D114-INV-${year}-`;
+  const max = list.map((o) => o.invoiceNo || '').filter((n) => n.startsWith(prefix)).map((n) => Number(n.slice(prefix.length)) || 0).reduce((a, b) => Math.max(a, b), 0);
+  return `${prefix}${String(max + 1).padStart(4, '0')}`;
+};
+
+/** Turns a saved invoice (order document) back into form state. */
+function toForm(o, { duplicate } = {}) {
+  return {
+    inv: { no: duplicate ? '' : (o.invoiceNo || o.orderNumber || ''), date: toDateInput(duplicate ? Date.now() : (o.invoiceDate || o.createdAt || Date.now())), status: duplicate ? 'draft' : (o.invoiceStatus || (o.paymentStatus === 'paid' ? 'paid' : 'sent')), poRef: o.poRef || '' },
+    c: { company: o.customer?.company || '', name: o.customer?.name || '', phone: o.customer?.phone || '', email: o.customer?.email || '', line: o.address?.line || '', city: o.address?.city || '' },
+    ship: o.shipTo && !o.shipTo.same ? { same: false, company: o.shipTo.company || '', name: o.shipTo.name || '', phone: o.shipTo.phone || '', line: o.shipTo.line || '', city: o.shipTo.city || '' } : { same: true, company: '', name: '', phone: '', line: '', city: '' },
+    items: (o.items || []).length ? o.items.map((i) => ({ name: i.name || '', note: i.note || i.option || '', unit: i.unit ?? 'Pcs', price: String(i.price ?? ''), quantity: String(i.quantity ?? 1) })) : [blankItem()],
+    rows: { discount: !!(o.toggles?.discount ?? o.discount > 0), vat: !!(o.toggles?.vat ?? o.vat > 0), delivery: !!(o.toggles?.delivery ?? o.shipping > 0), advance: !!(o.toggles?.advance ?? o.advance > 0) },
+    amounts: { discount: o.discount ? String(o.discount) : '', vatRate: o.vatRate ? String(o.vatRate) : '', shipping: o.shipping ? String(o.shipping) : '', advance: o.advance ? String(o.advance) : '' },
+    paymentTerms: (o.paymentTerms || DEFAULT_PAYMENT_TERMS).join('\n'),
+    terms: (o.terms || []).join('\n'),
+    showSeal: o.showSeal !== false, showSignature: o.showSignature !== false,
+    signatory: { name: o.signatory?.name || '', title: o.signatory?.title || '' },
+  };
+}
+
 export default function NewInvoice() {
-  useTitle('New invoice');
+  const { id } = useParams();
+  const [sp] = useSearchParams();
+  const dupFrom = sp.get('from');
+  useTitle(id ? 'Edit invoice' : 'New invoice');
   const nav = useNavigate();
   const { products, content } = useStore();
   const { user } = useAuth();
   const by = user?.profile?.name || user?.email || 'staff';
   const [settings, setSettings] = useState(null);
   const [orders, setOrders] = useState([]);
-  const year = new Date().getFullYear();
-  const [inv, setInv] = useState({ no: '', date: toDateInput(Date.now()), status: 'unpaid' });
-  const [c, setC] = useState({ company: '', name: '', phone: '', email: '', line: '', city: 'Dhaka' });
-  const [ship, setShip] = useState({ same: true, company: '', name: '', phone: '', line: '', city: '' });
-  const [items, setItems] = useState([blankItem()]);
-  const [money, setMoney] = useState({ vatRate: '', shipping: '', discount: '' });
-  const [pay, setPay] = useState({ method: 'bank', ref: '' });
-  const [terms, setTerms] = useState('');
+  const [original, setOriginal] = useState(null);
+  const [f, setF] = useState(null);
   const [busy, setBusy] = useState(false);
+  const year = new Date().getFullYear();
 
   useEffect(() => {
-    getSettings().then((s) => { setSettings(s); setTerms(String(s.invoiceTerms || '').split(/\n|(?<=\.)\s+(?=[A-Z])/).map((x) => x.trim()).filter(Boolean).join('\n')); });
-    adminListOrders().then((list) => {
-      setOrders(list);
-      const prefix = `D114-INV-${year}-`;
-      const max = list.map((o) => o.invoiceNo || '').filter((n) => n.startsWith(prefix)).map((n) => Number(n.slice(prefix.length)) || 0).reduce((a, b) => Math.max(a, b), 0);
-      setInv((v) => (v.no ? v : { ...v, no: `${prefix}${String(max + 1).padStart(4, '0')}` }));
-    }).catch(() => setInv((v) => (v.no ? v : { ...v, no: `D114-INV-${year}-0001` })));
-  }, [year]);
+    (async () => {
+      const [s, list] = await Promise.all([getSettings(), adminListOrders().catch(() => [])]);
+      setSettings(s); setOrders(list);
+      const defaultTerms = String(s.invoiceTerms || '').split(/\n|(?<=\.)\s+(?=[A-Z])/).map((x) => x.trim()).filter(Boolean);
+      const sign = { name: s.signatoryName || '', title: s.signatoryTitle || '' };
+      if (id || dupFrom) {
+        const o = await adminGetOrder(id || dupFrom);
+        if (!o) { toast.error('Invoice not found'); nav('/admin/invoices'); return; }
+        const form = toForm(o, { duplicate: !!dupFrom });
+        if (!form.terms) form.terms = defaultTerms.join('\n');
+        if (!form.signatory.name) form.signatory = sign;
+        if (dupFrom) form.inv.no = nextNumber(list, year);
+        setOriginal(id ? o : null); setF(form);
+      } else {
+        setF({ ...toForm({}), inv: { no: nextNumber(list, year), date: toDateInput(Date.now()), status: 'draft', poRef: '' }, terms: defaultTerms.join('\n'), signatory: sign });
+      }
+    })().catch((e) => toast.error(errText(e)));
+  }, [id, dupFrom, year, nav]);
 
-  // Customers from earlier orders and invoices, newest first, one per phone number.
+  // Customers from earlier invoices and orders, newest first, one per phone number.
   const customers = useMemo(() => {
     const seen = new Map();
     orders.forEach((o) => { const k = o.phoneKey || o.customer?.phone; if (k && !seen.has(k)) seen.set(k, { ...o.customer, line: o.address?.line || '', city: o.address?.city || '' }); });
@@ -66,11 +103,15 @@ export default function NewInvoice() {
   const catalog = useMemo(() => {
     const m = new Map();
     products.forEach((p) => p.name && m.set(p.name, { price: p.price || 0, note: p.brand || '' }));
-    [...(content.it.services || []), ...(content.agri.services || [])].forEach((s) => s.t && !m.has(s.t) && m.set(s.t, { price: 0, note: 'Service', unit: 'Job' }));
+    [...(content.it.services || []), ...(content.agri.services || [])].forEach((x) => x.t && !m.has(x.t) && m.set(x.t, { price: 0, note: 'Service', unit: 'Job' }));
     return m;
   }, [products, content]);
 
-  const setItem = (i, patch) => setItems((a) => a.map((x, j) => {
+  if (!f || !settings) return <Spinner />;
+
+  const up = (k, v) => setF((x) => ({ ...x, [k]: typeof v === 'function' ? v(x[k]) : v }));
+  const upIn = (k) => (field) => (e) => { const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value; setF((x) => ({ ...x, [k]: { ...x[k], [field]: v } })); };
+  const setItem = (i, patch) => up('items', (a) => a.map((x, j) => {
     if (j !== i) return x;
     const next = { ...x, ...patch };
     const hit = patch.name !== undefined && catalog.get(patch.name);
@@ -78,104 +119,124 @@ export default function NewInvoice() {
     return next;
   }));
 
-  const rows = items.filter((i) => i.name.trim() && num(i.quantity) > 0).map((i) => ({ name: i.name.trim(), note: i.note.trim(), unit: i.unit, price: num(i.price), quantity: num(i.quantity) }));
+  // Totals: discount, then VAT on the discounted amount, then delivery; advance is taken off at the end.
+  const rows = f.items.filter((i) => i.name.trim() && num(i.quantity) > 0).map((i) => ({ name: i.name.trim(), note: i.note.trim(), unit: i.unit, price: num(i.price), quantity: num(i.quantity) }));
   const subtotal = rows.reduce((n, i) => n + i.price * i.quantity, 0);
-  const vatRate = num(money.vatRate), shipping = num(money.shipping), discount = num(money.discount);
-  const vat = Math.round(subtotal * vatRate) / 100;
-  const total = Math.max(0, subtotal + vat + shipping - discount);
+  const discount = f.rows.discount ? num(f.amounts.discount) : 0;
+  const vatRate = f.rows.vat ? num(f.amounts.vatRate) : 0;
+  const vat = Math.round((subtotal - discount) * vatRate) / 100;
+  const shipping = f.rows.delivery ? num(f.amounts.shipping) : 0;
+  const advance = f.rows.advance ? num(f.amounts.advance) : 0;
+  const total = Math.max(0, subtotal - discount + vat + shipping);
 
-  const draft = {
-    source: 'manual', invoiceNo: inv.no.trim(), invoiceDate: fromDateInput(inv.date), invoiceStatus: inv.status,
-    customer: { company: c.company.trim(), name: c.name.trim(), phone: c.phone.trim(), email: c.email.trim() },
-    address: { line: c.line.trim(), city: c.city.trim(), zone: /dhaka/i.test(c.city) ? 'dhaka' : 'outside' },
-    shipTo: ship.same ? { same: true } : { same: false, company: ship.company.trim(), name: ship.name.trim(), phone: ship.phone.trim(), line: ship.line.trim(), city: ship.city.trim() },
-    items: rows, subtotal, vat, vatRate, shipping, discount, total,
-    paymentMethod: pay.method, paymentRef: pay.ref.trim(),
-    terms: terms.split('\n').map((x) => x.trim()).filter(Boolean),
+  const doc = {
+    source: 'manual', invoiceNo: f.inv.no.trim(), invoiceDate: fromDateInput(f.inv.date), invoiceStatus: f.inv.status, poRef: f.inv.poRef.trim(),
+    customer: { company: f.c.company.trim(), name: f.c.name.trim(), phone: f.c.phone.trim(), email: f.c.email.trim() },
+    address: { line: f.c.line.trim(), city: f.c.city.trim(), zone: /dhaka/i.test(f.c.city) ? 'dhaka' : 'outside' },
+    shipTo: f.ship.same ? { same: true } : { same: false, company: f.ship.company.trim(), name: f.ship.name.trim(), phone: f.ship.phone.trim(), line: f.ship.line.trim(), city: f.ship.city.trim() },
+    items: rows, subtotal, discount, vat, vatRate, shipping, advance, total, balance: Math.max(0, total - advance),
+    toggles: f.rows, paymentTerms: lines(f.paymentTerms), terms: lines(f.terms),
+    showSeal: f.showSeal, showSignature: f.showSignature, signatory: { name: f.signatory.name.trim(), title: f.signatory.title.trim() },
+    paymentMethod: 'bank',
   };
 
   async function save() {
-    if (!c.phone.trim() || !(c.company.trim() || c.name.trim())) return toast.error('Add the customer (company or name) and phone.');
-    if (!rows.length) return toast.error('Add at least one item.');
+    if (!(doc.customer.company || doc.customer.name)) return toast.error('Add the customer name.');
+    if (!doc.customer.phone) return toast.error('Add the customer phone number.');
+    if (!rows.length) return toast.error('Add at least one item with a quantity.');
+    if (orders.some((o) => o.invoiceNo === doc.invoiceNo && o.id !== original?.id)) return toast.error(`Invoice no. ${doc.invoiceNo} is already used.`);
     setBusy(true);
     try {
-      const { id } = await createOrder({ ...draft, createdBy: by }, null);
-      const saved = await adminGetOrder(id);
-      if (inv.status !== 'draft') await updateOrder(saved, { status: 'confirmed', ...(inv.status === 'paid' ? { paymentStatus: 'paid', paidAt: Date.now() } : {}) }, by);
-      toast.success(`Invoice ${draft.invoiceNo || saved.orderNumber} saved`);
-      nav(`/admin/invoice/${id}`);
+      const pay = doc.invoiceStatus === 'paid' ? { paymentStatus: 'paid', paidAt: original?.paidAt || Date.now() } : { paymentStatus: 'pending', paidAt: null };
+      if (original) {
+        await updateOrder(original, { ...doc, ...pay, status: doc.invoiceStatus === 'draft' ? original.status : (original.status === 'pending' ? 'confirmed' : original.status) }, by);
+        toast.success('Invoice updated');
+        nav(`/admin/invoice/${original.id}`);
+      } else {
+        const { id: newId } = await createOrder({ ...doc, createdBy: by }, null);
+        const saved = await adminGetOrder(newId);
+        if (doc.invoiceStatus !== 'draft' || pay.paymentStatus === 'paid') await updateOrder(saved, { status: 'confirmed', ...pay }, by);
+        toast.success(`Invoice ${doc.invoiceNo} saved`);
+        nav(`/admin/invoice/${newId}`);
+      }
     } catch (e) { toast.error(errText(e)); } finally { setBusy(false); }
   }
 
-  const pick = (k) => { const x = customers[Number(k)]; if (x) setC({ company: x.company || '', name: x.name || '', phone: x.phone || '', email: x.email || '', line: x.line || '', city: x.city || '' }); };
-  const setF = (setter, obj, k) => (e) => setter({ ...obj, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+  const pick = (k) => { const x = customers[Number(k)]; if (x) up('c', { company: x.company || '', name: x.name || '', phone: x.phone || '', email: x.email || '', line: x.line || '', city: x.city || '' }); };
+  const optRows = [
+    ['discount', 'Discount', 'discount', 'Amount (BDT)'],
+    ['vat', 'VAT / Tax', 'vatRate', 'Rate (%)'],
+    ['delivery', 'Delivery charge', 'shipping', 'Amount (BDT)'],
+    ['advance', 'Advance paid', 'advance', 'Amount (BDT)'],
+  ];
 
   return (
     <div className="ni-wrap">
       <div className="ni-form">
         <div className="page-head">
-          <div><h1>New invoice</h1><p className="muted">Fill in the form; the invoice on the right updates as you type.</p></div>
+          <div><h1>{original ? 'Edit invoice' : dupFrom ? 'Duplicate invoice' : 'New invoice'}</h1><p className="muted">Fill in the form; the invoice on the right updates as you type.</p></div>
           <button className="btn btn-primary" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save invoice'}</button>
         </div>
 
         <section className="panel">
           <h2>Invoice</h2>
           <div className="ni-3">
-            <Field label="Invoice no."><input value={inv.no} onChange={setF(setInv, inv, 'no')} /></Field>
-            <Field label="Invoice date"><input type="date" value={inv.date} onChange={setF(setInv, inv, 'date')} /></Field>
-            <Field label="Status"><select value={inv.status} onChange={setF(setInv, inv, 'status')}><option value="draft">Draft</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select></Field>
+            <Field label="Invoice no."><input value={f.inv.no} onChange={upIn('inv')('no')} /></Field>
+            <Field label="Invoice date"><input type="date" value={f.inv.date} onChange={upIn('inv')('date')} /></Field>
+            <Field label="Status"><select value={f.inv.status} onChange={upIn('inv')('status')}><option value="draft">Draft</option><option value="sent">Sent</option><option value="paid">Paid</option></select></Field>
           </div>
+          <Field label="PO / reference" hint="Optional. Printed under the date."><input value={f.inv.poRef} onChange={upIn('inv')('poRef')} /></Field>
         </section>
 
         <section className="panel">
           <h2>Bill to</h2>
           {customers.length > 0 && (
-            <Field label="Pick a saved customer"><select defaultValue="" onChange={(e) => pick(e.target.value)}>
+            <Field label="Pick a saved customer"><select value="" onChange={(e) => pick(e.target.value)}>
               <option value="">— choose —</option>
               {customers.map((x, k) => <option key={k} value={k}>{[x.company, x.name, x.phone].filter(Boolean).join(' · ')}</option>)}
             </select></Field>
           )}
-          <Field label="Company name" hint="Leave empty for a person."><input value={c.company} onChange={setF(setC, c, 'company')} /></Field>
+          <Field label="Company name" hint="Leave empty for a person."><input value={f.c.company} onChange={upIn('c')('company')} /></Field>
           <div className="grid-2">
-            <Field label="Contact person (Attn)"><input value={c.name} onChange={setF(setC, c, 'name')} /></Field>
-            <Field label="Phone"><input inputMode="tel" value={c.phone} onChange={setF(setC, c, 'phone')} /></Field>
-            <Field label="Email"><input type="email" value={c.email} onChange={setF(setC, c, 'email')} /></Field>
-            <Field label="City"><input value={c.city} onChange={setF(setC, c, 'city')} /></Field>
+            <Field label="Contact person (Attn)"><input value={f.c.name} onChange={upIn('c')('name')} /></Field>
+            <Field label="Phone"><input inputMode="tel" value={f.c.phone} onChange={upIn('c')('phone')} /></Field>
+            <Field label="Email"><input type="email" value={f.c.email} onChange={upIn('c')('email')} /></Field>
+            <Field label="City"><input value={f.c.city} onChange={upIn('c')('city')} /></Field>
           </div>
-          <Field label="Address"><textarea rows={2} value={c.line} onChange={setF(setC, c, 'line')} /></Field>
+          <Field label="Address"><textarea rows={2} value={f.c.line} onChange={upIn('c')('line')} /></Field>
         </section>
 
         <section className="panel">
           <h2>Ship to</h2>
-          <label className="check big"><input type="checkbox" checked={ship.same} onChange={setF(setShip, ship, 'same')} /> Same as Bill to</label>
-          {!ship.same && (
+          <label className="check big"><input type="checkbox" checked={f.ship.same} onChange={upIn('ship')('same')} /> Same as Bill to</label>
+          {!f.ship.same && (
             <>
-              <Field label="Company name"><input value={ship.company} onChange={setF(setShip, ship, 'company')} /></Field>
+              <Field label="Company name"><input value={f.ship.company} onChange={upIn('ship')('company')} /></Field>
               <div className="grid-2">
-                <Field label="Receiver"><input value={ship.name} onChange={setF(setShip, ship, 'name')} /></Field>
-                <Field label="Phone"><input value={ship.phone} onChange={setF(setShip, ship, 'phone')} /></Field>
+                <Field label="Receiver"><input value={f.ship.name} onChange={upIn('ship')('name')} /></Field>
+                <Field label="Phone"><input value={f.ship.phone} onChange={upIn('ship')('phone')} /></Field>
               </div>
-              <Field label="Address"><textarea rows={2} value={ship.line} onChange={setF(setShip, ship, 'line')} /></Field>
-              <Field label="City"><input value={ship.city} onChange={setF(setShip, ship, 'city')} /></Field>
+              <Field label="Address"><textarea rows={2} value={f.ship.line} onChange={upIn('ship')('line')} /></Field>
+              <Field label="City"><input value={f.ship.city} onChange={upIn('ship')('city')} /></Field>
             </>
           )}
         </section>
 
         <section className="panel">
-          <div className="ni-items-head"><h2>Items</h2><button type="button" className="btn btn-ghost btn-sm" onClick={() => setItems([...items, blankItem()])}><LuPlus /> Add item</button></div>
+          <div className="ni-items-head"><h2>Items</h2><button type="button" className="btn btn-ghost btn-sm" onClick={() => up('items', (a) => [...a, blankItem()])}><LuPlus /> Add item</button></div>
           <datalist id="inv-catalog">{[...catalog.keys()].slice(0, 6000).map((n) => <option key={n} value={n} />)}</datalist>
-          {items.map((it, i) => (
+          {f.items.map((it, i) => (
             <div key={i} className="ni-item">
               <div className="ni-item-top">
                 <b>Item {i + 1}</b>
                 <div className="pair-tools">
-                  <button type="button" className="icon-btn" onClick={() => setItems(move(items, i, -1))} disabled={!i} aria-label="Move up"><LuArrowUp /></button>
-                  <button type="button" className="icon-btn" onClick={() => setItems(move(items, i, 1))} disabled={i === items.length - 1} aria-label="Move down"><LuArrowDown /></button>
-                  <button type="button" className="icon-btn" onClick={() => setItems(items.length > 1 ? items.filter((_, j) => j !== i) : [blankItem()])} aria-label="Remove item"><LuTrash2 /></button>
+                  <button type="button" className="icon-btn" onClick={() => up('items', (a) => move(a, i, -1))} disabled={!i} aria-label="Move up"><LuArrowUp /></button>
+                  <button type="button" className="icon-btn" onClick={() => up('items', (a) => move(a, i, 1))} disabled={i === f.items.length - 1} aria-label="Move down"><LuArrowDown /></button>
+                  <button type="button" className="icon-btn" onClick={() => up('items', (a) => (a.length > 1 ? a.filter((_, j) => j !== i) : [blankItem()]))} aria-label="Remove item"><LuTrash2 /></button>
                 </div>
               </div>
               <Field label="Description" hint="Type to pick a product or service from your store."><input list="inv-catalog" value={it.name} onChange={(e) => setItem(i, { name: e.target.value })} /></Field>
-              <Field label="Detail (model, warranty, scope)"><input value={it.note} onChange={(e) => setItem(i, { note: e.target.value })} /></Field>
+              <Field label="Sub-line (model, warranty, scope)"><input value={it.note} onChange={(e) => setItem(i, { note: e.target.value })} /></Field>
               <div className="ni-3">
                 <Field label="Unit"><select value={it.unit} onChange={(e) => setItem(i, { unit: e.target.value })}>{UNITS.map((u) => <option key={u} value={u}>{u || '—'}</option>)}</select></Field>
                 <Field label="Qty"><input inputMode="numeric" value={it.quantity} onChange={(e) => setItem(i, { quantity: e.target.value })} /></Field>
@@ -186,35 +247,41 @@ export default function NewInvoice() {
         </section>
 
         <section className="panel">
-          <h2>Totals</h2>
-          <div className="ni-3">
-            <Field label="Discount (BDT)"><input inputMode="decimal" value={money.discount} onChange={setF(setMoney, money, 'discount')} /></Field>
-            <Field label="Delivery / installation (BDT)"><input inputMode="decimal" value={money.shipping} onChange={setF(setMoney, money, 'shipping')} /></Field>
-            <Field label="VAT (%)" hint="Empty = no VAT"><input inputMode="decimal" value={money.vatRate} onChange={setF(setMoney, money, 'vatRate')} /></Field>
-          </div>
+          <h2>Optional rows</h2>
+          <p className="muted small">Tick a row to show it on the invoice. Unticked rows are left out.</p>
+          {optRows.map(([k, label, field, ph]) => (
+            <div key={k} className="ni-opt">
+              <label className="check"><input type="checkbox" checked={f.rows[k]} onChange={(e) => up('rows', (r) => ({ ...r, [k]: e.target.checked }))} /> {label}</label>
+              {f.rows[k] && <input inputMode="decimal" value={f.amounts[field]} placeholder={ph} aria-label={`${label} ${ph}`} onChange={(e) => up('amounts', (a) => ({ ...a, [field]: e.target.value }))} />}
+            </div>
+          ))}
         </section>
 
         <section className="panel">
-          <h2>Payment</h2>
-          <div className="grid-2">
-            <Field label="Payment method"><select value={pay.method} onChange={setF(setPay, pay, 'method')}>
-              <option value="bank">Bank transfer</option><option value="cheque">Cheque</option><option value="cash">Cash</option><option value="bkash">bKash</option><option value="nagad">Nagad</option><option value="card">Card</option><option value="cod">Cash on delivery</option>
-            </select></Field>
-            <Field label="Transaction ID / cheque no." hint="Optional"><input value={pay.ref} onChange={setF(setPay, pay, 'ref')} /></Field>
-          </div>
-        </section>
-
-        <section className="panel">
+          <h2>Payment terms</h2>
+          <Field label="One point per line"><textarea rows={4} value={f.paymentTerms} onChange={(e) => up('paymentTerms', e.target.value)} /></Field>
           <h2>Terms &amp; conditions</h2>
-          <Field label="One point per line" hint="Starts from the terms in Store settings → Invoice. Change them for this invoice only."><textarea rows={5} value={terms} onChange={(e) => setTerms(e.target.value)} /></Field>
-          <p className="muted small">Seal, signature and company details come from Store settings → Invoice.</p>
+          <Field label="One point per line" hint="Starts from Store settings → Invoice; changes here apply to this invoice only."><textarea rows={4} value={f.terms} onChange={(e) => up('terms', e.target.value)} /></Field>
+        </section>
+
+        <section className="panel">
+          <h2>Seal and signature</h2>
+          <div className="row-gap">
+            <label className="check big"><input type="checkbox" checked={f.showSeal} onChange={(e) => up('showSeal', e.target.checked)} /> Show seal</label>
+            <label className="check big"><input type="checkbox" checked={f.showSignature} onChange={(e) => up('showSignature', e.target.checked)} /> Show signature</label>
+          </div>
+          <div className="grid-2">
+            <Field label="Signatory name"><input value={f.signatory.name} onChange={upIn('signatory')('name')} /></Field>
+            <Field label="Title"><input value={f.signatory.title} onChange={upIn('signatory')('title')} placeholder="e.g. Founder & Authorised Signatory" /></Field>
+          </div>
+          {!settings.invoiceSignature && <p className="muted small">No signature saved yet. Draw or upload it once in Store settings → Invoice.</p>}
         </section>
 
         <div className="ni-save"><button className="btn btn-primary btn-lg" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save invoice'}</button></div>
       </div>
 
       <aside className="ni-side">
-        {settings ? <Preview><Invoice order={draft} settings={settings} base={import.meta.env.BASE_URL.replace(/\/$/, '')} /></Preview> : null}
+        <Preview><Invoice order={{ ...doc, orderNumber: original?.orderNumber }} settings={settings} base={import.meta.env.BASE_URL.replace(/\/$/, '')} /></Preview>
       </aside>
     </div>
   );

@@ -7,11 +7,12 @@ import QRCode from 'qrcode';
 import Seal from './Seal';
 import { takaInWords } from '../lib/words';
 
-const amt = (n) => (Number(n) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// International grouping with two decimals, as on the SPORTY invoice: 960,000.00
+const amt = (n) => (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const day = (t) => (t ? new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
 const lines = (s) => String(s || '').split('|').map((x) => x.trim()).filter(Boolean);
 const METHOD = { cod: 'Cash on delivery', bkash: 'bKash', nagad: 'Nagad', bank: 'Bank transfer', card: 'Card', cash: 'Cash', cheque: 'Cheque' };
-const STATUS = { draft: 'Draft', unpaid: 'Unpaid', paid: 'Paid', cancelled: 'Cancelled' };
+const STATUS = { draft: 'Draft', sent: 'Sent', unpaid: 'Unpaid', paid: 'Paid', cancelled: 'Cancelled' };
 
 function Party({ title, name, rows }) {
   return (
@@ -42,6 +43,8 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
     QRCode.toDataURL(`https://${site}/track?no=${encodeURIComponent(o.orderNumber)}`, { margin: 0, width: 200, color: { dark: '#0A0A0A', light: '#FFFFFF' } }).then(setQr).catch(() => setQr(''));
   }, [site, o.orderNumber]);
 
+  const advance = Number(o.advance) || 0;
+  const due2 = Math.max(0, (Number(o.total) || 0) - advance);
   const showUnit = items.some((i) => i.unit);
   const qty = items.reduce((n, i) => n + (Number(i.quantity) || 0), 0);
   const unitWord = items.length && items.every((i) => i.unit && i.unit === items[0].unit) ? ` ${items[0].unit.toLowerCase()}` : '';
@@ -53,7 +56,7 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
     : { name: bill.name, rows: [cu.company && cu.name ? `Receiver: ${cu.name}` : '', cu.phone, o.address?.line, o.address?.city] };
   const from = { name: store, rows: [...lines(s.address), s.phone, s.email, s.binNumber ? `BIN: ${s.binNumber}` : ''] };
   const terms = Array.isArray(o.terms) ? o.terms.filter(Boolean) : String(s.invoiceTerms || '').split('\n').map((x) => x.trim()).filter(Boolean);
-  const payPoints = [
+  const payPoints = Array.isArray(o.paymentTerms) ? o.paymentTerms.filter(Boolean) : [
     ...(method ? [`Payment by ${method.toLowerCase()}${o.paymentRef ? ` (ref. ${o.paymentRef})` : ''}.`] : []),
     ...(!paid ? payLines : []),
     ...(!paid ? [`Please quote invoice no. ${no} with every payment.`] : ['Paid in full. Thank you.']),
@@ -73,8 +76,8 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
           <dl>
             <div><dt>Invoice no.</dt><dd>{no}</dd></div>
             <div><dt>Invoice date</dt><dd>{day(date)}</dd></div>
-            {!paid && status !== 'draft' && due > 0 && <div><dt>Due date</dt><dd>{day(due)}</dd></div>}
-            <div><dt>Status</dt><dd className={`ix-st ${status}`}>{STATUS[status] || status}</dd></div>
+            {o.poRef && <div><dt>PO / Ref.</dt><dd>{o.poRef}</dd></div>}
+            {o.source !== 'manual' && !paid && due > 0 && <div><dt>Due date</dt><dd>{day(due)}</dd></div>}
           </dl>
         </div>
       </header>
@@ -107,25 +110,27 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
           <h4>Order summary</h4>
           <p>Total items: {items.length} · Total quantity: {qty}{unitWord}</p>
           <h4>Amount in words</h4>
-          <p className="ix-words">{takaInWords(o.total)}</p>
+          <p className="ix-words">{takaInWords(paid ? o.total : due2)}</p>
         </div>
         <div className="ix-totals">
           <dl>
             <div><dt>Subtotal</dt><dd>{amt(subtotal)}</dd></div>
             {o.discount > 0 && <div><dt>Discount{o.coupon ? ` (${o.coupon})` : ''}</dt><dd>– {amt(o.discount)}</dd></div>}
-            {o.shipping > 0 && <div><dt>{o.source === 'manual' ? 'Delivery & installation' : 'Delivery'}</dt><dd>{amt(o.shipping)}</dd></div>}
             {vat > 0 && <div><dt>VAT{o.vatRate ? ` (${o.vatRate}%)` : ''}</dt><dd>{amt(vat)}</dd></div>}
+            {o.shipping > 0 && <div><dt>{o.source === 'manual' ? 'Delivery charge' : 'Delivery'}</dt><dd>{amt(o.shipping)}</dd></div>}
+            {advance > 0 && <div><dt>Total</dt><dd>{amt(o.total)}</dd></div>}
+            {advance > 0 && <div><dt>Advance paid</dt><dd>– {amt(advance)}</dd></div>}
           </dl>
-          <div className="ix-due"><span>{paid ? 'Total paid' : 'Total due'}</span><strong>BDT {amt(o.total)}</strong></div>
+          <div className="ix-due"><span>{paid ? 'Total paid' : advance > 0 ? 'Balance due' : 'Total due'}</span><strong>BDT {amt(paid ? o.total : due2)}</strong></div>
         </div>
       </section>
 
       <section className="ix-boxes">
         <div className="ix-box">
-          <h4>Payment</h4>
+          <h4>Payment terms</h4>
           <div className="ix-box-in ix-pay">
             <ol>{payPoints.map((t, k) => <li key={k}>{t}</li>)}</ol>
-            {qr && <figure><img src={qr} alt="QR code to track this order" /><figcaption>Scan to track</figcaption></figure>}
+            {qr && o.source !== 'manual' && <figure><img src={qr} alt="QR code to track this order" /><figcaption>Scan to track</figcaption></figure>}
           </div>
         </div>
         <div className="ix-right">
@@ -137,14 +142,15 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
           </div>
           <div className="ix-sign">
             <div className="ix-sign-art">
-              {s.invoiceSeal !== false && (s.invoiceSealImage
+              {o.showSeal !== false && s.invoiceSeal !== false && (s.invoiceSealImage
                 ? <img className="ix-seal" src={s.invoiceSealImage} alt="Company seal" />
                 : <Seal name={store} place={s.sealPlace || 'Dhaka • Bangladesh'} base={base} />)}
-              {s.invoiceSignature && <img className="ix-signature" src={s.invoiceSignature} alt="Signature" />}
+              {o.showSignature !== false && s.invoiceSignature && <img className="ix-signature" src={s.invoiceSignature} alt="Signature" />}
             </div>
             <div className="ix-sign-name">
-              <b>{s.signatoryName || 'Authorised signature'}</b>
-              {s.signatoryTitle && <span>{s.signatoryTitle}</span>}
+              <b>{o.signatory?.name || s.signatoryName || 'Authorised signature'}</b>
+              {(o.signatory?.title || s.signatoryTitle) && <span>{o.signatory?.title || s.signatoryTitle}</span>}
+              <span>{store}</span>
             </div>
           </div>
         </div>
