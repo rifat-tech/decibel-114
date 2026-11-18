@@ -4,8 +4,8 @@ export const cards = [
   {
     slug: 'ismail-hossain',
     name: 'MD Ismail Hossain',
-    title: 'Lead Infrastructure Architect',
-    focus: ['Building design', 'Passive infrastructure', 'Networking'],
+    title: 'Head of Infrastructure & Security',
+    focus: ['Network infrastructure', 'Cabling', 'CCTV & security'],
     phone: '+8801944422257',
     whatsapp: '8801944422257',
     email: '',

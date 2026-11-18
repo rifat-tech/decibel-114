@@ -1978,7 +1978,7 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ec-hero-main i { width: 9cqw; height: 1.1cqw; background: #FFC93C; border-radius: 1cqw; }
 .ec-hero-main h1 { margin: 0; font: 800 10.2cqw/1 'Barlow Condensed', Inter, sans-serif; letter-spacing: .3cqw; text-transform: uppercase; color: #fff; }
 .ec-role { margin: .6cqw 0 0; font-size: 4.3cqw; font-weight: 700; color: #7FD6F7; line-height: 1.25; }
-.ec-focus { margin: 0; font-size: 3cqw; font-weight: 500; color: #C9E6F5; letter-spacing: .1cqw; white-space: pre; }
+.ec-focus { margin: 0; font-size: 3cqw; font-weight: 500; color: #C9E6F5; letter-spacing: .1cqw; white-space: pre-wrap; }
 /* scan block: overlaps the hero */
 .ec-scan { position: relative; z-index: 2; margin: -11cqw auto 0; display: grid; justify-items: center; }
 .ec-qrbox { width: 50cqw; height: 50cqw; padding: 3.5cqw; background: #fff; border-radius: 5cqw; box-shadow: 0 1.5cqw 5cqw rgba(11,37,70,.18); border: .8cqw solid #19B5F0; box-sizing: content-box; }
