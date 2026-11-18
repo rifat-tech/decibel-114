@@ -24,7 +24,7 @@ function OrderDetail({ o, onPatch }) {
         {next && <button className="btn btn-primary" onClick={() => onPatch({ status: next })}>Mark as {STATUS_LABEL[next].toLowerCase()}</button>}
         <select value={o.status} onChange={(e) => onPatch({ status: e.target.value })} aria-label="Order status">{ORDER_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}</select>
         <Link className="btn btn-ghost" to={`/admin/invoice/${o.id}`}><LuPrinter /> Invoice</Link>
-        <button className="btn btn-ghost" onClick={() => onPatch({ paymentStatus: o.paymentStatus === 'paid' ? 'pending' : 'paid' })}>{o.paymentStatus === 'paid' ? 'Mark unpaid' : 'Mark paid'}</button>
+        <button className="btn btn-ghost" onClick={() => onPatch(o.paymentStatus === 'paid' ? { paymentStatus: 'pending', paidAt: null } : { paymentStatus: 'paid', paidAt: Date.now() })}>{o.paymentStatus === 'paid' ? 'Mark unpaid' : 'Mark paid'}</button>
       </div>
       <div className="od-grid">
         <section>

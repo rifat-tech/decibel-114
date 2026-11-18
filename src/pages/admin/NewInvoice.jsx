@@ -61,7 +61,7 @@ export default function NewInvoice() {
       };
       const { id } = await createOrder(order, null);
       const saved = await adminGetOrder(id);
-      await updateOrder(saved, { status: 'confirmed', ...(extra.paid ? { paymentStatus: 'paid' } : {}) }, by);
+      await updateOrder(saved, { status: 'confirmed', ...(extra.paid ? { paymentStatus: 'paid', paidAt: Date.now() } : {}) }, by);
       toast.success(`Invoice ${saved.orderNumber} created`);
       nav(`/admin/invoice/${id}`);
     } catch (e) { toast.error(errText(e)); } finally { setBusy(false); }
