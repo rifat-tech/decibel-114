@@ -1974,3 +1974,9 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ix-due { flex-wrap: wrap; row-gap: 4px; }
 .ix-due strong { font-size: 26px !important; margin-left: auto; }
 .ix-mid { grid-template-columns: 1fr 320px !important; }
+/* numbered squares as real elements (PDF export cannot centre pseudo-element counters) */
+.ix-box li::before { content: none !important; display: none !important; }
+.ix-box li > i { font-style: normal; width: 18px; height: 18px; line-height: 18px; text-align: center; background: var(--ix-ink); color: var(--ix-acc); font-size: 10px; font-weight: 800; margin-top: 1px; display: block; }
+.ix-title h1 { margin-bottom: 18px !important; line-height: 0.95 !important; }
+.ix-box li > i { display: flex !important; align-items: center; justify-content: center; line-height: 1 !important; padding-top: 1px; box-sizing: border-box; }
+.ix-num { width: 18px; height: 18px; display: block; margin-top: 1px; }

@@ -46,8 +46,8 @@ const nextNumber = (list, year) => {
 function toForm(o, { duplicate } = {}) {
   return {
     inv: { no: duplicate ? '' : (o.invoiceNo || o.orderNumber || ''), date: toDateInput(duplicate ? Date.now() : (o.invoiceDate || o.createdAt || Date.now())), status: duplicate ? 'draft' : (o.invoiceStatus || (o.paymentStatus === 'paid' ? 'paid' : 'sent')), poRef: o.poRef || '' },
-    c: { company: o.customer?.company || '', name: o.customer?.name || '', phone: o.customer?.phone || '', email: o.customer?.email || '', line: o.address?.line || '', city: o.address?.city || '' },
-    ship: o.shipTo && !o.shipTo.same ? { same: false, company: o.shipTo.company || '', name: o.shipTo.name || '', phone: o.shipTo.phone || '', line: o.shipTo.line || '', city: o.shipTo.city || '' } : { same: true, company: '', name: '', phone: '', line: '', city: '' },
+    c: { company: o.customer?.company || '', name: o.customer?.name || '', designation: o.customer?.designation || '', phone: o.customer?.phone || '', email: o.customer?.email || '', line: o.address?.line || '', city: o.address?.city || '' },
+    ship: o.shipTo && !o.shipTo.same ? { same: false, company: o.shipTo.company || '', name: o.shipTo.name || '', designation: o.shipTo.designation || '', phone: o.shipTo.phone || '', line: o.shipTo.line || '', city: o.shipTo.city || '' } : { same: true, company: '', name: '', designation: '', phone: '', line: '', city: '' },
     items: (o.items || []).length ? o.items.map((i) => ({ name: i.name || '', note: i.note || i.option || '', unit: i.unit ?? 'Pcs', price: String(i.price ?? ''), quantity: String(i.quantity ?? 1) })) : [blankItem()],
     rows: { discount: !!(o.toggles?.discount ?? o.discount > 0), vat: !!(o.toggles?.vat ?? o.vat > 0), delivery: !!(o.toggles?.delivery ?? o.shipping > 0), advance: !!(o.toggles?.advance ?? o.advance > 0) },
     amounts: { discount: o.discount ? String(o.discount) : '', vatRate: o.vatRate ? String(o.vatRate) : '', shipping: o.shipping ? String(o.shipping) : '', advance: o.advance ? String(o.advance) : '' },
@@ -131,9 +131,9 @@ export default function NewInvoice() {
 
   const doc = {
     source: 'manual', invoiceNo: f.inv.no.trim(), invoiceDate: fromDateInput(f.inv.date), invoiceStatus: f.inv.status, poRef: f.inv.poRef.trim(),
-    customer: { company: f.c.company.trim(), name: f.c.name.trim(), phone: f.c.phone.trim(), email: f.c.email.trim() },
+    customer: { company: f.c.company.trim(), name: f.c.name.trim(), designation: f.c.designation.trim(), phone: f.c.phone.trim(), email: f.c.email.trim() },
     address: { line: f.c.line.trim(), city: f.c.city.trim(), zone: /dhaka/i.test(f.c.city) ? 'dhaka' : 'outside' },
-    shipTo: f.ship.same ? { same: true } : { same: false, company: f.ship.company.trim(), name: f.ship.name.trim(), phone: f.ship.phone.trim(), line: f.ship.line.trim(), city: f.ship.city.trim() },
+    shipTo: f.ship.same ? { same: true } : { same: false, company: f.ship.company.trim(), name: f.ship.name.trim(), designation: (f.ship.designation || '').trim(), phone: f.ship.phone.trim(), line: f.ship.line.trim(), city: f.ship.city.trim() },
     items: rows, subtotal, discount, vat, vatRate, shipping, advance, total, balance: Math.max(0, total - advance),
     toggles: f.rows, paymentTerms: lines(f.paymentTerms), terms: lines(f.terms),
     showSeal: f.showSeal, showSignature: f.showSignature, signatory: { name: f.signatory.name.trim(), title: f.signatory.title.trim() },
@@ -162,7 +162,7 @@ export default function NewInvoice() {
     } catch (e) { toast.error(errText(e)); } finally { setBusy(false); }
   }
 
-  const pick = (k) => { const x = customers[Number(k)]; if (x) up('c', { company: x.company || '', name: x.name || '', phone: x.phone || '', email: x.email || '', line: x.line || '', city: x.city || '' }); };
+  const pick = (k) => { const x = customers[Number(k)]; if (x) up('c', { company: x.company || '', name: x.name || '', designation: x.designation || '', phone: x.phone || '', email: x.email || '', line: x.line || '', city: x.city || '' }); };
   const optRows = [
     ['discount', 'Discount', 'discount', 'Amount (BDT)'],
     ['vat', 'VAT / Tax', 'vatRate', 'Rate (%)'],
@@ -199,6 +199,7 @@ export default function NewInvoice() {
           <Field label="Company name" hint="Leave empty for a person."><input value={f.c.company} onChange={upIn('c')('company')} /></Field>
           <div className="grid-2">
             <Field label="Contact person (Attn)"><input value={f.c.name} onChange={upIn('c')('name')} /></Field>
+            <Field label="Designation" hint="e.g. IT Manager"><input value={f.c.designation} onChange={upIn('c')('designation')} /></Field>
             <Field label="Phone"><input inputMode="tel" value={f.c.phone} onChange={upIn('c')('phone')} /></Field>
             <Field label="Email"><input type="email" value={f.c.email} onChange={upIn('c')('email')} /></Field>
             <Field label="City"><input value={f.c.city} onChange={upIn('c')('city')} /></Field>
@@ -214,6 +215,7 @@ export default function NewInvoice() {
               <Field label="Company name"><input value={f.ship.company} onChange={upIn('ship')('company')} /></Field>
               <div className="grid-2">
                 <Field label="Receiver"><input value={f.ship.name} onChange={upIn('ship')('name')} /></Field>
+                <Field label="Designation"><input value={f.ship.designation || ''} onChange={upIn('ship')('designation')} /></Field>
                 <Field label="Phone"><input value={f.ship.phone} onChange={upIn('ship')('phone')} /></Field>
               </div>
               <Field label="Address"><textarea rows={2} value={f.ship.line} onChange={upIn('ship')('line')} /></Field>

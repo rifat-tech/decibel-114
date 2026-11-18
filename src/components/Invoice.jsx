@@ -14,6 +14,11 @@ const lines = (s) => String(s || '').split('|').map((x) => x.trim()).filter(Bool
 const METHOD = { cod: 'Cash on delivery', bkash: 'bKash', nagad: 'Nagad', bank: 'Bank transfer', card: 'Card', cash: 'Cash', cheque: 'Cheque' };
 const STATUS = { draft: 'Draft', sent: 'Sent', unpaid: 'Unpaid', paid: 'Paid', cancelled: 'Cancelled' };
 
+// Numbered square drawn as SVG so it stays centred in the downloaded PDF too.
+const Num = ({ n }) => (
+  <svg className="ix-num" viewBox="0 0 18 18" aria-hidden="true"><rect width="18" height="18" fill="#0A0A0A" /><text x="9" y="13" textAnchor="middle" fontSize="10.5" fontWeight="800" fontFamily="Inter, Arial, sans-serif" fill="#19B5F0">{n}</text></svg>
+);
+
 function Party({ title, name, rows }) {
   return (
     <div className="ix-party">
@@ -49,11 +54,12 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
   const qty = items.reduce((n, i) => n + (Number(i.quantity) || 0), 0);
   const unitWord = items.length && items.every((i) => i.unit && i.unit === items[0].unit) ? ` ${items[0].unit.toLowerCase()}` : '';
   const cu = o.customer || {};
-  const bill = { name: cu.company || cu.name, rows: [cu.company && cu.name ? `Attn: ${cu.name}` : '', cu.phone, cu.email, o.address?.line, o.address?.city] };
+  const person = (n, d) => [n, d].filter(Boolean).join(', ');
+  const bill = { name: cu.company || cu.name, rows: [cu.company && cu.name ? `Attn: ${person(cu.name, cu.designation)}` : (!cu.company && cu.designation ? cu.designation : ''), cu.phone, cu.email, o.address?.line, o.address?.city] };
   const sh = o.shipTo && !o.shipTo.same ? o.shipTo : null;
   const ship = sh
-    ? { name: sh.company || sh.name, rows: [sh.company && sh.name ? `Receiver: ${sh.name}` : '', sh.phone, sh.line, sh.city] }
-    : { name: bill.name, rows: [cu.company && cu.name ? `Receiver: ${cu.name}` : '', cu.phone, o.address?.line, o.address?.city] };
+    ? { name: sh.company || sh.name, rows: [sh.company && sh.name ? `Receiver: ${person(sh.name, sh.designation)}` : (!sh.company && sh.designation ? sh.designation : ''), sh.phone, sh.line, sh.city] }
+    : { name: bill.name, rows: [cu.company && cu.name ? `Receiver: ${person(cu.name, cu.designation)}` : '', cu.phone, o.address?.line, o.address?.city] };
   const from = { name: store, rows: [...lines(s.address), s.phone, s.email, s.binNumber ? `BIN: ${s.binNumber}` : ''] };
   const terms = Array.isArray(o.terms) ? o.terms.filter(Boolean) : String(s.invoiceTerms || '').split('\n').map((x) => x.trim()).filter(Boolean);
   const payPoints = Array.isArray(o.paymentTerms) ? o.paymentTerms.filter(Boolean) : [
@@ -129,7 +135,7 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
         <div className="ix-box">
           <h4>Payment terms</h4>
           <div className="ix-box-in ix-pay">
-            <ol>{payPoints.map((t, k) => <li key={k}>{t}</li>)}</ol>
+            <ol>{payPoints.map((t, k) => <li key={k}><Num n={k + 1} /><span>{t}</span></li>)}</ol>
             {qr && o.source !== 'manual' && <figure><img src={qr} alt="QR code to track this order" /><figcaption>Scan to track</figcaption></figure>}
           </div>
         </div>
@@ -137,7 +143,7 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
           <div className="ix-box">
             <h4>Terms &amp; conditions</h4>
             <div className="ix-box-in">
-              {terms.length ? <ol>{terms.map((t, k) => <li key={k}>{t}</li>)}</ol> : <p className="ix-muted">No terms.</p>}
+              {terms.length ? <ol>{terms.map((t, k) => <li key={k}><Num n={k + 1} /><span>{t}</span></li>)}</ol> : <p className="ix-muted">No terms.</p>}
             </div>
           </div>
           <div className="ix-sign">
