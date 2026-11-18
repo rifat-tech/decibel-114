@@ -1890,7 +1890,7 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ix-brand img { height: 50px; width: auto; display: block; }
 .ix-brand p { margin-top: 10px; color: var(--ix-soft); font-size: 11.5px; }
 .ix-title { text-align: right; }
-.ix-title h1 { margin: 0 0 12px; font: 800 46px/1 'Archivo', 'Inter', sans-serif; font-stretch: 72%; letter-spacing: .1em; color: var(--ix-ink); }
+.ix-title h1 { margin: 0 0 18px; font: 800 54px/0.95 'Barlow Condensed', 'Archivo', sans-serif; letter-spacing: 8px; color: var(--ix-ink); }
 .ix-title dl { display: grid; gap: 3px; }
 .ix-title dl div { display: flex; justify-content: flex-end; gap: 20px; }
 .ix-title dt { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ix-soft); padding-top: 1px; }
@@ -1900,13 +1900,14 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ix-party { display: grid; align-content: start; color: var(--ix-soft); font-size: 11.5px; }
 .ix-party b { font-size: 14px; font-weight: 800; color: var(--ix-ink); margin-bottom: 3px; }
 .ix-party span { white-space: pre-line; }
-.ix-table { width: 100%; border-collapse: collapse; }
-.ix-table th { background: var(--ix-ink); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; text-align: left; padding: 10px 10px; }
-.ix-table td { padding: 11px 10px; border-bottom: 1px solid var(--ix-line); vertical-align: top; color: var(--ix-soft); }
-.ix-table td b { color: var(--ix-ink); font-weight: 700; font-size: 12.5px; }
-.ix-table td small { display: block; font-size: 10.5px; color: var(--ix-mute); margin-top: 1px; }
+.ix-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid var(--ix-ink); }
+.ix-table thead tr { background: var(--ix-ink); }
+.ix-table th { color: #fff; font-size: 10px; line-height: 14px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; text-align: left; vertical-align: middle; padding: 10px; border: 0; }
+.ix-table td { padding: 11px 10px; border: 0; border-bottom: 1px solid var(--ix-line); vertical-align: baseline; color: var(--ix-soft); font-size: 12.5px; line-height: 18px; }
+.ix-table td b { color: var(--ix-ink); font-weight: 700; font-size: 12.5px; line-height: 18px; }
+.ix-table td small { display: block; font-size: 10.5px; line-height: 15px; color: var(--ix-mute); margin-top: 1px; }
 .ix-table .n { width: 38px; } .ix-table .c { text-align: center; width: 52px; } .ix-table .r { text-align: right; white-space: nowrap; }
-.ix-table tbody tr:last-child td { border-bottom: 2px solid var(--ix-ink); }
+.ix-table tbody tr:last-child td { border-bottom: 0; }
 .ix-empty { text-align: center; color: var(--ix-mute) !important; padding: 26px !important; font-style: italic; }
 .ix-mid { display: grid; grid-template-columns: 1fr 300px; gap: 28px; padding: 18px 0 20px; align-items: start; }
 .ix-summary p { color: var(--ix-soft); margin-bottom: 14px; }
@@ -1914,16 +1915,16 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ix-totals dl { display: grid; }
 .ix-totals dl div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--ix-line); color: var(--ix-soft); }
 .ix-totals dd { margin: 0; color: var(--ix-ink); font-weight: 600; white-space: nowrap; }
-.ix-due { margin-top: 12px; background: var(--ix-ink); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 16px; }
-.ix-due span { font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-.ix-due strong { font: 800 22px/1 'Archivo', 'Inter', sans-serif; font-stretch: 78%; color: var(--ix-acc); letter-spacing: .01em; white-space: nowrap; }
+.ix-due { margin-top: 12px; background: var(--ix-ink); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px; min-height: 56px; overflow: hidden; }
+.ix-due span { font-size: 11px; line-height: 1.25; max-width: 90px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.ix-due strong { display: block; margin-left: auto; flex-shrink: 0; text-align: right; font: 800 25px/1.2 'Barlow Condensed', 'Archivo', sans-serif; color: var(--ix-acc); letter-spacing: .01em; white-space: nowrap; }
 .ix-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding-bottom: 18px; align-items: stretch; }
 .ix-box { border: 1.5px solid var(--ix-ink); display: flex; flex-direction: column; }
 .ix-box > h4 { margin: 0; background: var(--ix-ink); color: var(--ix-acc); padding: 7px 12px; font-size: 10.5px; }
 .ix-box-in { padding: 12px; color: var(--ix-soft); flex: 1; }
 .ix-box ol { list-style: none; padding: 0; counter-reset: x; display: grid; gap: 7px; }
-.ix-box li { counter-increment: x; display: grid; grid-template-columns: 18px 1fr; gap: 9px; font-size: 11px; line-height: 1.5; }
-.ix-box li::before { content: counter(x); width: 18px; height: 18px; background: var(--ix-ink); color: var(--ix-acc); font-size: 10px; font-weight: 800; display: grid; place-items: center; margin-top: 1px; }
+.ix-box li { display: grid; grid-template-columns: 18px 1fr; gap: 9px; align-items: start; font-size: 11px; line-height: 1.5; }
+.ix-num { width: 18px; height: 18px; display: block; margin-top: 1px; }
 .ix-pay { display: flex; gap: 12px; justify-content: space-between; }
 .ix-pay figure { display: grid; justify-items: center; gap: 4px; flex: none; align-self: end; }
 .ix-pay figure img { width: 70px; height: 70px; }
@@ -1943,22 +1944,8 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
   .ix-table tr, .ix-boxes, .ix-mid { break-inside: avoid; }
 }
 .ni-preview .ix { box-shadow: 0 10px 30px -12px rgba(0,0,0,.35); }
-.ix-table th, .ix-table td { border-left: 0 !important; border-right: 0 !important; }
-.ix-table th { border-bottom: 0 !important; }
 .ix-pay ol { align-content: start; align-self: start; }
-.ix-box li { align-items: start; }
-.ix-due span { white-space: nowrap; }
-.ix-title h1 { font-weight: 900; }
-/* no hairline seams in the black header or the closing rule */
-.ix-table thead tr { background: var(--ix-ink); }
-.ix-table th { background: transparent !important; }
-.ix-table tbody tr:last-child td { border-bottom: 0; }
-.ix-table { border-bottom: 2px solid var(--ix-ink); }
 .ix-pay figure { align-self: start; }
-/* SPORTY-style display font for the title and the amount due */
-.ix-title h1 { font-family: 'Barlow Condensed', 'Archivo', sans-serif !important; font-stretch: normal !important; font-weight: 800 !important; font-size: 54px !important; letter-spacing: 8px !important; }
-.ix-due strong { font-family: 'Barlow Condensed', 'Archivo', sans-serif !important; font-stretch: normal !important; font-size: 28px !important; font-weight: 800 !important; }
-.ix-due span { font-size: 12px; }
 /* admin: invoices list and optional rows */
 .inv-actions { white-space: nowrap; text-align: right; }
 .inv-actions .icon-btn { margin-left: 2px; }
@@ -1971,28 +1958,4 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ni-opt { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 12px; min-height: 44px; }
 .ni-opt input[inputmode] { max-width: 220px; }
 .inv-hint { max-width: 794px; margin: -6px auto 12px; font-size: 12.5px; color: #4A5058; }
-.ix-due { flex-wrap: wrap; row-gap: 4px; }
-.ix-due strong { font-size: 26px !important; margin-left: auto; }
 .ix-mid { grid-template-columns: 1fr 320px !important; }
-/* numbered squares as real elements (PDF export cannot centre pseudo-element counters) */
-.ix-box li::before { content: none !important; display: none !important; }
-.ix-box li > i { font-style: normal; width: 18px; height: 18px; line-height: 18px; text-align: center; background: var(--ix-ink); color: var(--ix-acc); font-size: 10px; font-weight: 800; margin-top: 1px; display: block; }
-.ix-title h1 { margin-bottom: 18px !important; line-height: 0.95 !important; }
-.ix-box li > i { display: flex !important; align-items: center; justify-content: center; line-height: 1 !important; padding-top: 1px; box-sizing: border-box; }
-.ix-num { width: 18px; height: 18px; display: block; margin-top: 1px; }
-/* balance due: always one row — label left (may stack), amount right, never clipped */
-.ix-due { flex-wrap: nowrap !important; padding: 12px 16px !important; overflow: hidden; }
-.ix-due span { white-space: normal !important; letter-spacing: .12em !important; line-height: 1.25; max-width: 90px; font-size: 11px !important; }
-.ix-due strong { font-size: 25px !important; margin-left: auto; text-align: right; flex-shrink: 0; }
-/* table: every cell on the same text line (bold and plain values line up) */
-.ix-table td { font-size: 12px; line-height: 18px; }
-.ix-table td b { font-size: 12.5px; line-height: 18px; display: inline-block; vertical-align: top; }
-.ix-table td small { line-height: 15px; }
-.ix-table th { line-height: 14px; vertical-align: middle; }
-.ix-table th.c, .ix-table td.c { text-align: center; }
-.ix-due strong { line-height: 1 !important; }
-.ix-table td { vertical-align: baseline !important; }
-.ix-table td b { display: inline; vertical-align: baseline; }
-.ix-table td, .ix-table td b { font-size: 12.5px !important; line-height: 18px !important; }
-.ix-due { padding: 12px 18px !important; min-height: 56px; }
-.ix-due strong { line-height: 1.2 !important; display: block; }
