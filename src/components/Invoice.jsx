@@ -23,14 +23,14 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
   const trackUrl = `https://${site}/track?no=${encodeURIComponent(o.orderNumber || '')}`;
   const [qr, setQr] = useState('');
   useEffect(() => { QRCode.toDataURL(trackUrl, { margin: 0, width: 220, color: { dark: '#0B1B33', light: '#FFFFFF' } }).then(setQr).catch(() => setQr('')); }, [trackUrl]);
-  const status = paid ? 'Paid' : o.status === 'cancelled' ? 'Cancelled' : 'Due';
+  const status = paid ? 'Paid' : o.status === 'cancelled' ? 'Cancelled' : 'Unpaid';
 
   return (
     <article className="iv" aria-label={`Invoice ${o.orderNumber}`}>
       <div className="iv-stripe" />
       <header className="iv-head">
         <div className="iv-brand">
-          <img src={`${base}/brand/logo.png`} alt={s.storeName || 'Decibel-114'} />
+          <img src={`${base}/brand/logo-dark.png`} alt={s.storeName || 'Decibel-114'} />
           {s.tagline && <span>{s.tagline}</span>}
         </div>
         <div className="iv-titlebox">
@@ -59,7 +59,7 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
           {s.binNumber && <span>BIN: {s.binNumber}</span>}
         </div>
         <div className={`iv-due ${paid ? 'is-paid' : ''}`}>
-          <h4>{paid ? 'Amount paid' : 'Amount due'}</h4>
+          <h4>{paid ? 'Amount paid' : 'Amount to pay'}</h4>
           <strong><small>BDT</small> {amt(o.total)}</strong>
           <dl>
             <div><dt>Issue date</dt><dd>{day(o.createdAt)}</dd></div>

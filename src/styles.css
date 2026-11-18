@@ -1766,3 +1766,26 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ni-sum div { display: flex; justify-content: space-between; }
 .ni-sum dt, .ni-sum dd { margin: 0; }
 .ni-sum .tot { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px; font-weight: 800; font-size: 16px; }
+
+/* Invoice, calm version: white page, dark text, one thin blue accent */
+.iv { --iv-navy: #111827; }
+.iv-stripe { height: 3px; background: var(--iv-blue); }
+.iv-head { background: #fff !important; background-image: none !important; color: var(--iv-ink); padding: 40px 48px 26px; border-bottom: 1px solid var(--iv-line); }
+.iv-brand img { height: 42px; }
+.iv-brand span { color: var(--iv-soft); }
+.iv-titlebox h1 { color: var(--iv-ink); font-weight: 300; letter-spacing: .14em; font-size: 30px; }
+.iv-no { color: var(--iv-soft); }
+.iv-pill { background: transparent !important; border: 1px solid currentColor; font-weight: 700; padding: 3px 11px; }
+.iv-pill.due { color: #B45309 !important; }
+.iv-pill.paid { color: #15803D !important; }
+.iv-pill.void { color: #6B7280 !important; }
+.iv-due, .iv-due.is-paid { background: var(--iv-tint) !important; color: var(--iv-ink); border: 1px solid var(--iv-line); }
+.iv-due h4 { color: var(--iv-soft); }
+.iv-due strong small { color: var(--iv-soft); opacity: 1; }
+.iv-due dl { border-top-color: var(--iv-line); }
+.iv-due dt { color: var(--iv-soft); }
+.iv-sum .iv-total { background: transparent !important; color: var(--iv-ink); border-top: 2px solid var(--iv-ink); border-radius: 0; padding: 12px 4px 0; }
+.iv-sum .iv-total dd { color: var(--iv-ink); }
+.iv-sum .iv-paidrow dd { color: var(--iv-soft); }
+.iv-foot { background: #fff; color: var(--iv-soft); border-top: 1px solid var(--iv-line); padding: 14px 48px 22px; }
+.iv-thanks { color: var(--iv-ink); }
