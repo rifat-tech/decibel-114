@@ -1648,3 +1648,26 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .content-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
 .error-text { color: #C0362C; font-weight: 600; }
 .t-thumb img { width: 48px; height: 48px; object-fit: contain; }
+
+/* category bar: scroll sideways when the categories do not fit, with arrows and soft edges */
+.catbar-scroll { position: relative; flex: 1; min-width: 0; display: flex; }
+.catbar-list { overflow-x: auto !important; overflow-y: hidden; scrollbar-width: none; scroll-behavior: smooth; overscroll-behavior-x: contain; }
+.catbar-list::-webkit-scrollbar { display: none; }
+.catbar-scroll.can-left .catbar-list { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 44px); mask-image: linear-gradient(90deg, transparent 0, #000 44px); }
+.catbar-scroll.can-right .catbar-list { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent 100%); mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent 100%); }
+.catbar-scroll.can-left.can-right .catbar-list { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 44px, #000 calc(100% - 44px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 44px, #000 calc(100% - 44px), transparent 100%); }
+.catbar-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #fff; color: var(--ap-ink); box-shadow: 0 1px 4px rgba(15, 40, 70, .18), 0 0 0 1px rgba(15, 40, 70, .06); font-size: 15px; transition: transform .2s, box-shadow .2s; }
+.catbar-arrow:hover { box-shadow: 0 2px 8px rgba(15, 40, 70, .25), 0 0 0 1px rgba(0, 113, 227, .4); }
+.catbar-arrow.left { left: 2px; }
+.catbar-arrow.right { right: 2px; }
+
+/* IT Solutions and Agriculture links blink like the language button, to draw the eye */
+.catbar-seg a { position: relative; animation: seg-blink 1.6s ease-in-out infinite; }
+.catbar-seg a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; animation: seg-ring 1.6s ease-out infinite; }
+.catbar-seg a + a, .catbar-seg a + a::after { animation-delay: .8s; }
+.catbar-seg a:hover, .catbar-seg a:hover::after, .catbar-seg a[aria-current="page"], .catbar-seg a[aria-current="page"]::after { animation: none; }
+.catbar-seg a[aria-current="page"] { background: var(--ap-blue); color: #fff; }
+@keyframes seg-blink { 0%, 100% { background: rgba(0, 113, 227, .08); } 50% { background: rgba(0, 113, 227, .22); } }
+@keyframes seg-ring { 0% { box-shadow: 0 0 0 0 rgba(0, 113, 227, .45); } 100% { box-shadow: 0 0 0 7px rgba(0, 113, 227, 0); } }
+.menu-cat.seg-blink-item .mc-ico { animation: seg-ring 1.6s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .catbar-seg a, .catbar-seg a::after, .menu-cat.seg-blink-item .mc-ico { animation: none; } }

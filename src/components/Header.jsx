@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  LuServer, LuSprout,
+  LuServer, LuSprout, LuChevronLeft,
   LuSearch, LuShoppingBag, LuUser, LuMenu, LuX, LuChevronRight, LuHeart, LuArrowLeftRight, LuBadgePercent,
   LuPhone, LuTruck, LuBuilding2, LuLayoutGrid, LuShieldCheck,
 } from 'react-icons/lu';
@@ -80,15 +80,17 @@ function Search() {
 // Links to the solution pages that are switched on in Admin → Website content.
 function SolutionLinks({ className, drawer }) {
   const { content } = useStore();
+  const loc = useLocation();
   const it = content.it.enabled !== false, agri = content.agri.enabled !== false;
   if (!it && !agri) return null;
   if (drawer) return (
     <>
-      {it && <Link to="/it-solutions" className="menu-cat featured"><span className="mc-ico"><LuServer /></span> IT Solutions <LuChevronRight /></Link>}
-      {agri && <Link to="/agriculture" className="menu-cat featured"><span className="mc-ico"><LuSprout /></span> Agriculture <LuChevronRight /></Link>}
+      {it && <Link to="/it-solutions" className="menu-cat featured seg-blink-item"><span className="mc-ico"><LuServer /></span> IT Solutions <LuChevronRight /></Link>}
+      {agri && <Link to="/agriculture" className="menu-cat featured seg-blink-item"><span className="mc-ico"><LuSprout /></span> Agriculture <LuChevronRight /></Link>}
     </>
   );
-  return <nav className={className} aria-label="Solutions">{it && <Link to="/it-solutions">IT Solutions</Link>}{agri && <Link to="/agriculture">Agriculture</Link>}</nav>;
+  const here = (p) => (loc.pathname.replace(/\/$/, '') === p ? 'page' : undefined);
+  return <nav className={className} aria-label="Solutions">{it && <Link to="/it-solutions" aria-current={here('/it-solutions')}>IT Solutions</Link>}{agri && <Link to="/agriculture" aria-current={here('/agriculture')}>Agriculture</Link>}</nav>;
 }
 
 function CategoryBar({ menu, onAll }) {
@@ -99,18 +101,49 @@ function CategoryBar({ menu, onAll }) {
   const loc = useLocation();
   useEffect(() => setOpen(null), [loc.pathname, loc.search]);
   const cat = menu.find((c) => c.id === open);
+  // The list scrolls sideways when the categories do not fit; arrows show which way there is more.
+  const list = useRef();
+  const [edge, setEdge] = useState({ left: false, right: false });
+  const measure = () => {
+    const el = list.current; if (!el) return;
+    setEdge({ left: el.scrollLeft > 2, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 2 });
+  };
+  useEffect(() => {
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (list.current) ro.observe(list.current);
+    return () => ro.disconnect();
+  }, [menu.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const slide = (dir) => list.current?.scrollBy({ left: dir * list.current.clientWidth * 0.7, behavior: 'smooth' });
+  // A normal mouse wheel scrolls the bar sideways while the pointer is over it (until it reaches an end).
+  useEffect(() => {
+    const el = list.current; if (!el) return undefined;
+    const wheel = (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || el.scrollWidth <= el.clientWidth) return;
+      const atEnd = e.deltaY > 0 ? el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 : el.scrollLeft <= 0;
+      if (atEnd) return;
+      e.preventDefault();
+      el.scrollBy({ left: e.deltaY, behavior: 'auto' });
+    };
+    el.addEventListener('wheel', wheel, { passive: false });
+    return () => el.removeEventListener('wheel', wheel);
+  }, []);
   return (
     <div className="catbar" onMouseLeave={leave}>
       <div className="container catbar-row">
         <button className="catbar-all" onClick={onAll}>All categories</button>
-        <nav className="catbar-list" aria-label="Product categories">
-          {menu.map((c) => (
-            <Link key={c.id} to={`/shop?cat=${c.id}`} className={`catbar-item ${open === c.id ? 'on' : ''}`}
-              onMouseEnter={() => enter(c.id)} onFocus={() => setOpen(c.id)} aria-expanded={open === c.id}>
-              {c.short || c.name}
-            </Link>
-          ))}
-        </nav>
+        <div className={`catbar-scroll ${edge.left ? 'can-left' : ''} ${edge.right ? 'can-right' : ''}`}>
+          {edge.left && <button type="button" className="catbar-arrow left" onClick={() => slide(-1)} aria-label="Scroll categories left"><LuChevronLeft /></button>}
+          <nav className="catbar-list" aria-label="Product categories" ref={list} onScroll={measure}>
+            {menu.map((c) => (
+              <Link key={c.id} to={`/shop?cat=${c.id}`} className={`catbar-item ${open === c.id ? 'on' : ''}`}
+                onMouseEnter={() => enter(c.id)} onFocus={(e) => { setOpen(c.id); e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }} aria-expanded={open === c.id}>
+                {c.short || c.name}
+              </Link>
+            ))}
+          </nav>
+          {edge.right && <button type="button" className="catbar-arrow right" onClick={() => slide(1)} aria-label="Scroll categories right"><LuChevronRight /></button>}
+        </div>
         <SolutionLinks className="catbar-seg" />
       </div>
       <AnimatePresence>
