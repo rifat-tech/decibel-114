@@ -1,9 +1,11 @@
-// Team e-visiting cards. Each one lives at decibel-114.com/card/<slug>; the QR on the printed card opens it.
+// Team e-visiting cards. Each one lives at decibel-114.com/card/<slug>.
+// The QR on the card holds the contact itself (vCard), so a phone camera offers "Add contact" straight away.
 export const cards = [
   {
     slug: 'ismail-hossain',
     name: 'MD Ismail Hossain',
-    title: 'Team Lead, Network Architecture & Passive Infrastructure',
+    title: 'Lead Infrastructure Architect',
+    focus: ['Building design', 'Passive infrastructure', 'Networking'],
     phone: '+8801944422257',
     whatsapp: '8801944422257',
     email: '',
