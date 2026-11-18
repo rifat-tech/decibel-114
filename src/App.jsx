@@ -42,6 +42,7 @@ const Coupons = lazy(() => import('./pages/admin/Coupons'));
 const People = lazy(() => import('./pages/admin/People'));
 const Settings = lazy(() => import('./pages/admin/Settings'));
 const Content = lazy(() => import('./pages/admin/Content'));
+const Card = lazy(() => import('./pages/Card'));
 const InvoicePage = lazy(() => import('./pages/admin/InvoicePage'));
 const NewInvoice = lazy(() => import('./pages/admin/NewInvoice'));
 const Invoices = lazy(() => import('./pages/admin/Invoices'));
@@ -124,6 +125,7 @@ export default function App() {
                       <Route path="page/:slug" element={<InfoPage />} />
                       <Route path="*" element={<NotFound />} />
                     </Route>
+                    <Route path="card/:slug" element={<Card />} />
                     <Route path="admin/invoice/:id" element={<RequireStaff area="sales"><InvoicePage /></RequireStaff>} />
                     <Route path="admin" element={<RequireStaff><AdminLayout /></RequireStaff>}>
                       <Route index element={<Dashboard />} />

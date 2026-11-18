@@ -149,6 +149,14 @@ for (const p of products) {
   n++;
 }
 
+// e-visiting cards: real pages so a scanned QR opens instantly (not via the 404 fallback)
+const { cards } = await vite.ssrLoadModule('/src/data/cards.js');
+for (const c of cards) {
+  page({ urlPath: `/card/${c.slug}`, title: `${c.name} — ${c.title}`, description: `${c.name}, ${c.title} at ${c.company}. Call ${c.phone} or save the contact.`, image: abs('/card/' + c.slug + '.png'),
+    ld: { '@context': 'https://schema.org', '@type': 'Person', name: c.name, jobTitle: c.title, telephone: c.phone, worksFor: { '@type': 'Organization', name: c.company, url: c.website } },
+    body: `<h1>${esc(c.name)}</h1><p>${esc(c.title)}, ${esc(c.company)}</p><p><a href="tel:${esc(c.phone)}">${esc(c.phone)}</a></p>`, type: 'profile' });
+}
+
 // sitemap + robots
 const today = new Date().toISOString().slice(0, 10);
 fs.writeFileSync(path.join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u, pr, cf]) =>
