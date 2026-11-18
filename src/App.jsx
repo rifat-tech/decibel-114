@@ -43,6 +43,7 @@ const People = lazy(() => import('./pages/admin/People'));
 const Settings = lazy(() => import('./pages/admin/Settings'));
 const Content = lazy(() => import('./pages/admin/Content'));
 const Card = lazy(() => import('./pages/Card'));
+const AdminCards = lazy(() => import('./pages/admin/Cards'));
 const InvoicePage = lazy(() => import('./pages/admin/InvoicePage'));
 const NewInvoice = lazy(() => import('./pages/admin/NewInvoice'));
 const Invoices = lazy(() => import('./pages/admin/Invoices'));
@@ -146,6 +147,7 @@ export default function App() {
                       <Route path="team" element={<RequireStaff area="admin"><People /></RequireStaff>} />
                       <Route path="settings" element={<RequireStaff area="admin"><Settings /></RequireStaff>} />
                       <Route path="content" element={<RequireStaff area="admin"><Content /></RequireStaff>} />
+                      <Route path="cards" element={<RequireStaff area="admin"><AdminCards /></RequireStaff>} />
                     </Route>
                   </Routes>
                 </Suspense>

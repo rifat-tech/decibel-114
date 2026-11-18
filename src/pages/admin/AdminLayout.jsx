@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LuLayoutDashboard, LuReceipt, LuKanban, LuUsers, LuMessagesSquare, LuPackage, LuShapes, LuFileSpreadsheet,
-  LuBadgePercent, LuUserCog, LuSettings, LuLayoutTemplate, LuFilePlus, LuBarChart3, LuExternalLink, LuLogOut, LuMenu, LuX,
+  LuBadgePercent, LuUserCog, LuSettings, LuLayoutTemplate, LuFilePlus, LuBarChart3, LuExternalLink, LuLogOut, LuMenu, LuX, LuContact,
 } from 'react-icons/lu';
 import Logo from '../../components/Logo';
 import { DEMO, chatCol, logout } from '../../lib/db';
@@ -13,7 +13,7 @@ const GROUPS = [
   ['Sales', [['/admin/orders', 'Orders', LuReceipt, 'sales'], ['/admin/invoices', 'Invoices', LuFilePlus, 'sales'], ['/admin/leads', 'Leads pipeline', LuKanban, 'sales'], ['/admin/customers', 'Customers', LuUsers, 'sales']]],
   ['Support', [['/admin/inbox', 'Inbox', LuMessagesSquare, 'support', false, 'inbox']]],
   ['Catalog', [['/admin/products', 'Products', LuPackage, 'catalog'], ['/admin/categories', 'Categories', LuShapes, 'catalog'], ['/admin/import', 'Import & export', LuFileSpreadsheet, 'catalog'], ['/admin/coupons', 'Promo codes', LuBadgePercent, 'catalog']]],
-  ['Website', [['/admin/content', 'Website content', LuLayoutTemplate, 'admin'], ['/admin/settings', 'Store settings', LuSettings, 'admin']]],
+  ['Website', [['/admin/content', 'Website content', LuLayoutTemplate, 'admin'], ['/admin/cards', 'Digital cards', LuContact, 'admin'], ['/admin/settings', 'Store settings', LuSettings, 'admin']]],
   ['Company', [['/admin/team', 'Team & accounts', LuUserCog, 'admin']]],
 ];
 

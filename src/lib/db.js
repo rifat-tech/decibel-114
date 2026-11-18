@@ -153,6 +153,19 @@ function fromStore(v) { const o = { ...v }; PAIRS.forEach((k) => { if (Array.isA
 export const saveContent = (key, value) => C('settings').set(CONTENT_DOCS[key], { ...toStore(value), updatedAt: Date.now() });
 export const resetContent = (key) => C('settings').remove(CONTENT_DOCS[key]);
 
+/* ═════════════ digital visiting cards (Admin → Digital cards) ═════════════
+   One document, settings/cards: { list: [{ slug, name, title, focus[], phone, whatsapp, email, ... }] }.
+   settings is public-read / admin-write, so the card pages can read it without signing in.
+   Until something is saved, the built-in cards in src/data/cards.js are used. */
+export async function getCards() {
+  const { cards } = await import('../data/cards.js');
+  try {
+    const d = await withTimeout(C('settings').get('cards'), 6000);
+    return Array.isArray(d?.list) ? d.list : cards;
+  } catch { return cards; }
+}
+export const saveCards = (list) => C('settings').set('cards', { list, updatedAt: Date.now() });
+
 /* ═════════════ catalog ═════════════
    Base catalog = curated products (catalog.js) + the distributor price list (public/catalog.json, ~5,900 items,
    served from the CDN so it costs no database reads). The Firestore `products` collection only holds

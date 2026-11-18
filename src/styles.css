@@ -2003,3 +2003,20 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ec-act:hover { background: #E3F4FC; }
 .ec-act:disabled { opacity: .6; cursor: wait; }
 .ec-missing { padding: 40px 24px; text-align: center; background: #fff; border-radius: 16px; }
+/* Admin → Digital cards */
+.dc-layout { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.dc-list h2, .dc-edit h2 { margin-top: 0; }
+.dc-item { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 12px; padding: 6px 6px 6px 10px; margin-top: 8px; }
+.dc-item.on { border-color: #19B5F0; background: #F1FAFE; }
+.dc-pick { all: unset; cursor: pointer; flex: 1; min-width: 0; display: flex; gap: 10px; align-items: center; }
+.dc-pick > svg { width: 22px; height: 22px; color: #19B5F0; flex-shrink: 0; }
+.dc-pick span { display: grid; min-width: 0; }
+.dc-pick b { font-size: 14px; } .dc-pick small { font-size: 12px; color: var(--muted, #6B7280); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dc-pick .dc-link { color: #1B6E93; }
+.dc-acts { display: flex; gap: 2px; flex-shrink: 0; }
+.dc-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 22px; align-items: start; }
+.dc-form { display: grid; gap: 12px; }
+.dc-preview { position: sticky; top: 16px; }
+.dc-preview .ec-stage { width: 100%; }
+@media (max-width: 1100px) { .dc-grid { grid-template-columns: 1fr; } .dc-preview { position: static; max-width: 360px; } }
+@media (max-width: 820px) { .dc-layout { grid-template-columns: 1fr; } }
