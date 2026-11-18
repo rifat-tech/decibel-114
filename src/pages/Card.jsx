@@ -57,12 +57,15 @@ export default function Card() {
       <article className="ec-card">
         <header className="ec-top">
           <img className="ec-logo" src="/brand/logo-dark.png" alt="Decibel-114" />
-          <div className="ec-avatar" aria-hidden="true">{initials(c.name)}</div>
         </header>
         <div className="ec-body">
-          <h1>{c.name}</h1>
-          <p className="ec-title">{c.title}</p>
-          <p className="ec-co">{c.company}</p>
+          <div className="ec-who">
+            <div className="ec-avatar" aria-hidden="true">{initials(c.name)}</div>
+            <div>
+              <h1>{c.name}</h1>
+              <p className="ec-title">{c.title}</p>
+            </div>
+          </div>
 
           <div className="ec-actions">
             <a className="ec-act" href={`tel:${c.phone}`}><LuPhone /><span>Call</span></a>
@@ -73,26 +76,15 @@ export default function Card() {
 
           <button className="ec-save" onClick={save}><LuUserPlus /> Save contact</button>
 
-          <ul className="ec-list">
-            <li><LuPhone /><a href={`tel:${c.phone}`}>{pretty(c.phone)}</a></li>
-            {c.email && <li><LuMail /><a href={`mailto:${c.email}`}>{c.email}</a></li>}
-            <li><LuGlobe /><a href={c.website}>{c.website.replace(/^https?:\/\//, '')}</a></li>
-          </ul>
-
-          {c.about && <p className="ec-about">{c.about}</p>}
-          {c.skills?.length > 0 && <div className="ec-tags">{c.skills.map((s) => <span key={s}>{s}</span>)}</div>}
-
-          {qr && (
-            <div className="ec-qr">
-              <img src={qr} alt={`QR code for ${url}`} />
-              <p>Scan to open this card</p>
-            </div>
-          )}
+          <div className="ec-row">
+            <ul className="ec-list">
+              <li><LuPhone /><a href={`tel:${c.phone}`}>{pretty(c.phone)}</a></li>
+              {c.email && <li><LuMail /><a href={`mailto:${c.email}`}>{c.email}</a></li>}
+              <li><LuGlobe /><a href={c.website}>{c.website.replace(/^https?:\/\//, '')}</a></li>
+            </ul>
+            {qr && <img className="ec-qr" src={qr} alt={`QR code for ${url}`} />}
+          </div>
         </div>
-        <footer className="ec-foot">
-          <Link to="/">decibel-114.com</Link>
-          <span>Apple, gadgets &amp; network solutions</span>
-        </footer>
       </article>
     </div>
   );

@@ -9,8 +9,6 @@ export const cards = [
     email: '',
     company: 'Decibel-114',
     website: 'https://decibel-114.com',
-    about: 'Designs enterprise networks end to end: structured cabling, fibre backbones, racks and Wi-Fi, from site survey to handover.',
-    skills: ['Network design', 'Structured cabling', 'Fibre & racks', 'Enterprise Wi-Fi'],
   },
 ];
 export const cardBySlug = (s) => cards.find((c) => c.slug === s);

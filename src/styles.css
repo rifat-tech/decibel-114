@@ -1959,35 +1959,28 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ni-opt input[inputmode] { max-width: 220px; }
 .inv-hint { max-width: 794px; margin: -6px auto 12px; font-size: 12.5px; color: #4A5058; }
 .ix-mid { grid-template-columns: 1fr 320px !important; }
-/* e-visiting card (/card/:slug) */
-.ec-wrap { min-height: 100vh; background: radial-gradient(120% 60% at 50% 0%, #DDF3FD 0%, #F4F8FB 55%, #EEF2F6 100%); display: grid; place-items: start center; padding: 28px 16px 40px; font-family: Inter, system-ui, sans-serif; }
-.ec-card { width: 100%; max-width: 420px; background: #fff; border-radius: 22px; overflow: hidden; box-shadow: 0 24px 60px -24px rgba(10,20,40,.35), 0 2px 6px rgba(10,20,40,.06); }
-.ec-top { position: relative; height: 150px; background: #0A0A0A; padding: 20px 22px; }
-.ec-top::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: linear-gradient(90deg, #0A0A0A 0 62%, #19B5F0 62% 100%); }
-.ec-logo { height: 30px; width: auto; filter: brightness(0) invert(1); }
-.ec-avatar { position: absolute; left: 22px; bottom: -40px; width: 84px; height: 84px; border-radius: 50%; background: #19B5F0; color: #0A0A0A; display: grid; place-items: center; font: 800 32px/1 'Barlow Condensed', Inter, sans-serif; letter-spacing: 1px; border: 5px solid #fff; z-index: 1; }
-.ec-body { padding: 54px 22px 18px; }
-.ec-body h1 { margin: 0; font: 800 30px/1.05 'Barlow Condensed', Inter, sans-serif; letter-spacing: .5px; color: #0A0A0A; text-transform: uppercase; }
-.ec-title { margin: 6px 0 2px; font-size: 14px; font-weight: 600; color: #1B6E93; line-height: 1.4; }
-.ec-co { margin: 0; font-size: 13px; color: #6B7280; }
-.ec-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; margin: 20px 0 10px; }
-.ec-act { display: grid; justify-items: center; gap: 6px; padding: 12px 4px; border-radius: 14px; background: #F2F6F9; color: #0A0A0A; font: 600 12px Inter, sans-serif; text-decoration: none; border: 0; cursor: pointer; transition: background .15s, transform .15s; }
-.ec-act svg { width: 20px; height: 20px; color: #19B5F0; }
-.ec-act:hover { background: #E3F4FC; transform: translateY(-1px); }
-.ec-save { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border: 0; border-radius: 14px; background: #0A0A0A; color: #fff; font: 700 15px Inter, sans-serif; cursor: pointer; }
-.ec-save svg { color: #19B5F0; width: 19px; height: 19px; }
+/* e-visiting card (/card/:slug) — compact, fits one phone screen */
+.ec-wrap { min-height: 100vh; background: radial-gradient(120% 60% at 50% 0%, #DDF3FD 0%, #F4F8FB 55%, #EEF2F6 100%); display: grid; place-items: center; padding: 20px 14px; font-family: Inter, system-ui, sans-serif; box-sizing: border-box; }
+.ec-card { width: 100%; max-width: 400px; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px -24px rgba(10,20,40,.35), 0 2px 6px rgba(10,20,40,.06); }
+.ec-top { position: relative; background: #0A0A0A; padding: 16px 20px 19px; }
+.ec-top::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, #2A2A2A 0 62%, #19B5F0 62% 100%); }
+.ec-logo { height: 24px; width: auto; display: block; filter: brightness(0) invert(1); }
+.ec-body { padding: 18px 20px 20px; }
+.ec-who { display: flex; align-items: center; gap: 14px; }
+.ec-avatar { width: 58px; height: 58px; flex-shrink: 0; border-radius: 50%; background: #19B5F0; color: #0A0A0A; display: grid; place-items: center; font: 800 23px/1 'Barlow Condensed', Inter, sans-serif; letter-spacing: 1px; }
+.ec-who h1 { margin: 0; font: 800 24px/1.05 'Barlow Condensed', Inter, sans-serif; letter-spacing: .4px; color: #0A0A0A; text-transform: uppercase; }
+.ec-title { margin: 4px 0 0; font-size: 12.5px; font-weight: 600; color: #1B6E93; line-height: 1.35; }
+.ec-actions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; margin: 16px 0 8px; }
+.ec-act { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 4px; border-radius: 12px; background: #F2F6F9; color: #0A0A0A; font: 600 12.5px Inter, sans-serif; text-decoration: none; border: 0; cursor: pointer; transition: background .15s; }
+.ec-act svg { width: 17px; height: 17px; color: #19B5F0; flex-shrink: 0; }
+.ec-act:hover { background: #E3F4FC; }
+.ec-save { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; border: 0; border-radius: 12px; background: #0A0A0A; color: #fff; font: 700 14.5px Inter, sans-serif; cursor: pointer; }
+.ec-save svg { color: #19B5F0; width: 18px; height: 18px; }
 .ec-save:hover { background: #1c1c1c; }
-.ec-list { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 2px; }
-.ec-list li { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-bottom: 1px solid #EEF1F4; font-size: 14px; }
-.ec-list li:last-child { border-bottom: 0; }
-.ec-list svg { color: #19B5F0; width: 17px; height: 17px; flex-shrink: 0; }
-.ec-list a { color: #0A0A0A; text-decoration: none; font-weight: 500; }
-.ec-about { margin: 14px 0 0; font-size: 13.5px; line-height: 1.55; color: #4A5058; }
-.ec-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.ec-tags span { font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: #E9F7FD; color: #1B6E93; }
-.ec-qr { margin: 20px auto 4px; display: grid; justify-items: center; gap: 6px; }
-.ec-qr img { width: 150px; height: 150px; padding: 8px; border: 1.5px solid #0A0A0A; border-radius: 12px; }
-.ec-qr p { margin: 0; font-size: 11.5px; color: #6B7280; }
-.ec-foot { display: flex; justify-content: space-between; gap: 10px; padding: 14px 22px; background: #F7F9FB; border-top: 1px solid #EEF1F4; font-size: 12px; color: #6B7280; }
-.ec-foot a { color: #0A0A0A; font-weight: 700; text-decoration: none; }
+.ec-row { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #EEF1F4; }
+.ec-list { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 0; display: grid; gap: 10px; }
+.ec-list li { display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
+.ec-list svg { color: #19B5F0; width: 16px; height: 16px; flex-shrink: 0; }
+.ec-list a { color: #0A0A0A; text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ec-qr { width: 84px; height: 84px; flex-shrink: 0; padding: 5px; border: 1.5px solid #0A0A0A; border-radius: 10px; }
 .ec-missing { padding: 40px 24px; text-align: center; }
