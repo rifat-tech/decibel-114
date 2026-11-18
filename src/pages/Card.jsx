@@ -33,7 +33,7 @@ export default function Card() {
   useEffect(() => {
     if (!c) return;
     document.title = `${c.name} | ${c.company}`;
-    QRCode.toDataURL(url, { margin: 1, width: 360, errorCorrectionLevel: 'M', color: { dark: '#0A0A0A', light: '#FFFFFF' } }).then(setQr);
+    QRCode.toDataURL(url, { margin: 1, width: 360, errorCorrectionLevel: 'M', color: { dark: '#0E2F5A', light: '#FFFFFF' } }).then(setQr);
   }, [c, url]);
 
   if (!c) return <div className="ec-wrap"><div className="ec-card ec-missing"><h1>Card not found</h1><Link to="/">Go to decibel-114.com</Link></div></div>;
@@ -58,6 +58,7 @@ export default function Card() {
       <div className="ec-stage">
         <button type="button" className={`ec-bc${flip ? ' flip' : ''}`} onClick={() => setFlip((f) => !f)} aria-label={flip ? 'Show front of card' : 'Show back of card'}>
           <div className="ec-face ec-front">
+            <span className="ec-orb a" aria-hidden="true" /><span className="ec-orb b" aria-hidden="true" />
             <div className="ec-f-top">
               <img src="/brand/logo-dark.png" alt="Decibel-114" />
               <span>Network<br />Infrastructure</span>
@@ -90,9 +91,9 @@ export default function Card() {
         <p className="ec-hint">Tap the card to flip</p>
 
         <div className="ec-actions">
-          <a className="ec-act" href={`tel:${c.phone}`}><LuPhone /><span>Call</span></a>
-          <a className="ec-act" href={`https://wa.me/${c.whatsapp}`} target="_blank" rel="noreferrer"><LuMessageCircle /><span>WhatsApp</span></a>
-          <button className="ec-act" onClick={share}>{copied ? <LuCheck /> : <LuShare2 />}<span>{copied ? 'Copied' : 'Share'}</span></button>
+          <a className="ec-act call" href={`tel:${c.phone}`}><LuPhone /><span>Call</span></a>
+          <a className="ec-act wa" href={`https://wa.me/${c.whatsapp}`} target="_blank" rel="noreferrer"><LuMessageCircle /><span>WhatsApp</span></a>
+          <button className="ec-act sh" onClick={share}>{copied ? <LuCheck /> : <LuShare2 />}<span>{copied ? 'Copied' : 'Share'}</span></button>
         </div>
         <button className="ec-save" onClick={save}><LuUserPlus /> Save contact</button>
       </div>
