@@ -6,7 +6,7 @@ import { Field, Spinner, useTitle } from '../../components/ui';
 import { errText, getSettings, rid, saveSettings } from '../../lib/db';
 import { useStore } from '../../context/StoreContext';
 
-const TABS = [['store', 'Store details'], ['delivery', 'Delivery & payment'], ['banners', 'Home banners'], ['ai', 'AI assistant']];
+const TABS = [['store', 'Store details'], ['delivery', 'Delivery & payment'], ['invoice', 'Invoice'], ['banners', 'Home banners'], ['ai', 'AI assistant']];
 
 export default function Settings() {
   useTitle('Store settings');
@@ -86,6 +86,20 @@ export default function Settings() {
             </div>
           ))}
           <button className="btn btn-ghost" onClick={() => setS({ ...s, banners: [...s.banners, { id: rid(6), title: 'New banner', text: '', cta: 'Shop now', link: '/shop', tone: 'blue', image: '' }] })}><LuPlus /> Add banner</button>
+        </section>
+      )}
+
+      {tab === 'invoice' && (
+        <section className="panel narrow-panel">
+          <p className="muted small">These details print on every invoice. The company address, phone and email come from Store details.</p>
+          <div className="grid-2">
+            <Field label="Website shown on the invoice"><input value={s.website || ''} onChange={set('website')} /></Field>
+            <Field label="Payment due after (days)" hint="For unpaid invoices."><input inputMode="numeric" value={s.invoiceDueDays ?? 7} onChange={setNum('invoiceDueDays')} /></Field>
+            <Field label="VAT registration (BIN)" hint="Leave empty to hide."><input value={s.binNumber || ''} onChange={set('binNumber')} /></Field>
+            <Field label="Trade licence no." hint="Leave empty to hide."><input value={s.tradeLicense || ''} onChange={set('tradeLicense')} /></Field>
+          </div>
+          <Field label="Terms & conditions"><textarea rows={4} value={s.invoiceTerms || ''} onChange={set('invoiceTerms')} /></Field>
+          <Field label="Thank-you line"><input value={s.invoiceNote || ''} onChange={set('invoiceNote')} /></Field>
         </section>
       )}
 

@@ -110,6 +110,10 @@ export const DEFAULT_SETTINGS = {
   phone: '', whatsapp: '', email: '', address: '', hours: 'Sat–Thu, 10am to 8pm',
   shippingInsideDhaka: 80, shippingOutsideDhaka: 150, freeShippingOver: 10000, returnDays: 7,
   bkash: '', nagad: '', bank: '',
+  // Invoice (Admin → Store settings → Invoice)
+  website: 'decibel-114.com', binNumber: '', tradeLicense: '', invoiceDueDays: 7,
+  invoiceTerms: 'Goods once sold are covered by the official brand warranty shown on the product. Returns are accepted within 7 days in original packaging with all accessories. Please keep this invoice for warranty claims.',
+  invoiceNote: 'Thank you for choosing Decibel-114.',
   banners: [
     { id: 'b1', kicker: 'Apple iPhone', title: 'iPhone 18 Pro Max in Burgundy', text: 'A20 Pro chip and three 48MP cameras. Official warranty, delivered across Bangladesh.', cta: 'Shop iPhone 18 Pro Max', link: '/product/iphone-18-pro-max', tone: 'black', image: '/img/b/iphone-18-pro-max-burgundy.webp' },
     { id: 'b2', kicker: 'Apple MacBook', title: 'MacBook Neo from ৳97,000', text: 'The most affordable MacBook, in four colours. Built for students and everyday work.', cta: 'Shop MacBook Neo', link: '/shop?cat=laptop&sub=MacBook', tone: 'sun', image: '/img/b/macbook-neo.webp' },
@@ -263,6 +267,7 @@ export async function trackOrder(no, phone) {
 }
 export const myOrders = (uid) => C('orders').list({ where: [['uid', '==', uid]] }).then((r) => r.sort((a, b) => b.createdAt - a.createdAt));
 export const adminListOrders = () => C('orders').list({ order: ['createdAt', 'desc'], limit: 1000 });
+export const adminGetOrder = (id) => C('orders').get(id);
 export async function updateOrder(order, patch, by = 'staff') {
   const t = now();
   const p = { ...patch, updatedAt: t };

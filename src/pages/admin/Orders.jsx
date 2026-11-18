@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FaWhatsapp } from 'react-icons/fa6';
-import { LuPhone, LuPrinter, LuDownload } from 'react-icons/lu';
+import { LuPhone, LuPrinter, LuDownload, LuFilePlus } from 'react-icons/lu';
 import Drawer from './Drawer';
 import { Spinner, useTitle } from '../../components/ui';
 import { adminListOrders, errText, phoneKey, updateOrder } from '../../lib/db';
@@ -23,6 +23,7 @@ function OrderDetail({ o, onPatch }) {
       <div className="od-actions no-print">
         {next && <button className="btn btn-primary" onClick={() => onPatch({ status: next })}>Mark as {STATUS_LABEL[next].toLowerCase()}</button>}
         <select value={o.status} onChange={(e) => onPatch({ status: e.target.value })} aria-label="Order status">{ORDER_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}</select>
+        <Link className="btn btn-ghost" to={`/admin/invoice/${o.id}`}><LuPrinter /> Invoice</Link>
         <button className="btn btn-ghost" onClick={() => onPatch({ paymentStatus: o.paymentStatus === 'paid' ? 'pending' : 'paid' })}>{o.paymentStatus === 'paid' ? 'Mark unpaid' : 'Mark paid'}</button>
       </div>
       <div className="od-grid">
@@ -57,7 +58,7 @@ function OrderDetail({ o, onPatch }) {
         <h3>Internal notes</h3>
         {(o.internalNotes || []).map((n, k) => <div key={k} className="note"><p>{n.text}</p><small>{n.by}, {fmt(n.at)}</small></div>)}
         <div className="row-gap"><input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note only staff can see" onKeyDown={(e) => e.key === 'Enter' && addNote()} /><button className="btn btn-ghost" onClick={addNote}>Add note</button></div>
-        <button className="btn btn-ghost" onClick={() => window.print()}><LuPrinter /> Print invoice</button>
+        <Link className="btn btn-primary" to={`/admin/invoice/${o.id}`}><LuPrinter /> Invoice (print or PDF)</Link>
       </div>
     </div>
   );
@@ -96,7 +97,7 @@ export default function Orders() {
   if (!orders) return <Spinner />;
   return (
     <div className="admin-page">
-      <div className="page-head"><h1>Orders</h1><button className="btn btn-ghost" onClick={exportCsv}><LuDownload /> Export CSV</button></div>
+      <div className="page-head"><h1>Orders</h1><div className="row-gap"><Link className="btn btn-primary" to="/admin/invoices/new"><LuFilePlus /> New invoice</Link><button className="btn btn-ghost" onClick={exportCsv}><LuDownload /> Export CSV</button></div></div>
       <div className="seg scroll">
         <button className={!status ? 'on' : ''} onClick={() => setParam('status', '')}>All <b>{orders.length}</b></button>
         {ORDER_STATUSES.map((s) => <button key={s} className={status === s ? 'on' : ''} onClick={() => setParam('status', s)}>{STATUS_LABEL[s]} <b>{counts[s] || 0}</b></button>)}

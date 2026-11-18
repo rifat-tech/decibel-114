@@ -42,6 +42,8 @@ const Coupons = lazy(() => import('./pages/admin/Coupons'));
 const People = lazy(() => import('./pages/admin/People'));
 const Settings = lazy(() => import('./pages/admin/Settings'));
 const Content = lazy(() => import('./pages/admin/Content'));
+const InvoicePage = lazy(() => import('./pages/admin/InvoicePage'));
+const NewInvoice = lazy(() => import('./pages/admin/NewInvoice'));
 
 function RequireUser({ children }) {
   const { user, loading } = useAuth();
@@ -121,9 +123,11 @@ export default function App() {
                       <Route path="page/:slug" element={<InfoPage />} />
                       <Route path="*" element={<NotFound />} />
                     </Route>
+                    <Route path="admin/invoice/:id" element={<RequireStaff area="sales"><InvoicePage /></RequireStaff>} />
                     <Route path="admin" element={<RequireStaff><AdminLayout /></RequireStaff>}>
                       <Route index element={<Dashboard />} />
                       <Route path="orders" element={<RequireStaff area="sales"><Orders /></RequireStaff>} />
+                      <Route path="invoices/new" element={<RequireStaff area="sales"><NewInvoice /></RequireStaff>} />
                       <Route path="leads" element={<RequireStaff area="sales"><Leads /></RequireStaff>} />
                       <Route path="customers" element={<RequireStaff area="sales"><Customers /></RequireStaff>} />
                       <Route path="inbox" element={<Inbox />} />
