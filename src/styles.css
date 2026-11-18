@@ -1959,28 +1959,46 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ni-opt input[inputmode] { max-width: 220px; }
 .inv-hint { max-width: 794px; margin: -6px auto 12px; font-size: 12.5px; color: #4A5058; }
 .ix-mid { grid-template-columns: 1fr 320px !important; }
-/* e-visiting card (/card/:slug) — compact, fits one phone screen */
-.ec-wrap { min-height: 100vh; background: radial-gradient(120% 60% at 50% 0%, #DDF3FD 0%, #F4F8FB 55%, #EEF2F6 100%); display: grid; place-items: center; padding: 20px 14px; font-family: Inter, system-ui, sans-serif; box-sizing: border-box; }
-.ec-card { width: 100%; max-width: 400px; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px -24px rgba(10,20,40,.35), 0 2px 6px rgba(10,20,40,.06); }
-.ec-top { position: relative; background: #0A0A0A; padding: 16px 20px 19px; }
-.ec-top::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, #2A2A2A 0 62%, #19B5F0 62% 100%); }
-.ec-logo { height: 24px; width: auto; display: block; filter: brightness(0) invert(1); }
-.ec-body { padding: 18px 20px 20px; }
-.ec-who { display: flex; align-items: center; gap: 14px; }
-.ec-avatar { width: 58px; height: 58px; flex-shrink: 0; border-radius: 50%; background: #19B5F0; color: #0A0A0A; display: grid; place-items: center; font: 800 23px/1 'Barlow Condensed', Inter, sans-serif; letter-spacing: 1px; }
-.ec-who h1 { margin: 0; font: 800 24px/1.05 'Barlow Condensed', Inter, sans-serif; letter-spacing: .4px; color: #0A0A0A; text-transform: uppercase; }
-.ec-title { margin: 4px 0 0; font-size: 12.5px; font-weight: 600; color: #1B6E93; line-height: 1.35; }
-.ec-actions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; margin: 16px 0 8px; }
-.ec-act { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 4px; border-radius: 12px; background: #F2F6F9; color: #0A0A0A; font: 600 12.5px Inter, sans-serif; text-decoration: none; border: 0; cursor: pointer; transition: background .15s; }
+/* e-visiting card (/card/:slug): a real 3.5 x 2 in business card that flips, actions below.
+   Sizes inside the card use cqw so it scales like the printed card (336px design width = 100cqw). */
+.ec-wrap { min-height: 100vh; box-sizing: border-box; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(120% 60% at 50% 0%, #DDF3FD 0%, #F4F8FB 55%, #EEF2F6 100%); font-family: Inter, system-ui, sans-serif; }
+.ec-stage { width: min(100%, 440px); display: grid; gap: 10px; }
+.ec-bc { all: unset; display: block; cursor: pointer; position: relative; width: 100%; aspect-ratio: 7 / 4; container-type: inline-size; perspective: 1400px; -webkit-tap-highlight-color: transparent; }
+.ec-bc:focus-visible { outline: 3px solid #19B5F0; outline-offset: 4px; border-radius: 10px; }
+.ec-face { position: absolute; inset: 0; border-radius: 2.4cqw; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: transform .7s cubic-bezier(.2,.7,.2,1); box-shadow: 0 22px 44px -20px rgba(10,20,40,.45), 0 2px 6px rgba(10,20,40,.08); box-sizing: border-box; }
+.ec-back { transform: rotateY(180deg); }
+.ec-bc.flip .ec-front { transform: rotateY(-180deg); }
+.ec-bc.flip .ec-back { transform: rotateY(0deg); }
+.ec-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 1.5cqw; background: linear-gradient(90deg, #2A2A2A 0 62%, #19B5F0 62% 100%); }
+.ec-bar.top { top: 0; bottom: auto; background: linear-gradient(90deg, #0A0A0A 0 62%, #19B5F0 62% 100%); }
+/* front */
+.ec-front { background: #0A0A0A; color: #fff; padding: 6cqw 6.5cqw 6.5cqw; display: flex; flex-direction: column; justify-content: space-between; }
+.ec-f-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.ec-f-top img { height: 5.7cqw; width: auto; filter: brightness(0) invert(1); }
+.ec-f-top span { font-size: 2.25cqw; font-weight: 600; letter-spacing: .48cqw; text-transform: uppercase; color: #9BA3AD; text-align: right; line-height: 1.5; }
+.ec-f-main { display: grid; gap: 1.5cqw; }
+.ec-f-main i { width: 6.5cqw; height: .9cqw; background: #19B5F0; }
+.ec-f-main h1 { margin: 0; font: 800 7.6cqw/1 'Barlow Condensed', Inter, sans-serif; letter-spacing: .18cqw; text-transform: uppercase; color: #fff; }
+.ec-f-main p { margin: 0; max-width: 72cqw; font-size: 2.75cqw; font-weight: 600; line-height: 1.4; color: #19B5F0; }
+/* back */
+.ec-back { background: #fff; color: #0A0A0A; padding: 7cqw 6.5cqw 6cqw; display: flex; gap: 4.8cqw; }
+.ec-b-left { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.ec-b-left > img { height: 5cqw; width: auto; align-self: flex-start; }
+.ec-b-left ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2cqw; }
+.ec-b-left li { display: flex; align-items: center; gap: 2.4cqw; font-size: 2.9cqw; font-weight: 600; white-space: nowrap; }
+.ec-b-left li:first-child { font-size: 3.2cqw; font-weight: 700; }
+.ec-b-left li svg { width: 3.3cqw; height: 3.3cqw; color: #19B5F0; flex-shrink: 0; }
+.ec-b-left > span { white-space: nowrap; font-size: 2.15cqw; font-weight: 600; letter-spacing: .2cqw; text-transform: uppercase; color: #5C636B; }
+.ec-b-qr { width: 31cqw; flex-shrink: 0; border-left: 1px solid #E3E7EB; padding-left: 4.8cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.8cqw; }
+.ec-b-qr img { width: 26cqw; height: 26cqw; padding: 1.5cqw; border: .45cqw solid #0A0A0A; border-radius: 1.8cqw; box-sizing: content-box; }
+.ec-b-qr span { font-size: 2.25cqw; font-weight: 700; letter-spacing: .3cqw; text-transform: uppercase; text-align: center; line-height: 1.35; }
+.ec-hint { margin: 2px 0 6px; text-align: center; font-size: 12px; color: #6B7280; }
+/* actions */
+.ec-actions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+.ec-act { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 4px; border-radius: 12px; background: #fff; color: #0A0A0A; font: 600 13px Inter, sans-serif; text-decoration: none; border: 1px solid #E3E7EB; cursor: pointer; }
 .ec-act svg { width: 17px; height: 17px; color: #19B5F0; flex-shrink: 0; }
 .ec-act:hover { background: #E3F4FC; }
-.ec-save { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; border: 0; border-radius: 12px; background: #0A0A0A; color: #fff; font: 700 14.5px Inter, sans-serif; cursor: pointer; }
+.ec-save { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border: 0; border-radius: 12px; background: #0A0A0A; color: #fff; font: 700 15px Inter, sans-serif; cursor: pointer; }
 .ec-save svg { color: #19B5F0; width: 18px; height: 18px; }
 .ec-save:hover { background: #1c1c1c; }
-.ec-row { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #EEF1F4; }
-.ec-list { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 0; display: grid; gap: 10px; }
-.ec-list li { display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
-.ec-list svg { color: #19B5F0; width: 16px; height: 16px; flex-shrink: 0; }
-.ec-list a { color: #0A0A0A; text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ec-qr { width: 84px; height: 84px; flex-shrink: 0; padding: 5px; border: 1.5px solid #0A0A0A; border-radius: 10px; }
-.ec-missing { padding: 40px 24px; text-align: center; }
+.ec-missing { padding: 40px 24px; text-align: center; background: #fff; border-radius: 16px; }

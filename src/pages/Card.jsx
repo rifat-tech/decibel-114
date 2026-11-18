@@ -28,6 +28,7 @@ export default function Card() {
   const url = `${SITE}/card/${slug}`;
   const [qr, setQr] = useState('');
   const [copied, setCopied] = useState(false);
+  const [flip, setFlip] = useState(false);
 
   useEffect(() => {
     if (!c) return;
@@ -54,38 +55,47 @@ export default function Card() {
 
   return (
     <div className="ec-wrap">
-      <article className="ec-card">
-        <header className="ec-top">
-          <img className="ec-logo" src="/brand/logo-dark.png" alt="Decibel-114" />
-        </header>
-        <div className="ec-body">
-          <div className="ec-who">
-            <div className="ec-avatar" aria-hidden="true">{initials(c.name)}</div>
-            <div>
+      <div className="ec-stage">
+        <button type="button" className={`ec-bc${flip ? ' flip' : ''}`} onClick={() => setFlip((f) => !f)} aria-label={flip ? 'Show front of card' : 'Show back of card'}>
+          <div className="ec-face ec-front">
+            <div className="ec-f-top">
+              <img src="/brand/logo-dark.png" alt="Decibel-114" />
+              <span>Network<br />Infrastructure</span>
+            </div>
+            <div className="ec-f-main">
+              <i />
               <h1>{c.name}</h1>
-              <p className="ec-title">{c.title}</p>
+              <p>{c.title}</p>
+            </div>
+            <b className="ec-bar" />
+          </div>
+          <div className="ec-face ec-back">
+            <b className="ec-bar top" />
+            <div className="ec-b-left">
+              <img src="/brand/logo-dark.png" alt="" />
+              <ul>
+                <li><LuPhone />{pretty(c.phone)}</li>
+                <li><LuMessageCircle />WhatsApp: same number</li>
+                {c.email && <li><LuMail />{c.email}</li>}
+                <li><LuGlobe />{c.website.replace(/^https?:\/\//, '')}</li>
+              </ul>
+              <span>Networking · IT solutions · Gadgets</span>
+            </div>
+            <div className="ec-b-qr">
+              {qr && <img src={qr} alt={`QR code for ${url}`} />}
+              <span>Scan to save<br />my contact</span>
             </div>
           </div>
+        </button>
+        <p className="ec-hint">Tap the card to flip</p>
 
-          <div className="ec-actions">
-            <a className="ec-act" href={`tel:${c.phone}`}><LuPhone /><span>Call</span></a>
-            <a className="ec-act" href={`https://wa.me/${c.whatsapp}`} target="_blank" rel="noreferrer"><LuMessageCircle /><span>WhatsApp</span></a>
-            {c.email && <a className="ec-act" href={`mailto:${c.email}`}><LuMail /><span>Email</span></a>}
-            <button className="ec-act" onClick={share}>{copied ? <LuCheck /> : <LuShare2 />}<span>{copied ? 'Copied' : 'Share'}</span></button>
-          </div>
-
-          <button className="ec-save" onClick={save}><LuUserPlus /> Save contact</button>
-
-          <div className="ec-row">
-            <ul className="ec-list">
-              <li><LuPhone /><a href={`tel:${c.phone}`}>{pretty(c.phone)}</a></li>
-              {c.email && <li><LuMail /><a href={`mailto:${c.email}`}>{c.email}</a></li>}
-              <li><LuGlobe /><a href={c.website}>{c.website.replace(/^https?:\/\//, '')}</a></li>
-            </ul>
-            {qr && <img className="ec-qr" src={qr} alt={`QR code for ${url}`} />}
-          </div>
+        <div className="ec-actions">
+          <a className="ec-act" href={`tel:${c.phone}`}><LuPhone /><span>Call</span></a>
+          <a className="ec-act" href={`https://wa.me/${c.whatsapp}`} target="_blank" rel="noreferrer"><LuMessageCircle /><span>WhatsApp</span></a>
+          <button className="ec-act" onClick={share}>{copied ? <LuCheck /> : <LuShare2 />}<span>{copied ? 'Copied' : 'Share'}</span></button>
         </div>
-      </article>
+        <button className="ec-save" onClick={save}><LuUserPlus /> Save contact</button>
+      </div>
     </div>
   );
 }
