@@ -1976,7 +1976,7 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .ec-hero-top span { font-size: 2.7cqw; font-weight: 700; letter-spacing: .5cqw; text-transform: uppercase; color: #0B2546; background: #FFC93C; padding: 1.2cqw 2.6cqw; border-radius: 99px; }
 .ec-hero-main { margin-top: 10cqw; display: grid; gap: 1.8cqw; }
 .ec-hero-main i { width: 9cqw; height: 1.1cqw; background: #FFC93C; border-radius: 1cqw; }
-.ec-hero-main h1 { margin: 0; font: 800 10.2cqw/1 'Barlow Condensed', Inter, sans-serif; letter-spacing: .3cqw; text-transform: uppercase; color: #fff; }
+.ec-hero-main h1 { margin: 0; white-space: nowrap; font: 800 7.4cqw/1.05 'Barlow Condensed', Inter, sans-serif; letter-spacing: .3cqw; text-transform: uppercase; color: #fff; }
 .ec-role { margin: .6cqw 0 0; font-size: 4.3cqw; font-weight: 700; color: #7FD6F7; line-height: 1.25; }
 .ec-focus { margin: 0; font-size: 3cqw; font-weight: 500; color: #C9E6F5; letter-spacing: .1cqw; white-space: pre-wrap; }
 /* scan block: overlaps the hero */
