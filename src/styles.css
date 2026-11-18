@@ -1671,3 +1671,13 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 @keyframes seg-ring { 0% { box-shadow: 0 0 0 0 rgba(0, 113, 227, .45); } 100% { box-shadow: 0 0 0 7px rgba(0, 113, 227, 0); } }
 .menu-cat.seg-blink-item .mc-ico { animation: seg-ring 1.6s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .catbar-seg a, .catbar-seg a::after, .menu-cat.seg-blink-item .mc-ico { animation: none; } }
+
+/* IT Solutions and Agriculture: same look as the language button (solid blue pill, white text, blink + ring) */
+.catbar-seg { gap: 8px; }
+.catbar-seg a { display: inline-flex; align-items: center; height: 30px; padding: 0 13px; border-radius: 980px; background: var(--ap-blue) !important; color: #fff !important; font: 600 12.5px/1 var(--font); letter-spacing: .01em; animation: lang-blink 1.6s ease-in-out infinite; }
+.catbar-seg a::after { animation: lang-ring 1.6s ease-out infinite; }
+.catbar-seg a + a, .catbar-seg a + a::after { animation-delay: .8s; }
+.catbar-seg a:hover, .catbar-seg a:hover::after { animation: none; opacity: 1; }
+.catbar-seg a[aria-current="page"] { background: #0058B0 !important; animation: none; opacity: 1; }
+.catbar-seg a[aria-current="page"]::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .catbar-seg a, .catbar-seg a::after { animation: none; } }
