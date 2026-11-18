@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { LuPlus, LuTrash2, LuArrowUp } from 'react-icons/lu';
 import { ImageField } from './AdminFields';
+import SignaturePad from './SignaturePad';
 import { Field, Spinner, useTitle } from '../../components/ui';
 import { errText, getSettings, rid, saveSettings } from '../../lib/db';
 import { useStore } from '../../context/StoreContext';
@@ -105,8 +106,13 @@ export default function Settings() {
           <Field label="Place on the seal ring" hint="Printed around the seal after the company name."><input value={s.sealPlace ?? 'Dhaka • Bangladesh'} onChange={set('sealPlace')} /></Field>
           <ImageField label="Your own seal (optional)" kind="product" value={s.invoiceSealImage || ''} onChange={(v) => setS({ ...s, invoiceSealImage: v })}
             hint="Scan or photograph your real stamp on white paper. Leave empty to use the built-in seal." />
-          <ImageField label="Signature (optional)" kind="photo" value={s.invoiceSignature || ''} onChange={(v) => setS({ ...s, invoiceSignature: v })}
-            hint="Sign on white paper and photograph it. A PNG with a transparent background looks best." />
+          <span className="field-label">Signature</span>
+          {s.invoiceSignature
+            ? <div className="sig-current"><img src={s.invoiceSignature} alt="Saved signature" /><button type="button" className="btn btn-ghost btn-sm" onClick={() => setS({ ...s, invoiceSignature: '' })}>Remove and draw again</button></div>
+            : <SignaturePad onSave={(v) => setS({ ...s, invoiceSignature: v })} />}
+          <ImageField label="…or upload a photo of your signature" kind="photo" value={s.invoiceSignature?.startsWith('data:image/png') ? '' : (s.invoiceSignature || '')} onChange={(v) => setS({ ...s, invoiceSignature: v })}
+            hint="Sign on white paper and photograph it in good light." />
+          <p className="muted small">Press “Save changes” at the top after adding the signature.</p>
           <div className="grid-2">
             <Field label="Signatory name" hint="Printed under the signature line."><input value={s.signatoryName || ''} onChange={set('signatoryName')} /></Field>
             <Field label="Signatory title"><input value={s.signatoryTitle || ''} onChange={set('signatoryTitle')} placeholder="e.g. Managing Director" /></Field>
