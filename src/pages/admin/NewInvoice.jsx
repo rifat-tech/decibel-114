@@ -43,7 +43,7 @@ export default function NewInvoice() {
   const [ship, setShip] = useState({ same: true, company: '', name: '', phone: '', line: '', city: '' });
   const [items, setItems] = useState([blankItem()]);
   const [money, setMoney] = useState({ vatRate: '', shipping: '', discount: '' });
-  const [pay, setPay] = useState({ method: 'bank', ref: '', advancePct: '', advanceNote: 'With the confirmed work order / PO', balanceNote: '' });
+  const [pay, setPay] = useState({ method: 'bank', ref: '' });
   const [terms, setTerms] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -90,7 +90,7 @@ export default function NewInvoice() {
     address: { line: c.line.trim(), city: c.city.trim(), zone: /dhaka/i.test(c.city) ? 'dhaka' : 'outside' },
     shipTo: ship.same ? { same: true } : { same: false, company: ship.company.trim(), name: ship.name.trim(), phone: ship.phone.trim(), line: ship.line.trim(), city: ship.city.trim() },
     items: rows, subtotal, vat, vatRate, shipping, discount, total,
-    paymentMethod: pay.method, paymentRef: pay.ref.trim(), advancePct: num(pay.advancePct), advanceNote: pay.advanceNote.trim(), balanceNote: pay.balanceNote.trim(),
+    paymentMethod: pay.method, paymentRef: pay.ref.trim(),
     terms: terms.split('\n').map((x) => x.trim()).filter(Boolean),
   };
 
@@ -195,16 +195,13 @@ export default function NewInvoice() {
         </section>
 
         <section className="panel">
-          <h2>Payment terms</h2>
+          <h2>Payment</h2>
           <div className="grid-2">
             <Field label="Payment method"><select value={pay.method} onChange={setF(setPay, pay, 'method')}>
               <option value="bank">Bank transfer</option><option value="cheque">Cheque</option><option value="cash">Cash</option><option value="bkash">bKash</option><option value="nagad">Nagad</option><option value="card">Card</option><option value="cod">Cash on delivery</option>
             </select></Field>
             <Field label="Transaction ID / cheque no." hint="Optional"><input value={pay.ref} onChange={setF(setPay, pay, 'ref')} /></Field>
-            <Field label="Advance (%)" hint="e.g. 50 shows 50% advance and 50% balance. Empty = one payment."><input inputMode="numeric" value={pay.advancePct} onChange={setF(setPay, pay, 'advancePct')} /></Field>
-            <Field label="Advance condition"><input value={pay.advanceNote} onChange={setF(setPay, pay, 'advanceNote')} /></Field>
           </div>
-          <Field label="Balance condition" hint={`Empty = “Within ${settings?.invoiceDueDays ?? 7} days of delivery”.`}><input value={pay.balanceNote} onChange={setF(setPay, pay, 'balanceNote')} /></Field>
         </section>
 
         <section className="panel">

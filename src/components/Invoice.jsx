@@ -53,7 +53,6 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
   const bill = { ...o.customer, line: o.address?.line, city: o.address?.city };
   const ship = o.shipTo && !o.shipTo.same ? o.shipTo : null;
   const terms = Array.isArray(o.terms) ? o.terms.filter(Boolean) : String(s.invoiceTerms || '').split('\n').map((x) => x.trim()).filter(Boolean);
-  const adv = Number(o.advancePct) || 0;
 
   return (
     <article className="iv" aria-label={`Invoice ${no}`}>
@@ -124,13 +123,7 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
 
       <section className="iv-terms2">
         <div className="iv-box">
-          <h4>Payment terms</h4>
-          {adv > 0 && adv < 100 && (
-            <div className="iv-split">
-              <div><strong>{adv}%</strong><small>Advance</small><p>{o.advanceNote || 'With the confirmed work order / PO'}</p></div>
-              <div><strong>{100 - adv}%</strong><small>Balance</small><p>{o.balanceNote || `Within ${s.invoiceDueDays ?? 7} days of delivery`}</p></div>
-            </div>
-          )}
+          <h4>Payment</h4>
           <div className="iv-payrow">
             <div>
               {method && <p><b>{method}</b>{o.paymentRef && <> · Ref {o.paymentRef}</>}</p>}
