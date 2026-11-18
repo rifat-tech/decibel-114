@@ -114,6 +114,7 @@ export const DEFAULT_SETTINGS = {
   website: 'decibel-114.com', binNumber: '', tradeLicense: '', invoiceDueDays: 7,
   invoiceTerms: 'Goods once sold are covered by the official brand warranty shown on the product. Returns are accepted within 7 days in original packaging with all accessories. Please keep this invoice for warranty claims.',
   invoiceNote: 'Thank you for choosing Decibel-114.',
+  invoiceSeal: true, invoiceSealImage: '', invoiceSignature: '', signatoryName: '', signatoryTitle: '', sealPlace: 'Dhaka • Bangladesh',
   banners: [
     { id: 'b1', kicker: 'Apple iPhone', title: 'iPhone 18 Pro Max in Burgundy', text: 'A20 Pro chip and three 48MP cameras. Official warranty, delivered across Bangladesh.', cta: 'Shop iPhone 18 Pro Max', link: '/product/iphone-18-pro-max', tone: 'black', image: '/img/b/iphone-18-pro-max-burgundy.webp' },
     { id: 'b2', kicker: 'Apple MacBook', title: 'MacBook Neo from ৳97,000', text: 'The most affordable MacBook, in four colours. Built for students and everyday work.', cta: 'Shop MacBook Neo', link: '/shop?cat=laptop&sub=MacBook', tone: 'sun', image: '/img/b/macbook-neo.webp' },

@@ -1789,3 +1789,11 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .iv-sum .iv-paidrow dd { color: var(--iv-soft); }
 .iv-foot { background: #fff; color: var(--iv-soft); border-top: 1px solid var(--iv-line); padding: 14px 48px 22px; }
 .iv-thanks { color: var(--iv-ink); }
+
+/* invoice seal and signature */
+.iv-sign { position: relative; }
+.iv-sign b { color: var(--iv-ink); letter-spacing: .04em; }
+.iv-sign-art { position: relative; width: 100%; height: 0; }
+.iv-seal { position: absolute; right: 18px; bottom: -34px; width: 118px; height: 118px; color: #1D4FA8; opacity: .82; transform: rotate(-12deg); mix-blend-mode: multiply; }
+.iv-seal-img { object-fit: contain; color: initial; }
+.iv-signature { position: absolute; left: 4px; bottom: -14px; max-width: 150px; max-height: 56px; object-fit: contain; mix-blend-mode: multiply; }

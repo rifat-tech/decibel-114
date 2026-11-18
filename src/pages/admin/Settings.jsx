@@ -100,6 +100,17 @@ export default function Settings() {
           </div>
           <Field label="Terms & conditions"><textarea rows={4} value={s.invoiceTerms || ''} onChange={set('invoiceTerms')} /></Field>
           <Field label="Thank-you line"><input value={s.invoiceNote || ''} onChange={set('invoiceNote')} /></Field>
+          <h2>Seal and signature</h2>
+          <label className="check big"><input type="checkbox" checked={s.invoiceSeal !== false} onChange={(e) => setS({ ...s, invoiceSeal: e.target.checked })} /> Print the company seal on invoices</label>
+          <Field label="Place on the seal ring" hint="Printed around the seal after the company name."><input value={s.sealPlace ?? 'Dhaka • Bangladesh'} onChange={set('sealPlace')} /></Field>
+          <ImageField label="Your own seal (optional)" kind="product" value={s.invoiceSealImage || ''} onChange={(v) => setS({ ...s, invoiceSealImage: v })}
+            hint="Scan or photograph your real stamp on white paper. Leave empty to use the built-in seal." />
+          <ImageField label="Signature (optional)" kind="photo" value={s.invoiceSignature || ''} onChange={(v) => setS({ ...s, invoiceSignature: v })}
+            hint="Sign on white paper and photograph it. A PNG with a transparent background looks best." />
+          <div className="grid-2">
+            <Field label="Signatory name" hint="Printed under the signature line."><input value={s.signatoryName || ''} onChange={set('signatoryName')} /></Field>
+            <Field label="Signatory title"><input value={s.signatoryTitle || ''} onChange={set('signatoryTitle')} placeholder="e.g. Managing Director" /></Field>
+          </div>
         </section>
       )}
 

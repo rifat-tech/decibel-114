@@ -4,6 +4,7 @@
 // Admin → Store settings (Store details and Invoice tabs).
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import Seal from './Seal';
 
 // Amounts print as figures in Indian grouping; headers and totals carry the currency.
 const amt = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 });
@@ -110,7 +111,16 @@ export default function Invoice({ order: o, settings: s, base = '' }) {
 
       <section className="iv-notes">
         {s.invoiceTerms && <div><h4>Terms &amp; conditions</h4><p>{s.invoiceTerms}</p></div>}
-        <div className="iv-sign"><span className="iv-sign-line" /><span>Authorised signature</span></div>
+        <div className="iv-sign">
+          <div className="iv-sign-art">
+            {s.invoiceSeal !== false && (s.invoiceSealImage
+              ? <img className="iv-seal iv-seal-img" src={s.invoiceSealImage} alt="Company seal" />
+              : <Seal name={s.storeName || 'Decibel-114'} place={s.sealPlace || 'Dhaka • Bangladesh'} base={base} />)}
+            {s.invoiceSignature && <img className="iv-signature" src={s.invoiceSignature} alt="Signature" />}
+          </div>
+          <span className="iv-sign-line" />
+          <span>{s.signatoryName ? <><b>{s.signatoryName}</b>{s.signatoryTitle ? `, ${s.signatoryTitle}` : ''}</> : 'Authorised signature'}</span>
+        </div>
       </section>
 
       <footer className="iv-foot">
