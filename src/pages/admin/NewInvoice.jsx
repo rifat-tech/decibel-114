@@ -25,7 +25,7 @@ const move = (a, i, d) => { const b = [...a]; const j = i + d; if (j < 0 || j >=
 const lines = (t) => t.split('\n').map((x) => x.trim()).filter(Boolean);
 
 /** Scales the A4 invoice to fit the preview column. */
-function Preview({ children }) {
+export function Preview({ children }) {
   const box = useRef(); const inner = useRef();
   const [scale, setScale] = useState(0.7); const [h, setH] = useState(800);
   useEffect(() => {

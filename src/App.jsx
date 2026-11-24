@@ -47,6 +47,9 @@ const AdminCards = lazy(() => import('./pages/admin/Cards'));
 const InvoicePage = lazy(() => import('./pages/admin/InvoicePage'));
 const NewInvoice = lazy(() => import('./pages/admin/NewInvoice'));
 const Invoices = lazy(() => import('./pages/admin/Invoices'));
+const Quotations = lazy(() => import('./pages/admin/Quotations'));
+const NewQuotation = lazy(() => import('./pages/admin/NewQuotation'));
+const QuotationPage = lazy(() => import('./pages/admin/QuotationPage'));
 
 function RequireUser({ children }) {
   const { user, loading } = useAuth();
@@ -128,12 +131,16 @@ export default function App() {
                     </Route>
                     <Route path="card/:slug" element={<Card />} />
                     <Route path="admin/invoice/:id" element={<RequireStaff area="sales"><InvoicePage /></RequireStaff>} />
+                    <Route path="admin/quotation/:id" element={<RequireStaff area="sales"><QuotationPage /></RequireStaff>} />
                     <Route path="admin" element={<RequireStaff><AdminLayout /></RequireStaff>}>
                       <Route index element={<Dashboard />} />
                       <Route path="orders" element={<RequireStaff area="sales"><Orders /></RequireStaff>} />
                       <Route path="invoices" element={<RequireStaff area="sales"><Invoices /></RequireStaff>} />
                       <Route path="invoices/new" element={<RequireStaff area="sales"><NewInvoice /></RequireStaff>} />
                       <Route path="invoices/:id/edit" element={<RequireStaff area="sales"><NewInvoice /></RequireStaff>} />
+                      <Route path="quotations" element={<RequireStaff area="sales"><Quotations /></RequireStaff>} />
+                      <Route path="quotations/new" element={<RequireStaff area="sales"><NewQuotation /></RequireStaff>} />
+                      <Route path="quotations/:id/edit" element={<RequireStaff area="sales"><NewQuotation /></RequireStaff>} />
                       <Route path="leads" element={<RequireStaff area="sales"><Leads /></RequireStaff>} />
                       <Route path="customers" element={<RequireStaff area="sales"><Customers /></RequireStaff>} />
                       <Route path="inbox" element={<Inbox />} />

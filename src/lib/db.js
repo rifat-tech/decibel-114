@@ -115,6 +115,13 @@ export const DEFAULT_SETTINGS = {
   invoiceTerms: 'Goods once sold are covered by the official brand warranty shown on the product. Returns are accepted within 7 days in original packaging with all accessories. Please keep this invoice for warranty claims.',
   invoiceNote: 'Thank you for choosing Decibel-114.',
   invoiceSeal: true, invoiceSealImage: '', invoiceSignature: '', signatoryName: '', signatoryTitle: '', sealPlace: 'Dhaka • Bangladesh',
+  // Pad (letterhead) and quotations (Admin → Store settings → Pad & quotation)
+  padLabel: 'Corporate Address', padAddress: '772, Green View Housing, Bosila Main Road\nMohammedpur, Dhaka-1207, Bangladesh',
+  padPhone: '+880 1944-422257', padEmail: '', padFooter: 'Apple · Gadgets · Network & IT solutions · CCTV & security',
+  quoteSignName: 'MD Ismail Hossain', quoteSignTitle: 'Head of Infrastructure & Security', quoteSignPhone: '+880 1944-422257', quoteSignEmail: 'ismailhossenjony@gmail.com', quoteSignature: '',
+  quoteIntro: 'Thank you for your interest in Decibel-114. We are pleased to submit our best offer for the following items and services:',
+  quoteClosing: 'We hope our offer meets your requirements. Please feel free to contact us for any clarification. We look forward to working with you.',
+  quoteTerms: 'This offer is valid for 15 days from the date above.\nPrices are in BDT, excluding VAT & AIT unless shown above.\nDelivery within 7–10 working days after the work order.\nPayment by bank transfer, cheque or pay order in favour of “Decibel-114”.\nWarranty as per the manufacturer’s policy.',
   banners: [
     { id: 'b1', kicker: 'Apple iPhone', title: 'iPhone 18 Pro Max in Burgundy', text: 'A20 Pro chip and three 48MP cameras. Official warranty, delivered across Bangladesh.', cta: 'Shop iPhone 18 Pro Max', link: '/product/iphone-18-pro-max', tone: 'black', image: '/img/b/iphone-18-pro-max-burgundy.webp' },
     { id: 'b2', kicker: 'Apple MacBook', title: 'MacBook Neo from ৳97,000', text: 'The most affordable MacBook, in four colours. Built for students and everyday work.', cta: 'Shop MacBook Neo', link: '/shop?cat=laptop&sub=MacBook', tone: 'sun', image: '/img/b/macbook-neo.webp' },
@@ -280,7 +287,11 @@ export async function trackOrder(no, phone) {
   return { orderNumber: n, ...t };
 }
 export const myOrders = (uid) => C('orders').list({ where: [['uid', '==', uid]] }).then((r) => r.sort((a, b) => b.createdAt - a.createdAt));
-export const adminListOrders = () => C('orders').list({ order: ['createdAt', 'desc'], limit: 1000 });
+// Quotations live in the orders collection too (source: 'quotation', no extra database rules),
+// but they are offers, not sales: keep them out of Orders, the dashboard and customer totals.
+const allOrders = () => C('orders').list({ order: ['createdAt', 'desc'], limit: 1000 });
+export const adminListOrders = () => allOrders().then((l) => l.filter((o) => o.source !== 'quotation'));
+export const adminListQuotations = () => allOrders().then((l) => l.filter((o) => o.source === 'quotation'));
 export const adminGetOrder = (id) => C('orders').get(id);
 export const adminDeleteOrder = (id) => C('orders').remove(id);
 export async function updateOrder(order, patch, by = 'staff') {

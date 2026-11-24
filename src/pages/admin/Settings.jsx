@@ -8,7 +8,7 @@ import { Field, Spinner, useTitle } from '../../components/ui';
 import { errText, getSettings, rid, saveSettings } from '../../lib/db';
 import { useStore } from '../../context/StoreContext';
 
-const TABS = [['store', 'Store details'], ['delivery', 'Delivery & payment'], ['invoice', 'Invoice'], ['banners', 'Home banners'], ['ai', 'AI assistant']];
+const TABS = [['store', 'Store details'], ['delivery', 'Delivery & payment'], ['invoice', 'Invoice'], ['pad', 'Pad & quotation'], ['banners', 'Home banners'], ['ai', 'AI assistant']];
 
 export default function Settings() {
   useTitle('Store settings');
@@ -88,6 +88,46 @@ export default function Settings() {
             </div>
           ))}
           <button className="btn btn-ghost" onClick={() => setS({ ...s, banners: [...s.banners, { id: rid(6), title: 'New banner', text: '', cta: 'Shop now', link: '/shop', tone: 'blue', image: '' }] })}><LuPlus /> Add banner</button>
+        </section>
+      )}
+
+      {tab === 'pad' && (
+        <section className="panel narrow-panel">
+          <div className="howto">
+            <b>The pad</b>
+            <ol>
+              <li><b>Address, phone and footer:</b> printed at the top and bottom of every pad page.</li>
+              <li><b>Signatory:</b> the person who signs quotations. You can change it on any single quotation too.</li>
+              <li><b>Customer, subject and prices:</b> on each quotation. Open <Link to="/admin/quotations/new">New quotation</Link> (left menu → Quotations).</li>
+            </ol>
+            <div className="row-gap"><Link className="btn btn-primary btn-sm" to="/admin/quotations/new">Create a quotation</Link><Link className="btn btn-ghost btn-sm" to="/admin/quotation/blank">See the blank pad</Link></div>
+          </div>
+          <h2>Top of the pad</h2>
+          <Field label="Heading over the address"><input value={s.padLabel ?? ''} onChange={set('padLabel')} placeholder="Corporate Address" /></Field>
+          <Field label="Address" hint="Two lines read best."><textarea rows={2} value={s.padAddress || ''} onChange={set('padAddress')} /></Field>
+          <div className="grid-2">
+            <Field label="Phone on the pad"><input value={s.padPhone || ''} onChange={set('padPhone')} /></Field>
+            <Field label="Company email (optional)"><input value={s.padEmail || ''} onChange={set('padEmail')} /></Field>
+          </div>
+          <Field label="Footer line" hint="What you do, in one short line."><input value={s.padFooter || ''} onChange={set('padFooter')} /></Field>
+          <h2>Signatory</h2>
+          <div className="grid-2">
+            <Field label="Name"><input value={s.quoteSignName || ''} onChange={set('quoteSignName')} /></Field>
+            <Field label="Designation"><input value={s.quoteSignTitle || ''} onChange={set('quoteSignTitle')} /></Field>
+            <Field label="Phone"><input value={s.quoteSignPhone || ''} onChange={set('quoteSignPhone')} /></Field>
+            <Field label="Email"><input value={s.quoteSignEmail || ''} onChange={set('quoteSignEmail')} /></Field>
+          </div>
+          <span className="field-label">Signature of {s.quoteSignName || 'the signatory'}</span>
+          {s.quoteSignature
+            ? <div className="sig-current"><img src={s.quoteSignature} alt="Saved signature" /><button type="button" className="btn btn-ghost btn-sm" onClick={() => setS({ ...s, quoteSignature: '' })}>Remove and draw again</button></div>
+            : <SignaturePad onSave={(v) => setS({ ...s, quoteSignature: v })} />}
+          <ImageField label="…or upload a photo of the signature" kind="photo" value={s.quoteSignature?.startsWith('data:image/png') ? '' : (s.quoteSignature || '')} onChange={(v) => setS({ ...s, quoteSignature: v })}
+            hint="Sign on white paper and photograph it in good light. The seal comes from the Invoice tab." />
+          <h2>Default wording for new quotations</h2>
+          <Field label="Opening text"><textarea rows={3} value={s.quoteIntro || ''} onChange={set('quoteIntro')} /></Field>
+          <Field label="Terms & conditions" hint="One point per line."><textarea rows={5} value={s.quoteTerms || ''} onChange={set('quoteTerms')} /></Field>
+          <Field label="Closing text"><textarea rows={3} value={s.quoteClosing || ''} onChange={set('quoteClosing')} /></Field>
+          <p className="muted small">Press “Save changes” at the top when you are done.</p>
         </section>
       )}
 
