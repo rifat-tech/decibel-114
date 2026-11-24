@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { LuArrowLeft, LuCopy, LuDownload, LuPencil, LuPrinter } from 'react-icons/lu';
+import { LuArrowLeft, LuCopy, LuDownload, LuPencil, LuPrinter, LuTruck } from 'react-icons/lu';
 import Quotation from '../../components/Quotation';
 import Pad from '../../components/Pad';
 import { Spinner } from '../../components/ui';
@@ -41,6 +41,7 @@ export default function QuotationPage() {
         <div className="row-gap">
           {!blank && <Link className="btn btn-ghost" to={`/admin/quotations/${id}/edit`}><LuPencil /> Edit</Link>}
           {!blank && <Link className="btn btn-ghost" to={`/admin/quotations/new?from=${id}`}><LuCopy /> Duplicate</Link>}
+          {!blank && q.priceTable !== false && <Link className="btn btn-ghost" to={`/admin/challan/${id}`}><LuTruck /> Delivery challan</Link>}
           <button className="btn btn-ghost" onClick={print}><LuPrinter /> Print</button>
           <button className="btn btn-primary" onClick={pdf} disabled={busy}><LuDownload /> {busy ? 'Making PDF…' : 'Download PDF'}</button>
         </div>

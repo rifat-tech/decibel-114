@@ -1,7 +1,7 @@
 // Admin → invoice: the invoice on its own A4 page, with Print, Download PDF, Edit and Duplicate.
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { LuArrowLeft, LuCopy, LuDownload, LuPencil, LuPrinter } from 'react-icons/lu';
+import { LuArrowLeft, LuCopy, LuDownload, LuPencil, LuPrinter, LuTruck } from 'react-icons/lu';
 import Invoice from '../../components/Invoice';
 import { Spinner } from '../../components/ui';
 import { adminGetOrder, getSettings } from '../../lib/db';
@@ -38,6 +38,7 @@ export default function InvoicePage() {
         <div className="row-gap">
           {manual && <Link className="btn btn-ghost" to={`/admin/invoices/${id}/edit`}><LuPencil /> Edit</Link>}
           <Link className="btn btn-ghost" to={`/admin/invoices/new?from=${id}`}><LuCopy /> Duplicate</Link>
+          <Link className="btn btn-ghost" to={`/admin/challan/${id}`}><LuTruck /> Delivery challan</Link>
           <button className="btn btn-ghost" onClick={print}><LuPrinter /> Print</button>
           <button className="btn btn-primary" onClick={pdf} disabled={busy}><LuDownload /> {busy ? 'Making PDF…' : 'Download PDF'}</button>
         </div>

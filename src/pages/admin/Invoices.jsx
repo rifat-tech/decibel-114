@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { LuCopy, LuDownload, LuEye, LuFilePlus, LuPencil, LuTrash2 } from 'react-icons/lu';
+import { LuCopy, LuDownload, LuEye, LuFilePlus, LuPencil, LuTrash2, LuTruck } from 'react-icons/lu';
 import { Spinner, useTitle } from '../../components/ui';
 import { adminDeleteOrder, adminListOrders, errText } from '../../lib/db';
 import { useAuth } from '../../context/AuthContext';
@@ -64,6 +64,7 @@ export default function Invoices() {
                     <button className="icon-btn" title="Edit" aria-label="Edit" onClick={() => nav(`/admin/invoices/${o.id}/edit`)}><LuPencil /></button>
                     <button className="icon-btn" title="Duplicate" aria-label="Duplicate" onClick={() => nav(`/admin/invoices/new?from=${o.id}`)}><LuCopy /></button>
                     <button className="icon-btn" title="Download PDF" aria-label="Download PDF" onClick={() => nav(`/admin/invoice/${o.id}?pdf=1`)}><LuDownload /></button>
+                    <button className="icon-btn" title="Delivery challan" aria-label="Delivery challan" onClick={() => nav(`/admin/challan/${o.id}`)}><LuTruck /></button>
                     {isAdmin && <button className="icon-btn danger" title="Delete" aria-label="Delete" onClick={() => remove(o)}><LuTrash2 /></button>}
                   </td>
                 </tr>

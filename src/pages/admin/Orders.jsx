@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FaWhatsapp } from 'react-icons/fa6';
-import { LuPhone, LuPrinter, LuDownload, LuFilePlus } from 'react-icons/lu';
+import { LuPhone, LuPrinter, LuDownload, LuFilePlus, LuTruck } from 'react-icons/lu';
 import Drawer from './Drawer';
 import { Spinner, useTitle } from '../../components/ui';
 import { adminListOrders, errText, phoneKey, updateOrder } from '../../lib/db';
@@ -24,6 +24,7 @@ function OrderDetail({ o, onPatch }) {
         {next && <button className="btn btn-primary" onClick={() => onPatch({ status: next })}>Mark as {STATUS_LABEL[next].toLowerCase()}</button>}
         <select value={o.status} onChange={(e) => onPatch({ status: e.target.value })} aria-label="Order status">{ORDER_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}</select>
         <Link className="btn btn-ghost" to={`/admin/invoice/${o.id}`}><LuPrinter /> Invoice</Link>
+        <Link className="btn btn-ghost" to={`/admin/challan/${o.id}`}><LuTruck /> Challan</Link>
         <button className="btn btn-ghost" onClick={() => onPatch(o.paymentStatus === 'paid' ? { paymentStatus: 'pending', paidAt: null } : { paymentStatus: 'paid', paidAt: Date.now() })}>{o.paymentStatus === 'paid' ? 'Mark unpaid' : 'Mark paid'}</button>
       </div>
       <div className="od-grid">

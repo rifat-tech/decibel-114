@@ -2083,3 +2083,29 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .qt-sign-art { min-height: 70px; }
 .pd .iv-seal, .pd .ix-seal { width: 76px; height: 76px; }
 .qt-sign-space { height: 52px; }
+/* Delivery challan (components/Challan.jsx) */
+.dcn-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 4px; }
+.dcn-from { justify-items: start; }
+.dcn-table .dcn-rm { width: 170px; text-align: left; color: var(--ix-soft); }
+.dcn-table td.dcn-rm { border-left: 1px dashed var(--ix-line); }
+.dcn-table tfoot td { padding: 9px 10px; border-top: 2px solid var(--ix-ink); font-size: 12px; color: var(--ix-ink); }
+.dcn-table { border-bottom: 0; }
+.dcn-ack { margin: 14px 0 0; padding: 9px 12px; background: #F1FAFE; border-left: 4px solid var(--ix-acc); font-size: 12px; font-weight: 600; color: var(--ix-ink); }
+.dcn-signs { margin-top: auto; padding-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+.dcn-sign h4 { margin-bottom: 4px; }
+.dcn-art { display: flex; align-items: center; gap: 8px; min-height: 84px; }
+.dcn-art .ix-signature { margin: 0; }
+.dcn-blank { justify-content: flex-end; }
+.dcn-blank span { width: 84px; height: 84px; border: 1.5px dashed #B8C2CC; border-radius: 50%; display: grid; place-items: center; text-align: center; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #8A95A1; }
+.dcn-line { border-top: 1.5px solid var(--ix-ink); padding-top: 5px; display: grid; }
+.dcn-line b { font-size: 13px; font-weight: 800; }
+.dcn-line span { font-size: 10.5px; color: var(--ix-soft); }
+.dcn-fill { display: grid; grid-template-columns: auto 1fr; gap: 9px 10px; align-items: end; border-top: 1.5px solid var(--ix-ink); padding-top: 9px; }
+.dcn-fill span { font-size: 10.5px; color: var(--ix-soft); white-space: nowrap; }
+.dcn-fill i { display: block; border-bottom: 1px dotted #8A95A1; height: 12px; }
+.dcn-panel { max-width: 794px; margin: 0 auto 14px; }
+.dcn-panel details summary { cursor: pointer; font-weight: 600; margin: 4px 0 8px; }
+.qt-top dl div { grid-template-columns: auto auto; }
+.qt-top dt { white-space: nowrap; }
+.dcn-table th.dcn-rm { color: #fff; }
+.dcn-parties .qt-to { margin-bottom: 12px; }
