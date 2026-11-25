@@ -217,7 +217,7 @@ export default function NewQuotation() {
                     </div>
                   </div>
                   <Field label="Description" hint="Type to pick a product or service from your store."><input list="qt-catalog" value={it.name} onChange={(e) => setItem(i, { name: e.target.value })} /></Field>
-                  <Field label="Sub-line (model, specification, warranty)"><input value={it.note} onChange={(e) => setItem(i, { note: e.target.value })} /></Field>
+                  <Field label="Details under the item" hint="Brand, model, serial no., warranty… Each new line prints on its own line."><textarea rows={3} value={it.note} onChange={(e) => setItem(i, { note: e.target.value })} /></Field>
                   <div className="ni-3">
                     <Field label="Unit"><select value={it.unit} onChange={(e) => setItem(i, { unit: e.target.value })}>{UNITS.map((u) => <option key={u} value={u}>{u || '—'}</option>)}</select></Field>
                     <Field label="Qty"><input inputMode="numeric" value={it.quantity} onChange={(e) => setItem(i, { quantity: e.target.value })} /></Field>

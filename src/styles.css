@@ -2109,3 +2109,5 @@ input[type="color"] { width: 44px; height: 34px; padding: 2px; border-radius: 8p
 .qt-top dt { white-space: nowrap; }
 .dcn-table th.dcn-rm { color: #fff; }
 .dcn-parties .qt-to { margin-bottom: 12px; }
+/* item details under a line (brand, model, serial no.) keep the line breaks typed in the form */
+.ix-table td small { white-space: pre-line; line-height: 1.5; }
